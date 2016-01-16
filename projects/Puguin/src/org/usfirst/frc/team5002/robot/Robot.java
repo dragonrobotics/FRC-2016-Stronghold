@@ -2,6 +2,9 @@
 package org.usfirst.frc.team5002.robot;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
@@ -15,13 +18,25 @@ import org.usfirst.frc.team5002.robot.commands.ExampleCommand;
  * directory.
  */
 public class Robot extends IterativeRobot {
+	private Joystick stick;
+	private Talon mc1, mc2, mc3, mc4, mc5, mc6;
+	private RobotDrive drive;
 
+	public Robot() {
+		stick = new Joystick(0);
+		mc1 = new Talon(0);
+		mc2 = new Talon(1); 
+		mc3 = new Talon(2);
+		mc4 = new Talon(3);
+		mc5 = new Talon(4);
+		mc6 = new Talon(5);
+		drive = new RobotDrive(mc1, mc2, mc3, mc4, mc5, mc6); }
 //	public static final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
 	public static OI oi;
 
     Command autonomousCommand;
 
-    /**
+    /** 
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
      */
