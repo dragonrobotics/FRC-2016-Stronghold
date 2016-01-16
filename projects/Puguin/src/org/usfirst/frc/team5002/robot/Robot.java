@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import org.usfirst.frc.team5002.robot.commands.ExampleCommand;
+import org.usfirst.frc.team5002.robot.subsystems.Drivetrain;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -18,24 +19,17 @@ import org.usfirst.frc.team5002.robot.commands.ExampleCommand;
  * directory.
  */
 public class Robot extends IterativeRobot {
-	private Joystick stick;
-	private Talon mc1, mc2, mc3, mc4, mc5, mc6;
-	private RobotDrive drive;
-
-	public Robot() {
-		stick = new Joystick(0);
-		mc1 = new Talon(0);
-		mc2 = new Talon(1); 
-		mc3 = new Talon(2);
-		mc4 = new Talon(3);
-		mc5 = new Talon(4);
-		mc6 = new Talon(5);
-		drive = new RobotDrive(mc1, mc2, mc3, mc4, mc5, mc6); }
-//	public static final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
+	
+	//	public static final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
+	public static final Drivetrain drivetrain = new Drivetrain();
 	public static OI oi;
 
     Command autonomousCommand;
 
+    public Robot() {
+		
+	}
+    
     /** 
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -51,6 +45,8 @@ public class Robot extends IterativeRobot {
 	}
 
     public void autonomousInit() {
+    	drivetrain.initAutonomous();
+    	
         // schedule the autonomous command (example)
         if (autonomousCommand != null) autonomousCommand.start();
     }
@@ -68,6 +64,8 @@ public class Robot extends IterativeRobot {
         // continue until interrupted by another command, remove
         // this line or comment it out.
         if (autonomousCommand != null) autonomousCommand.cancel();
+        
+        drivetrain.initTeleop();
     }
 
     /**
