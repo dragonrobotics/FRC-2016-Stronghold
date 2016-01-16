@@ -1,5 +1,10 @@
 package trajectory;
 
+/***
+ * Container for derivative values for the integrator.
+ * @author Sebastian Mobo
+ *
+ */
 public class BoulderDeriviation {
 
 	Double velX;
@@ -7,8 +12,10 @@ public class BoulderDeriviation {
 	Double accX;
 	Double accY;
 	
+	/***
+	 * Create a new, empty BoulderDeriviation.
+	 */
 	public BoulderDeriviation() {
-		// TODO Auto-generated constructor stub
 		this.velX = new Double(0.0);
 		this.velY = new Double(0.0);
 		this.accX = new Double(0.0);

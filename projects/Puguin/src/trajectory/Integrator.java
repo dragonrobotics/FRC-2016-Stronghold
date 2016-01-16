@@ -1,9 +1,22 @@
 package trajectory;
 
+/***
+ * A classical order-4 Runge-Kutta integrator that integrates position and velocity over time.
+ * @author Sebastian Mobo
+ *
+ */
 public class Integrator {
 
 	AccelerateFunction accFunc;
 	
+	/***
+	 * Calculate an intermediate derivative value.
+	 * @param prevState State during previous step in integration 
+	 * @param prevDeriv Intermediate derivative values to calculate from
+	 * @param time Current time
+	 * @param delta Time between steps
+	 * @return Intermediate derivative values for use in integration step
+	 */
 	public BoulderDeriviation derive(BoulderState prevState, BoulderDeriviation prevDeriv, double time, double delta) {
 		BoulderState tmpState = new BoulderState();
 		
@@ -23,6 +36,14 @@ public class Integrator {
 		return newDeriv;
 	}
 	
+	/***
+	 * Calculate new position and velocity.
+	 * 
+	 * @param state State to integrate from
+	 * @param time Current time to integrate from
+	 * @param delta Time between steps
+	 * @return Nothing; values are returned in the passed in {@code state} object.
+	 */
 	public void integrate(BoulderState state, double time, double delta) {
 		BoulderDeriviation a = this.derive(state, new BoulderDeriviation(), time, 0.0);
 		BoulderDeriviation b = this.derive(state, a, time, delta/2);
@@ -42,6 +63,10 @@ public class Integrator {
 		state.velY = new Double(state.velY.doubleValue() + (d_velY_dt * delta));
 	}
 	
+	/***
+	 * Creates a new Integrator.
+	 * @param f Function used to calculate acceleration during integration.
+	 */
 	public Integrator(AccelerateFunction f) {
 		this.accFunc = f;
 	}

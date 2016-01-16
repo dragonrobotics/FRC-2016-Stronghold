@@ -1,11 +1,27 @@
 package trajectory;
 
+/***
+ * Calculates ballistic trajectories using the Integrator.
+ * @author Sebastian Mobo
+ *
+ */
 public class Simulator {
+	/***
+	 * Time between steps in the integration.
+	 * Smaller timesteps are more precise but take more work to calculate.
+	 */
 	static final double timestep = 0.05;
 	final double mass;
 	
 	Integrator integrator;
 	
+	/***
+	 * Simulate a projectile launch.
+	 * @param launchAngle Angle to launch at, in degrees.
+	 * @param launchPower Force to launch with, in newtons.
+	 * @param launchElevation Initial elevation of projectile.
+	 * @return Trajectory data points from the launch.
+	 */
 	public Trajectory simulate(double launchAngle, double launchPower, double launchElevation) {
 		BoulderState curState = new BoulderState();
 		double curTime = 0.0;
@@ -30,8 +46,14 @@ public class Simulator {
 		return traj;
 	}
 	
-	/* Attempt to find a suitable launch angle given launch power and elevation. 
-	 * Returned values should at least be near the goal, but may not actually reach the goal. */
+	/***
+	 * Attempts to find a launch angle given a launch power, elevation, and the distance to a 2016 FRC goal.
+	 * Returned values should at least be near the goal, but may not actually reach the goal if given extremely low power settings.
+	 * @param goalDistance Distance from goal (high tower, FRC Stronghold 2016)
+	 * @param launchPower Force of launch
+	 * @param launchElevation Initial height of projectile
+	 * @return Best launch angle found and trajectory
+	 */
 	public SimulatorLaunch findLaunchAngle(Double goalDistance, double launchPower, double launchElevation) {
 		Trajectory bestGuess = null;
 		double guessAngle = 0.0;
@@ -74,6 +96,11 @@ public class Simulator {
 		return new SimulatorLaunch(guessAngle, bestGuess);
 	}
 	
+	/***
+	 * Constructs a new Simulator.
+	 * @param accF Acceleration function, passed to Integrator constructor
+	 * @param m Mass of projectiles to simulate.
+	 */
 	public Simulator(AccelerateFunction accF, double m) {
 		integrator = new Integrator(accF);
 		mass = m;

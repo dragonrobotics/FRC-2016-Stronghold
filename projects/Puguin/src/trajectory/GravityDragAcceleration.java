@@ -1,5 +1,10 @@
 package trajectory;
 
+/***
+ * An acceleration function that models gravity and air resistance for spherical objects.
+ * @author Sebastian Mobo
+ *
+ */
 public class GravityDragAcceleration extends AccelerateFunction {
 	static final double air_density = 1.225; // kg / m^3
 	static final double gravity = 9.81; // m / s^2
@@ -26,6 +31,13 @@ public class GravityDragAcceleration extends AccelerateFunction {
 	 * diameter is in meters
 	 * Cd = drag coefficient (dimensionless)
 	 * m = mass (kg)
+	 */
+	/***
+	 * Create a GravityDragAcceleration that models drag for an object with the given parameters.
+	 * Note: can only model objects with a spherical cross-section.
+	 * @param diameter: diameter of the object to model
+	 * @param Cd: Drag coefficient of the object to model
+	 * @param m: Mass of the object to model
 	 */
 	public GravityDragAcceleration(double diameter, double Cd, double m) {
 		// cross sectional area = pi * r**2 (or equivalently (1/4)*pi*d**2)

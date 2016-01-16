@@ -1,5 +1,10 @@
 package trajectory;
 
+/***
+ * Holds position and velocity for simulated / integrated objects.
+ * @author Sebastian Mobo
+ *
+ */
 public class BoulderState {
 
 	Double posX;
@@ -7,6 +12,9 @@ public class BoulderState {
 	Double velX;
 	Double velY;
 	
+	/***
+	 * Create a new, empty BoulderState.
+	 */
 	public BoulderState() {
 		this.posX = new Double(0.0d);
 		this.posY = new Double(0.0d);
