@@ -43,8 +43,7 @@ public class Drivetrain extends Subsystem {
 	}
 
 	public void initDefaultCommand() {
-		// Set the default command for a subsystem here.
-		// setDefaultCommand(new MySpecialCommand());
+		 setDefaultCommand(new MySpecialCommand());
 	}
 	
 	public void initTeleop() {
@@ -58,8 +57,10 @@ public class Drivetrain extends Subsystem {
 	}
 
 	public void joystickDrive(Joystick stick) {
-
-	}
+		mc1.set(stick.getY() + stick.getX());
+		mc4.set(stick.getY() + stick.getX());
+		 
+	} 
 
 	public void joystickFOCDrive(Joystick stick) {
 
