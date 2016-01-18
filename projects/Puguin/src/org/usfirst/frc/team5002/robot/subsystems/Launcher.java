@@ -1,5 +1,6 @@
 package org.usfirst.frc.team5002.robot.subsystems;
 
+import org.usfirst.frc.team5002.robot.commands.LauncherDefault;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.command.Subsystem;
@@ -32,13 +33,11 @@ public class Launcher extends Subsystem {
     	leftLaunchWheel.set(0);
     	rightLaunchWheel.set(0);
     }
-	
-    // Put methods for controlling this subsystem
-    // here. Call these from Commands.
 
     public void initDefaultCommand() {
         // Set the default command for a subsystem here.
         //setDefaultCommand(new MySpecialCommand());
+    	setDefaultCommand(new LauncherDefault());
     }
 }
 
