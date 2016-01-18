@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * interface to the commands and command groups that allow control of the robot.
  */
 public class OI {
-	pri vate Joystick XboxController;
+	private Joystick XboxController;
 	
 	
 public OI() {	
