@@ -5,7 +5,9 @@ import edu.wpi.first.wpilibj.command.Command;
 import org.usfirst.frc.team5002.robot.Robot;
 
 /**
- *
+ * Default command for Belt subsystem: stops belt motors.
+ * 
+ * Requires belt subsystem.
  */
 public class BeltDefault extends Command {
 

@@ -20,24 +20,33 @@ public class Belt extends Subsystem {
     	rightBelt.changeControlMode(TalonControlMode.PercentVbus);
     }
     
+    /*** 
+     * Run belt motors at max speed.
+     */
     public void run() {
     	leftBelt.set(1.0);
     	rightBelt.set(-1.0);
     }
     
+    /***
+     * Run belt motors at specified speed.
+     * 
+     * @param percentSpeed Speed to run motors at, range: -1.0 to 1.0 (max backwards to max forwards). See motor set() method.
+     */
     public void run(double percentSpeed) {
     	leftBelt.set(percentSpeed);
     	rightBelt.set(percentSpeed);
     }
     
+    /***
+     * Stop both belt motors.
+     */
     public void stop() {
     	leftBelt.set(0);
     	rightBelt.set(0);
     }
 
     public void initDefaultCommand() {
-        // Set the default command for a subsystem here.
-        //setDefaultCommand(new MySpecialCommand());
     	setDefaultCommand(new BeltDefault());
     }
 }

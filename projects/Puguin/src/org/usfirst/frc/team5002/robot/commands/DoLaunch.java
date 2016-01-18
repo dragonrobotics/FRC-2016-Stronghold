@@ -5,7 +5,9 @@ import org.usfirst.frc.team5002.robot.Robot;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- *
+ * Command to do max-power launches.
+ * 
+ * Requires Belt and Launcher subsystems.
  */
 public class DoLaunch extends Command {
 

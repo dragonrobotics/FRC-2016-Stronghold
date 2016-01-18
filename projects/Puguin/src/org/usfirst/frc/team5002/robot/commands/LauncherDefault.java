@@ -5,7 +5,9 @@ import edu.wpi.first.wpilibj.command.Command;
 import org.usfirst.frc.team5002.robot.Robot;
 
 /**
+ * Default command for launcher subsystem: stops launcher motors.
  *
+ * Requires launcher subsystem.
  */
 public class LauncherDefault extends Command {
 
