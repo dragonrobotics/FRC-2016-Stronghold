@@ -9,7 +9,9 @@ import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import org.usfirst.frc.team5002.robot.commands.ExampleCommand;
+import org.usfirst.frc.team5002.robot.subsystems.Belt;
 import org.usfirst.frc.team5002.robot.subsystems.Drivetrain;
+import org.usfirst.frc.team5002.robot.subsystems.Launcher;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -22,6 +24,8 @@ public class Robot extends IterativeRobot {
 	
 	//	public static final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
 	public static final Drivetrain drivetrain = new Drivetrain();
+	public static final Launcher launcher = new Launcher();
+	public static final Belt belt = new Belt();
 	public static OI oi;
 
     Command autonomousCommand;
