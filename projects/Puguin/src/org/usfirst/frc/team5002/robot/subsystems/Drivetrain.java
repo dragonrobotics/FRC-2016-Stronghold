@@ -1,7 +1,7 @@
 package org.usfirst.frc.team5002.robot.subsystems;
 
 import edu.wpi.first.wpilibj.CANTalon;
-import edu.wpi.first.wpilibj.CANTalon.ControlMode;
+import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Subsystem;
@@ -23,12 +23,12 @@ public class Drivetrain extends Subsystem {
 		mc5 = new CANTalon(5);
 		mc6 = new CANTalon(6);
 
-		mc1.changeControlMode(ControlMode.Position);		
-		mc2.changeControlMode(ControlMode.Follower);
-		mc3.changeControlMode(ControlMode.Follower);
-		mc4.changeControlMode(ControlMode.Position);		
-		mc5.changeControlMode(ControlMode.Follower);
-		mc6.changeControlMode(ControlMode.Follower);
+		mc1.changeControlMode(TalonControlMode.Position);		
+		mc2.changeControlMode(TalonControlMode.Follower);
+		mc3.changeControlMode(TalonControlMode.Follower);
+		mc4.changeControlMode(TalonControlMode.Position);		
+		mc5.changeControlMode(TalonControlMode.Follower);
+		mc6.changeControlMode(TalonControlMode.Follower);
 
 		mc1.setFeedbackDevice(FeedbackDevice.QuadEncoder);
 		mc4.setFeedbackDevice(FeedbackDevice.QuadEncoder);
@@ -47,13 +47,13 @@ public class Drivetrain extends Subsystem {
 	}
 	
 	public void initTeleop() {
-		mc1.changeControlMode(ControlMode.Speed);
-		mc4.changeControlMode(ControlMode.Speed);
+		mc1.changeControlMode(TalonControlMode.Speed);
+		mc4.changeControlMode(TalonControlMode.Speed);
 	}
 	
 	public void initAutonomous() {
-		mc1.changeControlMode(ControlMode.Position);
-		mc4.changeControlMode(ControlMode.Position);
+		mc1.changeControlMode(TalonControlMode.Position);
+		mc4.changeControlMode(TalonControlMode.Position);
 	}
 
 	public void joystickDrive(Joystick stick) {
