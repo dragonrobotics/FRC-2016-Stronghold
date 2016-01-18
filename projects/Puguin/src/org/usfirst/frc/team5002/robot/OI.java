@@ -11,24 +11,24 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * interface to the commands and command groups that allow control of the robot.
  */
 public class OI {
-	private Joystick stick;
+	private Joystick XboxController;
 	;
 	
 public OI() {	
-	stick = new Joystick(0);
+	 XboxController = new Joystick(0);
 	
-    Button button1 = new JoystickButton(stick, 1); //** I have not set the buttons to anything
-    Button button2 = new JoystickButton(stick, 2); // so they don't have a "name"
-    Button button3 = new JoystickButton(stick, 3);
-    Button button4 = new JoystickButton(stick, 4);
-    Button button5 = new JoystickButton(stick, 5);
-    Button button6 = new JoystickButton(stick, 6);
-    Button button7 = new JoystickButton(stick, 7);
-    Button button8 = new JoystickButton(stick, 8);
-    Button button9 = new JoystickButton(stick, 9);
-    Button button10 = new JoystickButton(stick, 10);
-    Button button11 = new JoystickButton(stick, 11);
-    Button button12 = new JoystickButton(stick, 12);
+    Button X = new JoystickButton(XboxController, 1); //** I have not set the buttons to anything
+    Button Y = new JoystickButton(XboxController, 2); // so they don't have a "name"
+    Button B = new JoystickButton(XboxController, 3);
+    Button A = new JoystickButton(XboxController, 4);
+    Button Paddle_1 = new JoystickButton(XboxController, 5);
+    Button Paddle_2 = new JoystickButton(XboxController, 6);
+    Button Paddle_3 = new JoystickButton(XboxController, 7);
+    Button Paddle_4 = new JoystickButton(XboxController, 8);
+    Button RT = new JoystickButton(XboxController, 9);
+    Button LT = new JoystickButton(XboxController, 10);
+    Button RB = new JoystickButton(XboxController, 11);
+    Button LB = new JoystickButton(XboxController, 12);
 	
 	    
 	}
