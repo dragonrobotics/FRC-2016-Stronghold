@@ -16,6 +16,8 @@ public class OI {
 	
 public OI() {	
 	 XboxController = new Joystick(0);
+	 	XboxController.getRawAxis(0);
+	 	
 	
     Button X = new JoystickButton(XboxController, 1); //** I have not set the buttons to anything
     Button Y = new JoystickButton(XboxController, 2); // so they don't have a "name"
