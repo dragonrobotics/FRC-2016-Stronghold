@@ -1,5 +1,7 @@
 package org.usfirst.frc.team5002.robot.subsystems;
 
+import org.usfirst.frc.team5002.robot.commands.TeleopDriveyWivey;
+
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
@@ -43,7 +45,7 @@ public class Drivetrain extends Subsystem {
 	}
 
 	public void initDefaultCommand() {
-		 setDefaultCommand(new MySpecialCommand());
+		 setDefaultCommand(new TeleopDriveyWivey());
 	}
 	
 	public void initTeleop() {
@@ -58,7 +60,7 @@ public class Drivetrain extends Subsystem {
 
 	public void joystickDrive(Joystick stick) {
 		mc1.set(stick.getY() + stick.getX());
-		mc4.set(stick.getY() + stick.getX());
+		mc4.set(stick.getY() - stick.getX());
 		 
 	} 
 
