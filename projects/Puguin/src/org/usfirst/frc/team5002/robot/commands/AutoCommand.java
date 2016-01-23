@@ -1,17 +1,15 @@
 package org.usfirst.frc.team5002.robot.commands;
 
-import org.usfirst.frc.team5002.robot.Robot;
-
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
  *
  */
-public class TeleopDriveyWivey extends Command {
+public class AutoCommand extends Command {
 
-    public TeleopDriveyWivey() {
-        requires(Robot.drivetrain);
-        
+    public AutoCommand() {
+        // Use requires() here to declare subsystem dependencies
+        // eg. requires(chassis);
     }
 
     // Called just before this Command runs the first time
@@ -20,7 +18,6 @@ public class TeleopDriveyWivey extends Command {
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
-    	Robot.drivetrain.joystickDrive(Robot.oi.getJoystick());
     }
 
     // Make this return true when this Command no longer needs to run execute()
