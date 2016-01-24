@@ -59,8 +59,8 @@ public class Drivetrain extends Subsystem {
 	}
 
 	public void joystickDrive(Joystick stick) {
-		mc1.set(stick.getY() + stick.getX());
-		mc4.set(stick.getY() - stick.getX());
+		mc1.set(stick.getY() - stick.getX());
+		mc4.set(stick.getY() + stick.getX());
 		 
 	} 
 

@@ -16,7 +16,8 @@ public class OI {
 	
 public OI() {	
 	 XboxController = new Joystick(0);
-	 	XboxController.getRawAxis(0);
+	 	XboxController.getRawAxis(1);
+	 	XboxController.getRawAxis(2);
 	 	
 	
     Button X = new JoystickButton(XboxController, 1); //** I have not set the buttons to anything
@@ -60,9 +61,10 @@ public OI() {
     // Start the command when the button is released  and let it run the command
     // until it is finished as determined by it's isFinished method.
     // button.whenReleased(new ExampleCommand());
-public Joystick getJoystick(){
-	return XboxController;
-}
+	public Joystick getJoystick(){
+		return XboxController;
+	
+	}
 }
 
 
