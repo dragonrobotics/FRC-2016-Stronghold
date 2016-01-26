@@ -3,8 +3,7 @@ package org.usfirst.frc.team5002.robot;
 import org.usfirst.frc.team5002.robot.commands.BeltDefault;
 import org.usfirst.frc.team5002.robot.commands.DoLaunch;
 import org.usfirst.frc.team5002.robot.commands.ExampleCommand;
-import org.usfirst.frc.team5002.robot.commands.FireKoala;
-import org.usfirst.frc.team5002.robot.commands.SetCookieProduction;
+
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.Button;
