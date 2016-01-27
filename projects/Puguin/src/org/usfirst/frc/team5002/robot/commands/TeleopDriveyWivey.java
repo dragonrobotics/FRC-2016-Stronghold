@@ -20,6 +20,7 @@ public class TeleopDriveyWivey extends Command {
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
+    	Robot.drivetrain.joystickDrive(Robot.oi.getJoystick());
     }
 
     // Make this return true when this Command no longer needs to run execute()
@@ -34,6 +35,6 @@ public class TeleopDriveyWivey extends Command {
     // Called when another command which requires one or more of the same
     // subsystems is scheduled to run
     protected void interrupted() {
-    	Robot.drivetrain.joystickDrive(Robot.oi.getJoystick());
+    	
     }
 }

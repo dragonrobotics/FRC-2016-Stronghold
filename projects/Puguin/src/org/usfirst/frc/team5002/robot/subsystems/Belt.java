@@ -1,6 +1,6 @@
 package org.usfirst.frc.team5002.robot.subsystems;
 
-import org.usfirst.frc.team5002.robot.commands.BeltDefault;
+
 
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
@@ -11,8 +11,7 @@ import edu.wpi.first.wpilibj.command.Subsystem;
  */
 public class Belt extends Subsystem {
 	private CANTalon leftBelt, rightBelt;
-	boolean leftReverse = false;
-    boolean rightReverse = true;
+
     
     public Belt() {
     	leftBelt = new CANTalon(3); /* TODO: Replace this with the actual motor id */
@@ -26,8 +25,8 @@ public class Belt extends Subsystem {
      * Run belt motors at max speed.
      */
     public void run() {
-    	leftBelt.set(1.0 * (leftReverse ? -1.0 : 1.0));
-    	rightBelt.set(1.0 * (rightReverse ? -1.0 : 1.0));
+    	leftBelt.set(1.0);
+    	rightBelt.set(-1.0);
     }
     
     /***
@@ -36,26 +35,19 @@ public class Belt extends Subsystem {
      * @param percentSpeed Speed to run motors at, range: -1.0 to 1.0 (max backwards to max forwards). See motor set() method.
      */
     public void run(double percentSpeed) {
-    	leftBelt.set(percentSpeed * (leftReverse ? -1.0 : 1.0));
-    	rightBelt.set(percentSpeed * (rightReverse ? -1.0 : 1.0));
+    	leftBelt.set(percentSpeed);
+    	rightBelt.set(percentSpeed);
     }
     
     /*** 
      * Run belt motors at max speed in reverse direction.
      */
     public void runBackwards() {
-    	leftBelt.set(-1.0 * (leftReverse ? -1.0 : 1.0));
-    	rightBelt.set(-1.0 * (rightReverse ? -1.0 : 1.0));
+    	leftBelt.set(-1.0);
+    	rightBelt.set(1.0);
     }
     
-    /***
-     * Invert all outputs to motor.
-     */
-    public void reverseMotorDirection() {
-    	leftReverse = !leftReverse;
-    	rightReverse = !rightReverse;
-    }
-    
+
     /***
      * Stop both belt motors.
      */
@@ -65,7 +57,7 @@ public class Belt extends Subsystem {
     }
 
     public void initDefaultCommand() {
-    	setDefaultCommand(new BeltDefault());
     }
 }
+
 
