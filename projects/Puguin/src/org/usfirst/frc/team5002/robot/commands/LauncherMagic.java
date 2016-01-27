@@ -1,20 +1,18 @@
 package org.usfirst.frc.team5002.robot.commands;
 
-import edu.wpi.first.wpilibj.command.Command;
-
 import org.usfirst.frc.team5002.robot.Robot;
 
-/**
- * Default command for launcher subsystem: stops launcher motors.
- *
- * Requires launcher subsystem.
- */
-public class LauncherDefault extends Command {
+import edu.wpi.first.wpilibj.command.Command;
 
-    public LauncherDefault() {
+/**
+ *
+ */
+public class LauncherMagic extends Command {
+
+    public LauncherMagic() {
+    	requires(Robot.launcher);
         // Use requires() here to declare subsystem dependencies
         // eg. requires(chassis);
-    	requires(Robot.launcher);
     }
 
     // Called just before this Command runs the first time
@@ -23,7 +21,13 @@ public class LauncherDefault extends Command {
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
-    	Robot.launcher.stop();
+    //TODO: if switch is pressed then robot.launcher.run(); else Robot.launcher.stop();
+    	if (Robot.launcher.getballswitch()){
+    		Robot.launcher.run();
+    	}
+    	else {
+    		Robot.launcher.stop();
+    	}
     }
 
     // Make this return true when this Command no longer needs to run execute()
@@ -33,6 +37,7 @@ public class LauncherDefault extends Command {
 
     // Called once after isFinished returns true
     protected void end() {
+    	Robot.launcher.stop();
     }
 
     // Called when another command which requires one or more of the same

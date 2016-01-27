@@ -1,8 +1,8 @@
 package org.usfirst.frc.team5002.robot.subsystems;
 
-import org.usfirst.frc.team5002.robot.commands.LauncherDefault;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.command.Subsystem;
 
 /**
@@ -10,22 +10,31 @@ import edu.wpi.first.wpilibj.command.Subsystem;
  */
 public class Launcher extends Subsystem {
     private CANTalon leftLaunchWheel, rightLaunchWheel;
-    
+    private DigitalInput ballswitch;
     public Launcher() {
     	leftLaunchWheel = new CANTalon(2); /* TODO: Replace this with the actual motor id */
     	rightLaunchWheel = new CANTalon(1);
-    	
+    	ballswitch=new DigitalInput(0); //TODO: Replace this with the actual port
     	leftLaunchWheel.changeControlMode(TalonControlMode.PercentVbus);
     	rightLaunchWheel.changeControlMode(TalonControlMode.PercentVbus);
+    }
+    
+    /**
+     * Ball on switch or na.
+     * @return state of the switch
+     */
+    public boolean getballswitch(){
+    	return ballswitch.get();
     }
     
     /***
      * Run Launcher motors at max speed.
      */
     public void run() {
-    	leftLaunchWheel.set(1.0);
-    	rightLaunchWheel.set(-1.0);
+    	leftLaunchWheel.set(-1.0);
+    	rightLaunchWheel.set(1.0);
     }
+    
     
     /***
      * Run launcher motors at specified speed.
@@ -34,7 +43,7 @@ public class Launcher extends Subsystem {
      */
     public void run(double speed) {
     	leftLaunchWheel.set(speed);
-    	rightLaunchWheel.set(-speed);
+    	rightLaunchWheel.set(speed);
     }
     
     /***
@@ -44,9 +53,9 @@ public class Launcher extends Subsystem {
     	leftLaunchWheel.set(0);
     	rightLaunchWheel.set(0);
     }
+    
 
     public void initDefaultCommand() {
-    	setDefaultCommand(new LauncherDefault());
     }
 }
 

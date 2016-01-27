@@ -7,20 +7,28 @@ import edu.wpi.first.wpilibj.command.Command;
 /**
  *
  */
-public class TeleopDriveyWivey extends Command {
+public class BeltMagic extends Command {
 
-    public TeleopDriveyWivey() {
-    	requires(Robot.drivetrain);
-
+    public BeltMagic() {
+        // Use requires() here to declare subsystem dependencies
+        // eg. requires(chassis);
+    	requires(Robot.belt);
     }
 
     // Called just before this Command runs the first time
     protected void initialize() {
+    	
     }
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
-    	Robot.drivetrain.joystickDrive(Robot.oi.getJoystick());
+    //TODO:if switch is not activated then run, else stop
+    	if (Robot.launcher.getballswitch()){
+    		Robot.belt.stop();
+    	}
+    	else {
+    		Robot.belt.run();
+    	}
     }
 
     // Make this return true when this Command no longer needs to run execute()
@@ -30,11 +38,11 @@ public class TeleopDriveyWivey extends Command {
 
     // Called once after isFinished returns true
     protected void end() {
+    	Robot.belt.stop();
     }
 
     // Called when another command which requires one or more of the same
     // subsystems is scheduled to run
     protected void interrupted() {
-    	
     }
 }
