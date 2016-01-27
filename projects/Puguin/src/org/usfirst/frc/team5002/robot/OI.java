@@ -1,6 +1,8 @@
 package org.usfirst.frc.team5002.robot;
 
 import org.usfirst.frc.team5002.robot.commands.BeltDefault;
+import org.usfirst.frc.team5002.robot.commands.BeltMagic;
+import org.usfirst.frc.team5002.robot.commands.BeltWizardry;
 import org.usfirst.frc.team5002.robot.commands.DoLaunch;
 import org.usfirst.frc.team5002.robot.commands.ExampleCommand;
 
@@ -44,9 +46,9 @@ public class OI {
 		Paddle_3.whileHeld(new ExampleCommand());
 		Paddle_4.whileHeld(new ExampleCommand());
 		RT.whileHeld(new DoLaunch());
-		LT.whileHeld(new BeltDefault());
+		LT.whileHeld(new BeltMagic());
 		RB.whileHeld(new DoLaunch());
-		LB.whileHeld(new BeltDefault());
+		LB.whileHeld(new BeltWizardry());
 		
 		
 	}
