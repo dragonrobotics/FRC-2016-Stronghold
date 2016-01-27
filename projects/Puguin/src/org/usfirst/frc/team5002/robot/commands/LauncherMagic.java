@@ -21,7 +21,13 @@ public class LauncherMagic extends Command {
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
-    	Robot.launcher.run();
+    //TODO: if switch is pressed then robot.launcher.run(); else Robot.launcher.stop();
+    	if (Robot.launcher.getballswitch()){
+    		Robot.launcher.run();
+    	}
+    	else {
+    		Robot.launcher.stop();
+    	}
     }
 
     // Make this return true when this Command no longer needs to run execute()
