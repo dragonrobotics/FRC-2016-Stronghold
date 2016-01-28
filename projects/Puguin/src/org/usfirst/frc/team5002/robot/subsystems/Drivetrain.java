@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.command.Subsystem;
  *
  */
 public class Drivetrain extends Subsystem {
-	public CANTalon mc1, mc2, mc3, mc4, mc5, mc6;
+	private CANTalon mc1, mc2, mc3, mc4, mc5, mc6;
 
 	/**
 	 * constructor for drivetrain initializes CANTalon stuff
@@ -43,7 +43,15 @@ public class Drivetrain extends Subsystem {
 		mc5.set(4);
 		mc6.set(4);
 	}
+	
+	public double getLeftControlData() {
+		return mc1.get();
+	}
 
+	public double getRightControlData() {
+		return mc4.get();
+	}
+	
 	public void initDefaultCommand() {
 		 setDefaultCommand(new TeleopDriveyWivey());
 	}

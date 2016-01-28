@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import org.usfirst.frc.team5002.robot.commands.ExampleCommand;
+import org.usfirst.frc.team5002.robot.commands.GetOdometryData;
 import org.usfirst.frc.team5002.robot.subsystems.Belt;
 import org.usfirst.frc.team5002.robot.subsystems.Drivetrain;
 import org.usfirst.frc.team5002.robot.subsystems.Launcher;
@@ -26,6 +27,7 @@ public class Robot extends IterativeRobot {
 	public static final Drivetrain drivetrain = new Drivetrain();
 	public static final Launcher launcher = new Launcher();
 	public static final Belt belt = new Belt();
+	public static final LocationState loc = new LocationState();
 	public static OI oi;
 
     Command autonomousCommand;
@@ -50,6 +52,7 @@ public class Robot extends IterativeRobot {
 
     public void autonomousInit() {
     	drivetrain.initAutonomous();
+    	Scheduler.getInstance().add(new GetOdometryData());
     	
         // schedule the autonomous command (example)
         if (autonomousCommand != null) autonomousCommand.start();
@@ -59,7 +62,11 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during autonomous
      */
     public void autonomousPeriodic() {
+    	loc.update();
+    	
         Scheduler.getInstance().run();
+        
+        Scheduler.getInstance().add(new GetOdometryData());
     }
 
     public void teleopInit() {
@@ -68,6 +75,8 @@ public class Robot extends IterativeRobot {
         // continue until interrupted by another command, remove
         // this line or comment it out.
         if (autonomousCommand != null) autonomousCommand.cancel();
+        
+        Scheduler.getInstance().add(new GetOdometryData());
         
         drivetrain.initTeleop();
     }
@@ -84,7 +93,11 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
+    	loc.update();
+    	
         Scheduler.getInstance().run();
+        
+        Scheduler.getInstance().add(new GetOdometryData());
     }
     
     /**
