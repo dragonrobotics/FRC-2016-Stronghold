@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.command.Subsystem;
  *
  */
 public class Drivetrain extends Subsystem {
-	private CANTalon mc1, mc2, mc3, mc4, mc5, mc6;
+	public CANTalon mc1, mc2, mc3, mc4, mc5, mc6;
 
 	/**
 	 * constructor for drivetrain initializes CANTalon stuff
