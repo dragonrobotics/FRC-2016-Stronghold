@@ -31,8 +31,8 @@ public class Launcher extends Subsystem {
      * Run Launcher motors at max speed.
      */
     public void run() {
-    	leftLaunchWheel.set(-1.0);
-    	rightLaunchWheel.set(1.0);
+    	leftLaunchWheel.set(-.5);
+    	rightLaunchWheel.set(.5);
     }
     
     
