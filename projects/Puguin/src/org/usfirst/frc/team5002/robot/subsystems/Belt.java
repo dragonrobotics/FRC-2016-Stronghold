@@ -25,8 +25,8 @@ public class Belt extends Subsystem {
      * Run belt motors at max speed.
      */
     public void run() {
-    	leftBelt.set(1.0);
-    	rightBelt.set(-1.0);
+    	leftBelt.set(.2);
+    	rightBelt.set(-.2);
     }
     
     /***
@@ -43,8 +43,8 @@ public class Belt extends Subsystem {
      * Run belt motors at max speed in reverse direction.
      */
     public void runBackwards() {
-    	leftBelt.set(-1.0);
-    	rightBelt.set(1.0);
+    	leftBelt.set(-.2);
+    	rightBelt.set(.2);
     }
     
 
