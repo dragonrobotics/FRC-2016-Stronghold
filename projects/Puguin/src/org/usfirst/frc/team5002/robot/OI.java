@@ -2,6 +2,7 @@ package org.usfirst.frc.team5002.robot;
 
 import org.usfirst.frc.team5002.robot.commands.BeltMagic;
 import org.usfirst.frc.team5002.robot.commands.BeltWizardry;
+import org.usfirst.frc.team5002.robot.commands.DoLaunch;
 import org.usfirst.frc.team5002.robot.commands.ExampleCommand;
 import org.usfirst.frc.team5002.robot.commands.LauncherMagic;
 
@@ -56,9 +57,9 @@ public class OI {
 	Button LB = new JoystickButton(bloop, 4);
 	
 	
-	RT.whileHeld(new LauncherMagic());
+	RT.whileHeld(new DoLaunch());
 	LT.whileHeld(new BeltMagic());
-	RB.whileHeld(new LauncherMagic());
+	RB.whileHeld(new DoLaunch());
 	LB.whileHeld(new BeltWizardry()); }
 	
 	
