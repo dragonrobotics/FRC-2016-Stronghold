@@ -16,6 +16,7 @@ public class DoLaunch extends Command {
         // eg. requires(chassis);
     	requires(Robot.launcher);
     	requires(Robot.belt);
+    	this.setTimeout(5);
     }
 
     // Called just before this Command runs the first time
@@ -26,12 +27,14 @@ public class DoLaunch extends Command {
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
     	Robot.launcher.run();
-    	Robot.belt.run();
+    	if (this.timeSinceInitialized()>1){
+    		Robot.belt.run();
+    	}
     }
 
     // Make this return true when this Command no longer needs to run execute()
     protected boolean isFinished() {
-        return false;
+        return this.isTimedOut();
     }
 
     // Called once after isFinished returns true
@@ -43,5 +46,6 @@ public class DoLaunch extends Command {
     // Called when another command which requires one or more of the same
     // subsystems is scheduled to run
     protected void interrupted() {
+    	end();
     }
 }

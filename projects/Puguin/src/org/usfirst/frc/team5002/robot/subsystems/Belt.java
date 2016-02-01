@@ -14,19 +14,19 @@ public class Belt extends Subsystem {
 
     
     public Belt() {
-    	leftBelt = new CANTalon(3); /* TODO: Replace this with the actual motor id */
-    	rightBelt = new CANTalon(4);
+    	leftBelt = new CANTalon(2); /* TODO: Replace this with the actual motor id */
+//    	rightBelt = new CANTalon(4);
     	
     	leftBelt.changeControlMode(TalonControlMode.PercentVbus);
-    	rightBelt.changeControlMode(TalonControlMode.PercentVbus);
+//    	rightBelt.changeControlMode(TalonControlMode.PercentVbus);
     }
     
     /*** 
      * Run belt motors at max speed.
      */
     public void run() {
-    	leftBelt.set(1.0);
-    	rightBelt.set(-1.0);
+    	leftBelt.set(-.4);
+//    	rightBelt.set(-.2);
     }
     
     /***
@@ -36,15 +36,15 @@ public class Belt extends Subsystem {
      */
     public void run(double percentSpeed) {
     	leftBelt.set(percentSpeed);
-    	rightBelt.set(percentSpeed);
+//    	rightBelt.set(percentSpeed);
     }
     
     /*** 
      * Run belt motors at max speed in reverse direction.
      */
     public void runBackwards() {
-    	leftBelt.set(-1.0);
-    	rightBelt.set(1.0);
+    	leftBelt.set(.4);
+//    	rightBelt.set(.2);
     }
     
 
@@ -53,7 +53,7 @@ public class Belt extends Subsystem {
      */
     public void stop() {
     	leftBelt.set(0);
-    	rightBelt.set(0);
+//    	rightBelt.set(0);
     }
 
     public void initDefaultCommand() {
