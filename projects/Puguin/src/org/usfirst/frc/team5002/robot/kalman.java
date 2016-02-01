@@ -17,7 +17,7 @@ class KalmanFilter {
         prevOut = (A*prevOut) + (B*controlInput);
         prevErrCov = (A*A*prevErrCov) + Q;
         
-        double gain = 1 / (prevErrCov*H*(H*H*prevErrCov + R));
+        double gain = (prevErrCov*H) / (H*H*prevErrCov + R));
         
         /* Measurement Update step: */
         prevOut = prevOut + (gain*(measurement - (H*prevOut)));
