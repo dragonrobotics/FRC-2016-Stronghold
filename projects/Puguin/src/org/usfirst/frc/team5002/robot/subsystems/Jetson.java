@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import org.usfirst.frc.team5002.robot.subsystems.network.GoalDistanceMessage;
 import org.usfirst.frc.team5002.robot.subsystems.network.NetworkMessage;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
@@ -79,8 +80,12 @@ public class Jetson extends Subsystem {
     		ObjectInputStream o = new ObjectInputStream(new ByteArrayInputStream(buf, 7, size));
     		
     		switch(msgType) {
-    		case 1:
-    			return GoalDistanceMessage.readObjectFrom(o);
+    		case 4:
+    			GoalDistanceMessage out = new GoalDistanceMessage();
+    			out.readObjectFrom(o);
+    			return out;
+    		default:
+    			return null;
     		}
     	}
     	

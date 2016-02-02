@@ -7,7 +7,7 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 
-public class GoalDistanceMessage extends NetworkMessage implements Serializable {
+public class GoalDistanceMessage extends NetworkMessage {
 	public enum Status {
 		GOAL_FOUND,			// 255
 		GOAL_NOT_FOUND;		// 0
@@ -22,10 +22,11 @@ public class GoalDistanceMessage extends NetworkMessage implements Serializable 
 		distance = 0;
 		score = 0;
 		
-		msgType = 1;
+		msgType = 4;
 		responseType = null;
 	}
 	
+	@Override
 	public void writeObjectTo(ObjectOutputStream out) throws IOException {
 		if(goal_status == Status.GOAL_FOUND) {
 			out.writeByte((byte)255);
@@ -49,14 +50,13 @@ public class GoalDistanceMessage extends NetworkMessage implements Serializable 
 		out.writeByte(0);
 	}
 	
-	public static GoalDistanceMessage readObjectFrom(ObjectInputStream in) throws IOException {
-		GoalDistanceMessage out = new GoalDistanceMessage();
-		
+	@Override
+	public void readObjectFrom(ObjectInputStream in) throws IOException {
 		int status_byte = in.readUnsignedByte();
 		if(status_byte == 255) {
-			out.goal_status = Status.GOAL_FOUND;
+			goal_status = Status.GOAL_FOUND;
 		} else {
-			out.goal_status = Status.GOAL_NOT_FOUND;
+			goal_status = Status.GOAL_NOT_FOUND;
 		}
 		
 		short dlen = in.readShort();
@@ -77,13 +77,7 @@ public class GoalDistanceMessage extends NetworkMessage implements Serializable 
 			sstr.append(Character.toString((char) c));
 		}
 		
-		out.distance = Double.parseDouble(dstr.toString());
-		out.score = Double.parseDouble(sstr.toString());
-		
-		return out;
-	}
-	
-	private void readObjectNoData() throws ObjectStreamException {
-		throw new InvalidObjectException("Cannot unserialize empty bytestream");
+		distance = Double.parseDouble(dstr.toString());
+		score = Double.parseDouble(sstr.toString());
 	}
 }
