@@ -59,6 +59,7 @@ public class OI {
 	
 	RT.whileHeld(new DoLaunch());
 	LT.whileHeld(new BeltMagic());
+	
 	RB.whileHeld(new DoLaunch());
 	LB.whileHeld(new BeltWizardry()); }
 	
