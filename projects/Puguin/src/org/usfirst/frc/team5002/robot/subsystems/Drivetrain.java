@@ -93,4 +93,19 @@ public class Drivetrain extends Subsystem {
 
 		return false;
 	}
+	
+	public void end(){
+		mc1.set(0);
+		mc4.set(0);
+	}
+	public boolean isSafe(){
+		
+		if (mc1.getTemperature() < 200 && mc4.getTemperature() < 200) {			
+			return true;
+		}
+		
+		else{	
+			return false;
+		}
+	}
 }

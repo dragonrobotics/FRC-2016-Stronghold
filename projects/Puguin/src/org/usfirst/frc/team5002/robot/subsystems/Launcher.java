@@ -57,5 +57,15 @@ public class Launcher extends Subsystem {
 
     public void initDefaultCommand() {
     }
+	public boolean isSafe(){
+		
+		if (leftLaunchWheel.getTemperature() < 200 && rightLaunchWheel.getTemperature() < 200) {			
+			return true;
+		}
+		
+		else{	
+			return false;
+		}
+	}
 }
 

@@ -58,6 +58,16 @@ public class Belt extends Subsystem {
 
     public void initDefaultCommand() {
     }
+	public boolean isSafe(){
+		
+		if (leftBelt.getTemperature() < 200 && rightBelt.getTemperature() < 200) {			
+			return true;
+		}
+		
+		else{	
+			return false;
+		}
+	}
 }
 
 

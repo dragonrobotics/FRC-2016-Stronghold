@@ -7,11 +7,12 @@ import edu.wpi.first.wpilibj.command.Command;
 /**
  *
  */
-public class TeleopDriveyWivey extends Command {
+public class SentenatedPug extends Command {
 
-    public TeleopDriveyWivey() {
-    	requires(Robot.drivetrain);
-
+    public SentenatedPug() {
+    	requires (Robot.drivetrain);
+        // Use requires() here to declare subsystem dependencies
+        // eg. requires(chassis);
     }
 
     // Called just before this Command runs the first time
@@ -20,7 +21,7 @@ public class TeleopDriveyWivey extends Command {
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
-    	Robot.drivetrain.joystickDrive(Robot.oi.getJoystick());
+    	Robot.drivetrain.joystickFOCDrive(Robot.oi.getJoystick());
     }
 
     // Make this return true when this Command no longer needs to run execute()
