@@ -6,15 +6,12 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- * <p>
- * This command uses the joystick to set the speed of the pitcher.
- * </p>
- * <p>
- * This is the default command of the pitcher subsystem.
- * </p>
+ * This command freezes the pitcher at its current speed.
  */
-public class PugstickAttack extends Command {
+public class RestrainKoala extends Command {
 	// you should be able to mouse over methods for explanations
+
+	double speed, spin;
 
 	/**
 	 * <p>
@@ -24,19 +21,33 @@ public class PugstickAttack extends Command {
 	 * Here is where you should require all subsystems you use in this command.
 	 * </p>
 	 */
-	public PugstickAttack() {
+	public RestrainKoala() {
 		requires(Robot.pitcher);
 	}
 
 	protected void initialize() {
-
+		/*
+		 * if statement shortcut:
+		 * 
+		 * spin = stick.getRawButton(2) ? stick.getX() : 0;
+		 * 
+		 * ...is equivalent to:
+		 * 
+		 * if (stick.getRawButton(2)) {
+		 *     spin = stick.getX();
+		 * } else {
+		 *     spin = 0;
+		 * }
+		 * 
+		 */
+		Joystick stick = Robot.oi.getJoystick();
+		speed = -stick.getY();
+		// only assigns nonzero spin if button 8 is pressed
+		spin = stick.getRawButton(8) ? stick.getThrottle() : 0;
 	}
 
 	protected void execute() {
-		// see RestrainKoala.java for if statement shortcut below
-		Joystick stick = Robot.oi.getJoystick();
-		// only gives spin if button 8 is pressed
-		Robot.pitcher.set(-stick.getY(), stick.getRawButton(8) ? stick.getThrottle() : 0);
+		Robot.pitcher.set(speed, spin);
 	}
 
 	protected boolean isFinished() {

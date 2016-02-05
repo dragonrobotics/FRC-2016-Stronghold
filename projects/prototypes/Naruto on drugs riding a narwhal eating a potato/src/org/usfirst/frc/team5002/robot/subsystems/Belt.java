@@ -1,7 +1,8 @@
 package org.usfirst.frc.team5002.robot.subsystems;
 
 import edu.wpi.first.wpilibj.CANTalon;
-import edu.wpi.first.wpilibj.CANTalon.ControlMode;
+import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -11,6 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class Belt extends Subsystem {
 	private CANTalon mcL, mcR;
+	private DigitalInput ballSwitch;
 
 	/**
 	 * <p>
@@ -21,11 +23,13 @@ public class Belt extends Subsystem {
 	 * </p>
 	 */
 	public Belt() {
-		mcL = new CANTalon(3);
-		mcR = new CANTalon(4);
+		mcL = new CANTalon(2);
+		mcR = new CANTalon(5);
+		
+		ballSwitch = new DigitalInput(9);
 
-		mcL.changeControlMode(ControlMode.PercentVbus);
-		mcR.changeControlMode(ControlMode.PercentVbus);
+		mcL.changeControlMode(TalonControlMode.PercentVbus);
+		mcR.changeControlMode(TalonControlMode.PercentVbus);
 	}
 
 	public void initDefaultCommand() {
@@ -44,10 +48,19 @@ public class Belt extends Subsystem {
 	}
 	
 	/**
+	 * Gets the state of the limit switch used to detect the ball on the belt.
+	 * @return The state of the limit switch. True = pressed, false otherwise.
+	 */
+	public boolean getBallSwitch() {
+		return !ballSwitch.get();
+	}
+	
+	/**
 	 * Updates the smart dashboard with values from this subsystem.
 	 */
 	public void updateSD() {
 		SmartDashboard.putNumber("beltL", mcL.get());
 		SmartDashboard.putNumber("beltR", mcR.get());
+		SmartDashboard.putBoolean("beltBallSwitch", getBallSwitch());
 	}
 }

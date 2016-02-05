@@ -1,11 +1,14 @@
 package org.usfirst.frc.team5002.robot;
 
+import org.usfirst.frc.team5002.robot.commands.AcquireSentience;
 import org.usfirst.frc.team5002.robot.commands.FireKoala;
+import org.usfirst.frc.team5002.robot.commands.RestrainKoala;
 import org.usfirst.frc.team5002.robot.commands.SetCookieProduction;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * This class contains everything that the human player uses to interface with
@@ -28,35 +31,28 @@ public class OI {
 	 */
 	public OI() {
 		/*
-		 * initialization of the joystick I'm overriding getY() to make it
-		 * actually return -getY() this is a shortcut to override (or add)
-		 * methods to newly created objects
+		 * initialization of the joystick
+		 * I'm overriding getY() to make it actually return -getY()
+		 * this is an example of a shortcut to override (or add) methods to
+		 * newly created objects
 		 */
-		pugstick = new Joystick(0) {
-			@Override
-			public double getY(Hand hand) {
-				return -super.getY(hand);
-			}
-		};
+		pugstick = new Joystick(0);
 
-		/*
-		 * Declaration & initialization of buttons
-		 * snowmobile = slow
-		 * jetski =fast
-		 * F = forward
-		 * R = reverse
-		 */
+		Button launchKoala = new JoystickButton(pugstick,1);
+		Button restrainKoala = new JoystickButton(pugstick, 7);
+		Button acquireSentience = new JoystickButton(pugstick, 2);
 		Button snowmobileF = new JoystickButton(pugstick, 3);
 		Button jetskiF = new JoystickButton(pugstick, 5);
 		Button snowmobileR = new JoystickButton(pugstick, 4);
 		Button jetskiR = new JoystickButton(pugstick, 6);
-		Button angryKoala = new JoystickButton(pugstick, 1);
-
+		
+		launchKoala.whenPressed(new FireKoala());
+		restrainKoala.toggleWhenPressed(new RestrainKoala());
+		acquireSentience.whenPressed(new AcquireSentience());
 		snowmobileF.whileHeld(new SetCookieProduction(0.2));
 		jetskiF.whileHeld(new SetCookieProduction(1.0));
 		snowmobileR.whileHeld(new SetCookieProduction(-0.2));
 		jetskiR.whileHeld(new SetCookieProduction(-0.5));
-		angryKoala.toggleWhenPressed(new FireKoala());
 	}
 
 	/**
@@ -74,5 +70,6 @@ public class OI {
 	public void updateSD() {
 		Robot.belt.updateSD();
 		Robot.pitcher.updateSD();
+		SmartDashboard.putNumber("stick_Throttle",pugstick.getThrottle());
 	}
 }
