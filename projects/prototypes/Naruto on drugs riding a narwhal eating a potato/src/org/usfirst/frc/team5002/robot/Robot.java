@@ -2,9 +2,12 @@
 package org.usfirst.frc.team5002.robot;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
+//import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+
+import org.usfirst.frc.team5002.robot.commands.FireKoala;
 import org.usfirst.frc.team5002.robot.subsystems.Belt;
 import org.usfirst.frc.team5002.robot.subsystems.Pitcher;
 
@@ -28,6 +31,7 @@ public class Robot extends IterativeRobot {
 	 * Declaration of the variable that holds the OI object.
 	 */
 	public static OI oi;
+//	private static double lastTime = 0;
 
 	Command autonomousCommand;
 
@@ -52,8 +56,10 @@ public class Robot extends IterativeRobot {
 	 */
 	public void disabledPeriodic() {
 		Scheduler.getInstance().run();
+		Robot.oi.updateSD();
 	}
 
+	private FireKoala fk = new FireKoala();
 	/**
 	 * The method called when autonomous mode is first enabled.
 	 */
@@ -62,6 +68,8 @@ public class Robot extends IterativeRobot {
 		if (autonomousCommand != null) {
 			autonomousCommand.start();
 		}
+		fk.cancel();
+		fk.start();
 	}
 
 	/**
@@ -69,6 +77,12 @@ public class Robot extends IterativeRobot {
 	 */
 	public void autonomousPeriodic() {
 		Scheduler.getInstance().run();
+		oi.updateSD();
+//		if (fk.isRunning()) {
+//			lastTime = Timer.getFPGATimestamp();
+//		} else if (Timer.getFPGATimestamp() - lastTime > 4) {
+//			fk.start();
+//		}
 	}
 
 	/**
