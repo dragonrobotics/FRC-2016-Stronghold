@@ -94,7 +94,7 @@ public class Robot extends IterativeRobot {
         LiveWindow.run();
     }
     
-    public double getRobotAngle (){
+    public static double getRobotAngle (){
     	return 0;
     }
 }

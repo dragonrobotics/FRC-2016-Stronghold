@@ -1,5 +1,6 @@
 package org.usfirst.frc.team5002.robot.subsystems;
 
+import org.usfirst.frc.team5002.robot.Robot;
 import org.usfirst.frc.team5002.robot.commands.TeleopDriveyWivey;
 
 import edu.wpi.first.wpilibj.CANTalon;
@@ -65,7 +66,22 @@ public class Drivetrain extends Subsystem {
 	} 
 
 	public void joystickFOCDrive(Joystick stick) {
+		Robot.getRobotAngle();
+		double PugAngle = Robot.getRobotAngle();
+		double JoystickAngle = stick.getDirectionDegrees();
 		
+		if (JoystickAngle < PugAngle){
+			mc1.set(1);
+			mc4.set(-1);
+		}
+		else if(JoystickAngle > PugAngle){
+			mc1.set(-1);
+			mc4.set(1);
+		}
+		else{
+			mc1.set(stick.getMagnitude());
+			mc4.set(stick.getMagnitude());
+		}
 
 	}
 
