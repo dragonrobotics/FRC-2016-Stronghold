@@ -2,7 +2,6 @@ package org.usfirst.frc.team5002.robot;
 
 import org.usfirst.frc.team5002.robot.commands.BeltMagic;
 import org.usfirst.frc.team5002.robot.commands.BeltWizardry;
-import org.usfirst.frc.team5002.robot.commands.DoLaunch;
 import org.usfirst.frc.team5002.robot.commands.ExampleCommand;
 import org.usfirst.frc.team5002.robot.commands.LauncherMagic;
 
@@ -22,33 +21,38 @@ public class OI {
 		pugstick = new Joystick(0);
 		pugstick.getRawAxis(1);
 		pugstick.getRawAxis(2);
-		
-		Button X = new JoystickButton(pugstick, 1); 											
-		Button Y = new JoystickButton(pugstick, 2); 
-		Button B = new JoystickButton(pugstick, 3);
-		Button A = new JoystickButton(pugstick, 4);
-		Button Paddle_1 = new JoystickButton(pugstick, 5);
-		Button Paddle_2 = new JoystickButton(pugstick, 6);
-		Button Paddle_3 = new JoystickButton(pugstick, 7);
-		Button Paddle_4 = new JoystickButton(pugstick, 8);
+		pugstick.getRawAxis(3);
+		pugstick.getRawAxis(4);
+		pugstick.getRawAxis(5);
 		
 		
+		Button X = new JoystickButton(pugstick, 3); 											
+		Button Y = new JoystickButton(pugstick, 4); 
+		Button B = new JoystickButton(pugstick, 2);
+		Button A = new JoystickButton(pugstick, 1);
+		Button L_Stick = new JoystickButton(pugstick,9);
+		Button R_Stick = new JoystickButton(pugstick,10);
+		Button RB = new JoystickButton(pugstick, 6);
+		Button LB = new JoystickButton(pugstick, 5);
+		
+
+			
 		X.whileHeld(new ExampleCommand());
 		Y.whileHeld(new ExampleCommand());
 		B.whileHeld(new ExampleCommand());
 		A.whileHeld(new ExampleCommand());
-		Paddle_1.whileHeld(new ExampleCommand());
-		Paddle_2.whileHeld(new ExampleCommand());
-	 	Paddle_3.whileHeld(new ExampleCommand());
-		Paddle_4.whileHeld(new ExampleCommand());
-	
-		
-	
+		L_Stick.whenPressed(new ExampleCommand());
+		R_Stick.whenPressed(new ExampleCommand());
+		RB.whileHeld(new LauncherMagic());
+		LB.whileHeld(new BeltWizardry()); }
 		
 		
-	}
 	
-	private Joystick bloop; {
+		
+		
+	
+	
+	/*private Joystick bloop; {
 	bloop = new Joystick(1);
 	
 	Button RT = new JoystickButton(bloop, 1);
@@ -57,12 +61,11 @@ public class OI {
 	Button LB = new JoystickButton(bloop, 4);
 	
 	
-	RT.whileHeld(new DoLaunch());
+	RT.whileHeld(new LauncherMagic());
 	LT.whileHeld(new BeltMagic());
-	
-	RB.whileHeld(new DoLaunch());
+	RB.whileHeld(new LauncherMagic());
 	LB.whileHeld(new BeltWizardry()); }
-	
+	*/
 	
 	
 		
