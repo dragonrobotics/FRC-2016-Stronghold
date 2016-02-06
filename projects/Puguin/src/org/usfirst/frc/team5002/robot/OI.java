@@ -67,6 +67,9 @@ public class OI {
 	LB.whileHeld(new BeltWizardry()); }
 	*/
 	
+	/* That thingy is a possible thingy for the prototype ^
+	 * please do your best to ignore it :3
+	 */
 	
 		
 	
