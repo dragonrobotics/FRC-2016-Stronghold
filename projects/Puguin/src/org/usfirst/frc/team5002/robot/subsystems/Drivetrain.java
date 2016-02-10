@@ -94,7 +94,7 @@ public class Drivetrain extends Subsystem {
 		return false;
 	}
 	
-	public void end(){
+	public void stop(){
 		mc1.set(0);
 		mc4.set(0);
 	}

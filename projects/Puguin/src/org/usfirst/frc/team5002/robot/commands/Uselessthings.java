@@ -22,7 +22,15 @@ public class Uselessthings extends Command {
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
-    	
+    	if (Robot.drivetrain.isSafe() == false){
+    		Robot.drivetrain.stop();
+    	}
+    	if (Robot.launcher.isSafe() == false){
+    		Robot.launcher.stop();
+    	}
+    	if (Robot.belt.isSafe() == false){
+    		Robot.belt.stop();
+    	}
     }
 
     // Make this return true when this Command no longer needs to run execute()

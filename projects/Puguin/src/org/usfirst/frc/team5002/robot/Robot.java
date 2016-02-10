@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import org.usfirst.frc.team5002.robot.commands.ExampleCommand;
+import org.usfirst.frc.team5002.robot.commands.Uselessthings;
 import org.usfirst.frc.team5002.robot.subsystems.Belt;
 import org.usfirst.frc.team5002.robot.subsystems.Drivetrain;
 import org.usfirst.frc.team5002.robot.subsystems.Launcher;
@@ -40,6 +41,8 @@ public class Robot extends IterativeRobot {
      */
     public void robotInit() {
 		oi = new OI();
+		Uselessthings saftey = new Uselessthings();
+		saftey.start();
         // instantiate the command used for the autonomous period
         autonomousCommand = new ExampleCommand();
     }
