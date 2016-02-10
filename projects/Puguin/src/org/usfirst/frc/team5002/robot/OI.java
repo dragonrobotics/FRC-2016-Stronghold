@@ -34,7 +34,10 @@ public class OI {
 		Button R_Stick = new JoystickButton(pugstick,10);
 		Button RB = new JoystickButton(pugstick, 6);
 		Button LB = new JoystickButton(pugstick, 5);
-		
+		Button Paddle_1 = new JoystickButton(pugstick, );
+		Button Paddle_2 = new JoystickButton(pugstick, );
+		Button Paddle_3 = new JoystickButton(pugstick, );
+		Button Paddle_4 = new JoystickButton(pugstick, );
 
 			
 		X.whileHeld(new ExampleCommand());
