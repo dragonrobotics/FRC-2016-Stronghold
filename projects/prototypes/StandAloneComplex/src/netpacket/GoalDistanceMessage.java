@@ -1,11 +1,9 @@
 package netpacket;
 
 import java.io.IOException;
-import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.ObjectStreamException;
-import java.io.Serializable;
+import java.net.InetAddress;
 
 public class GoalDistanceMessage extends NetworkMessage {
 	public enum Status {
@@ -17,13 +15,13 @@ public class GoalDistanceMessage extends NetworkMessage {
 	public double distance;
 	public double score;
 	
-	public GoalDistanceMessage() {
+	public GoalDistanceMessage(InetAddress addr) {
 		goal_status = Status.GOAL_NOT_FOUND;
 		distance = 0;
 		score = 0;
 		
 		msgType = 4;
-		responseType = null;
+		this.addr = addr;
 	}
 	
 	@Override

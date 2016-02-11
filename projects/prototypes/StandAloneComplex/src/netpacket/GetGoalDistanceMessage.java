@@ -3,11 +3,14 @@ package netpacket;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 
-@SuppressWarnings("serial")
 public class GetGoalDistanceMessage extends NetworkMessage {
-	public Class responseType = GoalDistanceMessage.class;
 	public char msgType = 3;
+	
+	public GetGoalDistanceMessage(InetAddress address) {
+		this.addr = address;
+	}
 	
 	/* Stub methods. There's nothing here to transmit! */
 	@Override

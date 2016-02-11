@@ -3,6 +3,7 @@ package netpacket;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 
 public class DiscoverPacket extends NetworkMessage {
 	/*
@@ -13,21 +14,23 @@ public class DiscoverPacket extends NetworkMessage {
 		UNKNOWN = 0xFF
 	 */
 	
-	enum origin_type {
+	public enum origin_type {
 		DRIVER_STATION,
 		ROBORIO,
 		JETSON,
 		UNKNOWN
 	};
 	
-	origin_type originator;
+	public origin_type originator;
 	
-	DiscoverPacket(origin_type t) {
+	public DiscoverPacket(InetAddress addr, origin_type t) {
 		originator = t;
+		this.addr = addr;
 	}
 	
-	DiscoverPacket() {
+	public DiscoverPacket(InetAddress addr) {
 		originator = origin_type.ROBORIO;
+		this.addr = addr;
 	}
 	
 	@Override

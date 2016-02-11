@@ -3,12 +3,11 @@ package netpacket;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.net.InetAddress;
 
-@SuppressWarnings("serial")
 public abstract class NetworkMessage {
-	public Class responseType = null;
-	public char msgType = 0;
+	public char msgType;
+	public InetAddress addr;
 	
 	public String getLenString(ObjectInputStream in) throws IOException {
 		short len = in.readShort();
