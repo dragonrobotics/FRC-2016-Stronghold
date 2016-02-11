@@ -48,11 +48,11 @@ public abstract class NetworkMessage {
 	}
 	
 	public double getDouble(ObjectInputStream in) throws IOException {
-		return Double.parseDouble(this.getLenString());
+		return Double.parseDouble(this.getLenString(in));
 	}
 	
 	public void putDouble(ObjectOutputStream out, double d) throws IOException {
-		this.putLenString(Double.toString(d));
+		this.putLenString(out, Double.toString(d));
 	}
 	
 	abstract public void writeObjectTo(ObjectOutputStream out) throws IOException;

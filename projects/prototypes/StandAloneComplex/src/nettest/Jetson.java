@@ -64,7 +64,7 @@ public class Jetson {
     	}
     	
     	if(ifn == null) {
-    		System.out.println("Could not find usable interface.");
+    		System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Could not find usable interface.");
     		return;
     	}
     
@@ -79,7 +79,7 @@ public class Jetson {
 		}
 		
 		if(broadcast == null) {
-			System.out.println("Could not find interface broadcast address.");
+			System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Could not find interface broadcast address.");
 			return;
 		}
     	
@@ -127,7 +127,14 @@ public class Jetson {
     public NetworkMessage receiveUDP() throws IOException {
     	byte[] buf = new byte[4096];
     	DatagramPacket packet = new DatagramPacket(buf, 4096);
+    	
+    	System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Listening on "
+    			+ udpSocket.getLocalAddress().toString());
+    	
     	udpSocket.receive(packet);
+    	
+    	System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Received UDP message from " +
+    					udpSocket.getInetAddress().toString());
     	
     	if(buf[0] == (int)'5' &&
     		buf[1] == (int)'0' &&
@@ -138,6 +145,8 @@ public class Jetson {
     		short size = (short) ((buf[5] << 8) | buf[6]);
     		
     		ObjectInputStream o = new ObjectInputStream(new ByteArrayInputStream(buf, 7, size));
+    		
+    		System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] UDP packet is valid.");
     		
     		switch(msgType) {
     		case 5:
@@ -178,35 +187,35 @@ public class Jetson {
     	ns.writeTo(netOut);
     }
     
-    public NetworkMessage readMessage() throws IOException, ClassNotFoundException {
+    public NetworkMessage readMessage() throws IOException {
     	if(connection == null) {
     		this.doDiscover();
     	}
     	
-    	byte[] buf = new byte[4096];
-    	netIn.read(buf);
-    	
-    	if(buf[0] == (int)'5' &&
-    		buf[1] == (int)'0' &&
-    		buf[2] == (int)'0' &&
-    		buf[3] == (int)'2') {
-    		
-    		int msgType = buf[4];
-    		short size = (short) ((buf[5] << 8) | buf[6]);
-    		
-    		ObjectInputStream o = new ObjectInputStream(new ByteArrayInputStream(buf, 7, 7+size));
-    		
-    		switch(msgType) {
-    		case 4:
-    			GoalDistanceMessage out = new GoalDistanceMessage(connection.getInetAddress());
-    			out.readObjectFrom(o);
-    			return out;
-    		default:
-    			return null;
-    		}
+    	while(true) {
+	    	byte[] buf = new byte[4096];
+	    	netIn.read(buf);
+	    	
+	    	if(buf[0] == (int)'5' &&
+	    		buf[1] == (int)'0' &&
+	    		buf[2] == (int)'0' &&
+	    		buf[3] == (int)'2') {
+	    		
+	    		int msgType = buf[4];
+	    		short size = (short) ((buf[5] << 8) | buf[6]);
+	    		
+	    		ObjectInputStream o = new ObjectInputStream(new ByteArrayInputStream(buf, 7, 7+size));
+	    		
+	    		switch(msgType) {
+	    		case 4:
+	    			GoalDistanceMessage out = new GoalDistanceMessage(connection.getInetAddress());
+	    			out.readObjectFrom(o);
+	    			return out;
+	    		default:
+	    			continue;
+	    		}
+	    	}
     	}
-    	
-    	return null;
     }
 }
 
