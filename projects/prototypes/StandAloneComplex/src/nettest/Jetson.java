@@ -76,7 +76,7 @@ public class Jetson {
 			}
 		}
     	
-    	udpSocket = new DatagramSocket(remotePort, ifaddr.getAddress());
+    	udpSocket = new DatagramSocket(remotePort);
     	udpSocket.setBroadcast(true);
     	
     	connection = null;
