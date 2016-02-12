@@ -4,8 +4,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 
 public class DiscoverPacket extends NetworkMessage {
+	
+
+	
 	/*
 	 enum class origin_t : unsigned char {
 		DRIVER_STATION = 0,
@@ -34,26 +38,26 @@ public class DiscoverPacket extends NetworkMessage {
 	}
 	
 	@Override
-	public void writeObjectTo(ObjectOutputStream out) throws IOException {
+	public void writeObjectTo(ByteBuffer out) throws IOException {
 		switch(originator) {
 		case DRIVER_STATION:
-			out.writeByte(0);
+			out.put((byte) 0);
 			break;
 		case ROBORIO:
-			out.writeByte(1);
+			out.put((byte) 1);
 			break;
 		case JETSON:
-			out.writeByte(2);
+			out.put((byte) 2);
 			break;
 		default:
-			out.writeByte(0xFF);
+			out.put((byte) 0xFF);
 			break;
 		}
 	}
 
 	@Override
-	public void readObjectFrom(ObjectInputStream in) throws IOException {
-		int typebyte = in.readUnsignedByte();
+	public void readObjectFrom(ByteBuffer in) throws IOException {
+		byte typebyte = in.get();
 		switch(typebyte) {
 		case 0:
 			originator = origin_type.DRIVER_STATION;
@@ -69,4 +73,13 @@ public class DiscoverPacket extends NetworkMessage {
 		}
 	}
 
+	@Override
+	public byte getMessageID() {
+		return 5;
+	}
+	
+	@Override
+	public short getMessageSize() {
+		return 1;
+	}
 }

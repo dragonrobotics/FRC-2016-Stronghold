@@ -4,16 +4,16 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 
 public abstract class NetworkMessage {
-	public char msgType;
 	public InetAddress addr;
 	
-	public String getLenString(ObjectInputStream in) throws IOException {
-		short len = in.readShort();
+	public String getLenString(ByteBuffer in) throws IOException {
+		short len = in.getShort();
 		StringBuilder str = new StringBuilder();
 		for(int i=0;i<len;i++) {
-			int c = in.readUnsignedByte();
+			byte c = in.get();
 			if(c == 0)
 				break;
 			str.append(Character.toString((char) c));
@@ -21,10 +21,10 @@ public abstract class NetworkMessage {
 		return str.toString();
 	}
 	
-	public String getNullTermString(ObjectInputStream in) throws IOException {
+	public String getNullTermString(ByteBuffer in) throws IOException {
 		StringBuilder str = new StringBuilder();
 		while(true) {
-			int c = in.readUnsignedByte();
+			byte c = in.get();
 			if(c == 0)
 				break;
 			str.append(Character.toString((char) c));
@@ -32,28 +32,30 @@ public abstract class NetworkMessage {
 		return str.toString();
 	}
 	
-	public void putLenString(ObjectOutputStream out, String str) throws IOException {
-		out.writeShort(str.length());
+	public void putLenString(ByteBuffer out, String str) throws IOException {
+		out.putShort((short) str.length());
 		for(int i=0;i<str.length();i++) {
-			out.writeByte((byte)str.charAt(i));
+			out.put((byte)str.charAt(i));
 		}
 	}
 	
-	public void putNullTermString(ObjectOutputStream out, String str) throws IOException {
+	public void putNullTermString(ByteBuffer out, String str) throws IOException {
 		for(int i=0;i<str.length();i++) {
-			out.writeByte((byte)str.charAt(i));
+			out.put((byte)str.charAt(i));
 		}
-		out.writeByte(0);
+		out.put((byte) 0);
 	}
 	
-	public double getDouble(ObjectInputStream in) throws IOException {
+	public double getDouble(ByteBuffer in) throws IOException {
 		return Double.parseDouble(this.getLenString(in));
 	}
 	
-	public void putDouble(ObjectOutputStream out, double d) throws IOException {
+	public void putDouble(ByteBuffer out, double d) throws IOException {
 		this.putLenString(out, Double.toString(d));
 	}
 	
-	abstract public void writeObjectTo(ObjectOutputStream out) throws IOException;
-	abstract public void readObjectFrom(ObjectInputStream in) throws IOException;
+	abstract public void writeObjectTo(ByteBuffer out) throws IOException;
+	abstract public void readObjectFrom(ByteBuffer in) throws IOException;
+	abstract public byte getMessageID();
+	abstract public short getMessageSize();
 }

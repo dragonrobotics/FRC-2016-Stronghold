@@ -12,11 +12,15 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 
 import netpacket.DiscoverPacket;
 import netpacket.GoalDistanceMessage;
@@ -32,6 +36,7 @@ public class Jetson {
 	
 	final static int remotePort = 5800;
 	
+	private InterfaceAddress ifaddr;
 	private Socket connection;
 	private DatagramSocket udpSocket;
 	private OutputStream netOut;
@@ -46,18 +51,12 @@ public class Jetson {
 	}
 	
     public Jetson() throws UnknownHostException, IOException {
-    	udpSocket = new DatagramSocket(remotePort);
-    	connection = null;
-    	netOut = null;
-    	netIn = null;
-    }
-    
-    public void doDiscover() throws IOException {
     	Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
     	NetworkInterface ifn = null;
     	
     	for(NetworkInterface iface : Collections.list(interfaces)) {
-    		if(iface.isUp() && !iface.isLoopback() && !iface.isVirtual()) {
+    		System.out.println("Interfaces: " + iface.getName());
+    		if(iface.getName().equals(new String("eth0")) && iface.isUp() && !iface.isLoopback() && !iface.isVirtual()) {
     			ifn = iface;
     			break;
     		}
@@ -67,24 +66,28 @@ public class Jetson {
     		System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Could not find usable interface.");
     		return;
     	}
+    	
+    	List<InterfaceAddress> ifnaddr = ifn.getInterfaceAddresses();
+		for(InterfaceAddress i : ifnaddr) {
+			System.out.println("Address: " + i.toString());
+			if(i.getBroadcast() != null) {
+				ifaddr = i;
+				break;
+			}
+		}
+    	
+    	udpSocket = new DatagramSocket(remotePort, ifaddr.getAddress());
+    	udpSocket.setBroadcast(true);
+    	
+    	connection = null;
+    	netOut = null;
+    	netIn = null;
+    }
     
-    	InetAddress broadcast = null;
-    	
-    	Enumeration<InetAddress> addresses = ifn.getInetAddresses();
-		for (InetAddress address : Collections.list(addresses)) {
-		    // look only for ipv4 addresses
-			if (address instanceof Inet6Address)
-			  continue;
-			broadcast = address;
-		}
-		
-		if(broadcast == null) {
-			System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Could not find interface broadcast address.");
-			return;
-		}
-    	
+    public void doDiscover() throws IOException {
     	while(true) {
-    		this.sendUDP(new DiscoverPacket(broadcast));
+    		this.sendUDP(new DiscoverPacket(ifaddr.getBroadcast()));
+    		System.out.println("Sent to: " + ifaddr.getBroadcast().toString());
     		NetworkMessage msg = this.receiveUDP();
     		if(msg instanceof DiscoverPacket) {
     			DiscoverPacket dmsg = (DiscoverPacket)msg;
@@ -92,6 +95,7 @@ public class Jetson {
     				connection = new Socket(msg.addr, remotePort);
     				netOut = connection.getOutputStream();
     		    	netIn = connection.getInputStream();
+    		    	System.out.println("Found Jetson at: " + msg.addr.toString());
     		    	return;
     			}
     		}
@@ -99,63 +103,62 @@ public class Jetson {
     }
     
     public void sendUDP(NetworkMessage msg) throws IOException {
-    	ByteArrayOutputStream ns = new ByteArrayOutputStream();
-    	ByteArrayOutputStream ts = new ByteArrayOutputStream();
-    	ObjectOutputStream os = new ObjectOutputStream(ts);
+    	ByteBuffer ns = ByteBuffer.allocate(4096);
+    	ns.order(ByteOrder.BIG_ENDIAN);
     	
-    	ns.write((int)'5');
-    	ns.write((int)'0');
-    	ns.write((int)'0');
-    	ns.write((int)'2');
+    	ns.put((byte)0x35);
+    	ns.put((byte)0x30);
+    	ns.put((byte)0x30);
+    	ns.put((byte)0x32);
     	
-    	ns.write((int)msg.msgType);
+    	ns.put((byte)msg.getMessageID());
     	
-    	short size = (short)(ts.size());
+    	short size = msg.getMessageSize();
     	
-    	ns.write((size >> 8) & 0xFF);
-    	ns.write(size & 0xFF);
+    	ns.putShort((short) (size+7));
     	
-    	os.writeObject(msg);
+    	msg.writeObjectTo(ns);
     	
-    	ts.writeTo(ns);
-    	
-    	DatagramPacket outpacket = new DatagramPacket(ns.toByteArray(), ns.size(), msg.addr, remotePort);
+    	DatagramPacket outpacket = new DatagramPacket(ns.array(), 4096, msg.addr, remotePort);
     	
     	udpSocket.send(outpacket);
     }
     
     public NetworkMessage receiveUDP() throws IOException {
-    	byte[] buf = new byte[4096];
-    	DatagramPacket packet = new DatagramPacket(buf, 4096);
+    	ByteBuffer buf = ByteBuffer.allocate(4096);
+    	buf.order(ByteOrder.BIG_ENDIAN);
+    	byte[] arr = buf.array();
+    	DatagramPacket packet = new DatagramPacket(arr, 4096);
     	
     	System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Listening on "
-    			+ udpSocket.getLocalAddress().toString());
+    			+ udpSocket.getLocalAddress().toString() + " on " + Integer.toString(udpSocket.getPort()));
     	
     	udpSocket.receive(packet);
     	
     	System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Received UDP message from " +
-    					udpSocket.getInetAddress().toString());
+    					packet.getAddress().toString() + " length: " + Integer.toString(packet.getLength()));
     	
-    	if(buf[0] == (int)'5' &&
-    		buf[1] == (int)'0' &&
-    		buf[2] == (int)'0' &&
-    		buf[3] == (int)'2') {
+    	if((buf.get() == (byte)0x35) &&
+    		(buf.get() == (byte)0x30) &&
+    		(buf.get() == (byte)0x30) &&
+    		(buf.get() == (byte)0x32)) { // '5' '0' '0' '2' in true ASCII
     		
-    		int msgType = buf[4];
-    		short size = (short) ((buf[5] << 8) | buf[6]);
-    		
-    		ObjectInputStream o = new ObjectInputStream(new ByteArrayInputStream(buf, 7, size));
+    		byte msgType = buf.get();
+    		short size = buf.getShort();
     		
     		System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] UDP packet is valid.");
     		
     		switch(msgType) {
     		case 5:
     			DiscoverPacket out = new DiscoverPacket(packet.getAddress());
-    			out.readObjectFrom(o);
+    			out.readObjectFrom(buf);
     			return out;
     		default:
+    			System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] unknown packet type!");
     			return null;
     		}
+    	} else {
+    		System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] UDP packet is INVALID!");
     	}
     	return null;
     }
@@ -165,26 +168,23 @@ public class Jetson {
     		this.doDiscover();
     	}
     	
-    	ByteArrayOutputStream ns = new ByteArrayOutputStream();
-    	ByteArrayOutputStream ts = new ByteArrayOutputStream();
-    	ObjectOutputStream os = new ObjectOutputStream(ts);
+    	ByteBuffer ns = ByteBuffer.allocate(4096);
+    	ns.order(ByteOrder.BIG_ENDIAN);
     	
-    	ns.write((int)'5');
-    	ns.write((int)'0');
-    	ns.write((int)'0');
-    	ns.write((int)'2');
+    	ns.put((byte)0x35);
+    	ns.put((byte)0x30);
+    	ns.put((byte)0x30);
+    	ns.put((byte)0x32);
     	
-    	ns.write((int)msg.msgType);
+    	ns.put((byte)msg.getMessageID());
     	
-    	short size = (short)(ts.size());
+    	short size = msg.getMessageSize();
     	
-    	ns.write((size >> 8) & 0xFF);
-    	ns.write(size & 0xFF);
+    	ns.putShort((short) (size+7));
     	
-    	os.writeObject(msg);
+    	msg.writeObjectTo(ns);
     	
-    	ts.writeTo(ns);
-    	ns.writeTo(netOut);
+    	netOut.write(ns.array(), 0, 4096);
     }
     
     public NetworkMessage readMessage() throws IOException {
@@ -193,23 +193,23 @@ public class Jetson {
     	}
     	
     	while(true) {
-	    	byte[] buf = new byte[4096];
-	    	netIn.read(buf);
+    		ByteBuffer buf = ByteBuffer.allocate(4096);
+    		buf.order(ByteOrder.BIG_ENDIAN);
+        	byte[] arr = buf.array();
+	    	netIn.read(arr);
 	    	
-	    	if(buf[0] == (int)'5' &&
-	    		buf[1] == (int)'0' &&
-	    		buf[2] == (int)'0' &&
-	    		buf[3] == (int)'2') {
+	    	if(buf.get() == (byte)0x35 &&
+    			buf.get() == (byte)0x30 &&
+				buf.get() == (byte)0x30 &&
+				buf.get() == (byte)0x32) {
 	    		
-	    		int msgType = buf[4];
-	    		short size = (short) ((buf[5] << 8) | buf[6]);
-	    		
-	    		ObjectInputStream o = new ObjectInputStream(new ByteArrayInputStream(buf, 7, 7+size));
+	    		byte msgType = buf.get();
+	    		short size = buf.getShort();
 	    		
 	    		switch(msgType) {
 	    		case 4:
 	    			GoalDistanceMessage out = new GoalDistanceMessage(connection.getInetAddress());
-	    			out.readObjectFrom(o);
+	    			out.readObjectFrom(buf);
 	    			return out;
 	    		default:
 	    			continue;
