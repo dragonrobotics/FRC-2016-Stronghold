@@ -1,19 +1,22 @@
 
 package org.usfirst.frc.team5002.robot;
 
+import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import org.usfirst.frc.team5002.robot.commands.ExampleCommand;
-import org.usfirst.frc.team5002.robot.commands.Uselessthings;
 import org.usfirst.frc.team5002.robot.commands.TriggerHappy;
 import org.usfirst.frc.team5002.robot.subsystems.Belt;
 import org.usfirst.frc.team5002.robot.subsystems.Drivetrain;
 import org.usfirst.frc.team5002.robot.subsystems.Launcher;
+
+import com.kauailabs.navx.frc.AHRS;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -29,10 +32,13 @@ public class Robot extends IterativeRobot {
 	public static final Launcher launcher = new Launcher();
 	public static final Belt belt = new Belt();
 	public static OI oi;
+	public static AHRS ahrs;
 
     Command autonomousCommand;
 
     public Robot() {
+    	ahrs = new AHRS(Port.kMXP);
+    	
 		
 	}
     
@@ -42,12 +48,11 @@ public class Robot extends IterativeRobot {
      */
     public void robotInit() {
 		oi = new OI();
-		Uselessthings saftey = new Uselessthings();
-		saftey.start();
         // instantiate the command used for the autonomous period
         autonomousCommand = new ExampleCommand();
         TriggerHappy trigger = new TriggerHappy();
         trigger.start();
+      
     }
 	
 	public void disabledPeriodic() {
@@ -101,6 +106,7 @@ public class Robot extends IterativeRobot {
     }
     
     public static double getRobotAngle (){
-    	return 0;
+    	return ahrs.getAngle() ;
+    	
     }
 }
