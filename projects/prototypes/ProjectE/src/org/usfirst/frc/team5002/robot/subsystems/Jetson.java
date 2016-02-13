@@ -1,4 +1,4 @@
-package nettest;
+package org.usfirst.frc.team5002.robot.subsystems;
 
 
 import java.io.ByteArrayInputStream;
@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
+import edu.wpi.first.wpilibj.command.Subsystem;
 import netpacket.DiscoverPacket;
 import netpacket.GoalDistanceMessage;
 import netpacket.NetworkMessage;
@@ -29,7 +30,7 @@ import netpacket.NetworkMessage;
 /**
  *
  */
-public class Jetson {
+public class Jetson extends Subsystem {
     
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
@@ -42,6 +43,9 @@ public class Jetson {
 	private OutputStream netOut;
 	private InputStream netIn;
     
+	public void initDefaultCommand() {
+    }
+	
 	public InetAddress getJetsonAddress() {
 		if(connection == null) {
 			return null;
@@ -79,9 +83,7 @@ public class Jetson {
     	udpSocket = new DatagramSocket(remotePort);
     	udpSocket.setBroadcast(true);
     	
-    	connection = null;
-    	netOut = null;
-    	netIn = null;
+    	
     }
     
     public void doDiscover() throws IOException {
