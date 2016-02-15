@@ -8,9 +8,13 @@ import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+
+import java.io.IOException;
+
 import org.usfirst.frc.team5002.robot.commands.ExampleCommand;
 import org.usfirst.frc.team5002.robot.subsystems.Belt;
 import org.usfirst.frc.team5002.robot.subsystems.Drivetrain;
+import org.usfirst.frc.team5002.robot.subsystems.Jetson;
 import org.usfirst.frc.team5002.robot.subsystems.Launcher;
 
 /**
@@ -26,6 +30,7 @@ public class Robot extends IterativeRobot {
 	public static final Drivetrain drivetrain = new Drivetrain();
 	public static final Launcher launcher = new Launcher();
 	public static final Belt belt = new Belt();
+	public static Jetson jetson;
 	public static OI oi;
 
     Command autonomousCommand;
@@ -40,8 +45,15 @@ public class Robot extends IterativeRobot {
      */
     public void robotInit() {
 		oi = new OI();
-        // instantiate the command used for the autonomous period
-        autonomousCommand = new ExampleCommand();
+		
+		try {
+			jetson = new Jetson();
+			jetson.doDiscover(); // find the Jetson on the local network
+		} catch (IOException e) {
+			e.printStackTrace();
+			// we can't recover from this, really.
+			// I'm not really sure how to just kill the robot immediately.
+		} 
     }
 	
 	public void disabledPeriodic() {
