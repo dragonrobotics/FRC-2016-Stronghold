@@ -5,6 +5,7 @@ package org.usfirst.frc.team5002.robot.subsystems;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  *
@@ -67,6 +68,13 @@ public class Belt extends Subsystem {
 		else{	
 			return false;
 		}
+		
+	}
+	public void updateSD(){
+		SmartDashboard.putNumber("belt get", leftBelt.get());
+		SmartDashboard.putNumber("belt temp", leftBelt.getTemperature());
+		SmartDashboard.putNumber("belt voltage", leftBelt.getOutputVoltage());
+		SmartDashboard.putNumber("belt current", leftBelt.getOutputCurrent());
 	}
 }
 

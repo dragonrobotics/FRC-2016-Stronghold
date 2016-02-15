@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import org.usfirst.frc.team5002.robot.commands.ExampleCommand;
 import org.usfirst.frc.team5002.robot.commands.TriggerHappy;
 import org.usfirst.frc.team5002.robot.subsystems.Belt;
@@ -65,7 +67,7 @@ public class Robot extends IterativeRobot {
 	public void disabledPeriodic() {
 		Scheduler.getInstance().run();
 	}
-
+	
     public void autonomousInit() {
     	drivetrain.initAutonomous();
     	
@@ -78,6 +80,7 @@ public class Robot extends IterativeRobot {
      */
     public void autonomousPeriodic() {
         Scheduler.getInstance().run();
+        oi.updateSD();
     }
 
     public void teleopInit() {
@@ -103,6 +106,7 @@ public class Robot extends IterativeRobot {
      */
     public void teleopPeriodic() {
         Scheduler.getInstance().run();
+        oi.updateSD();
     }
     
     /**
