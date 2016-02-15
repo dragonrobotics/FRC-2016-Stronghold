@@ -40,13 +40,12 @@ public class OI {
 		X.whileHeld(new ExampleCommand());
 		Y.whileHeld(new ExampleCommand());
 		B.whileHeld(new ExampleCommand());
-		A.whileHeld(new ExampleCommand());
+		A.whileHeld(new BeltMagic());
 		L_Stick.whenPressed(new ExampleCommand());
 		R_Stick.whenPressed(new ExampleCommand());
 		RB.whileHeld(new LauncherMagic());
-		LB.whileHeld(new BeltWizardry()); }
-		
-		
+		LB.whileHeld(new BeltWizardry());
+	}
 	
 		
 		
@@ -104,5 +103,10 @@ public class OI {
 	public Joystick getJoystick() {
 		return pugstick;
 
+	}
+	
+	public void updateSD() {
+		SmartDashboard.putNumber("Joystick X", pugstick.getX());
+		Robot.belt.updateSD();
 	}
 }

@@ -21,7 +21,7 @@ public class BeltWizardry extends Command {
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
-    	Robot.belt.runBackwards();
+    	Robot.belt.run(1.0);
     }
 
     // Make this return true when this Command no longer needs to run execute()

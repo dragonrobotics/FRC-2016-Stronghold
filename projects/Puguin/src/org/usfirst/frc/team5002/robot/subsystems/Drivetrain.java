@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  *
@@ -19,12 +20,12 @@ public class Drivetrain extends Subsystem {
 	 * constructor for drivetrain initializes CANTalon stuff
 	 */
 	public Drivetrain() {
-		mc1 = new CANTalon(1);
-		mc2 = new CANTalon(2);
-		mc3 = new CANTalon(3);
-		mc4 = new CANTalon(4);
-		mc5 = new CANTalon(5);
-		mc6 = new CANTalon(6);
+		mc1 = new CANTalon(31);
+		mc2 = new CANTalon(32);
+		mc3 = new CANTalon(33);
+		mc4 = new CANTalon(34);
+		mc5 = new CANTalon(35);
+		mc6 = new CANTalon(36);
 
 		mc1.changeControlMode(TalonControlMode.Position);		
 		mc2.changeControlMode(TalonControlMode.Follower);
@@ -93,19 +94,21 @@ public class Drivetrain extends Subsystem {
 
 		return false;
 	}
-	
-	public void stop(){
+
+	public void stop() {
 		mc1.set(0);
 		mc4.set(0);
 	}
-	public boolean isSafe(){
-		
-		if (mc1.getTemperature() < 200 && mc4.getTemperature() < 200) {			
+
+	public boolean isSafe() {
+
+		if (mc1.getTemperature() < 200 && mc4.getTemperature() < 200) {
 			return true;
 		}
-		
-		else{	
+
+		else {
 			return false;
 		}
+
 	}
 }

@@ -1,7 +1,7 @@
 
 package org.usfirst.frc.team5002.robot;
 
-import com.kauailabs.navx.frc.AHRS;
+//import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
@@ -18,7 +18,7 @@ import org.usfirst.frc.team5002.robot.subsystems.Belt;
 import org.usfirst.frc.team5002.robot.subsystems.Drivetrain;
 import org.usfirst.frc.team5002.robot.subsystems.Launcher;
 
-import com.kauailabs.navx.frc.AHRS;
+//import com.kauailabs.navx.frc.AHRS;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -34,16 +34,16 @@ public class Robot extends IterativeRobot {
 	public static final Launcher launcher = new Launcher();
 	public static final Belt belt = new Belt();
 	public static OI oi;
-	public static AHRS ahrs;
+//	public static AHRS ahrs;
 
     Command autonomousCommand;
 
     public Robot() {
     	 try {   
-    		 ahrs = new AHRS(Port.kMXP); 
+//    		 ahrs = new AHRS(Port.kMXP); 
          } catch (RuntimeException ex ) {
              DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
-             ahrs = null;
+//             ahrs = null;
          }
     	
 		
@@ -78,6 +78,7 @@ public class Robot extends IterativeRobot {
      */
     public void autonomousPeriodic() {
         Scheduler.getInstance().run();
+        oi.updateSD();
     }
 
     public void teleopInit() {
@@ -103,6 +104,7 @@ public class Robot extends IterativeRobot {
      */
     public void teleopPeriodic() {
         Scheduler.getInstance().run();
+        oi.updateSD();
     }
     
     /**
@@ -113,10 +115,10 @@ public class Robot extends IterativeRobot {
     }
     
     public static double getRobotAngle () throws IllegalStateException{
-    	if (ahrs == null){
-    		throw new IllegalStateException(); 
-    	}
-    	return ahrs.getAngle() ;
-    	
+//    	if (ahrs == null){
+//    		throw new IllegalStateException(); 
+//    	}
+//    	return ahrs.getAngle() ;
+    	return 0;
     }
 }

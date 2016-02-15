@@ -28,7 +28,7 @@ public class DoLaunch extends Command {
     protected void execute() {
     	Robot.launcher.run();
     	if (this.timeSinceInitialized()>1){
-    		Robot.belt.run();
+    		Robot.belt.run(1.0);
     	}
     }
 

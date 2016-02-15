@@ -5,6 +5,7 @@ package org.usfirst.frc.team5002.robot.subsystems;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  *
@@ -14,19 +15,14 @@ public class Belt extends Subsystem {
 
     
     public Belt() {
-    	leftBelt = new CANTalon(2); /* TODO: Replace this with the actual motor id */
+    	leftBelt = new CANTalon(7); /* TODO: Replace this with the actual motor id */
 //    	rightBelt = new CANTalon(4);
     	
     	leftBelt.changeControlMode(TalonControlMode.PercentVbus);
 //    	rightBelt.changeControlMode(TalonControlMode.PercentVbus);
     }
     
-    /*** 
-     * Run belt motors at max speed.
-     */
-    public void run() {
-    	leftBelt.set(-.4);
-//    	rightBelt.set(-.2);
+    public void initDefaultCommand() {
     }
     
     /***
@@ -39,15 +35,6 @@ public class Belt extends Subsystem {
 //    	rightBelt.set(percentSpeed);
     }
     
-    /*** 
-     * Run belt motors at max speed in reverse direction.
-     */
-    public void runBackwards() {
-    	leftBelt.set(.4);
-//    	rightBelt.set(.2);
-    }
-    
-
     /***
      * Stop both belt motors.
      */
@@ -56,8 +43,6 @@ public class Belt extends Subsystem {
 //    	rightBelt.set(0);
     }
 
-    public void initDefaultCommand() {
-    }
 	public boolean isSafe(){
 		
 		if (leftBelt.getTemperature() < 200 && rightBelt.getTemperature() < 200) {			
@@ -67,6 +52,13 @@ public class Belt extends Subsystem {
 		else{	
 			return false;
 		}
+	}
+	
+	public void updateSD() {
+		SmartDashboard.putNumber("belt get", leftBelt.get());
+		SmartDashboard.putNumber("belt temp", leftBelt.getTemperature());
+		SmartDashboard.putNumber("belt current", leftBelt.getOutputCurrent());
+		SmartDashboard.putNumber("belt voltage", leftBelt.getOutputVoltage());
 	}
 }
 
