@@ -2,6 +2,8 @@
 package org.usfirst.frc.team5002.robot;
 
 import com.kauailabs.navx.frc.AHRS;
+
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotDrive;
@@ -37,7 +39,12 @@ public class Robot extends IterativeRobot {
     Command autonomousCommand;
 
     public Robot() {
-    	ahrs = new AHRS(Port.kMXP);
+    	 try {   
+    		 ahrs = new AHRS(Port.kMXP); 
+         } catch (RuntimeException ex ) {
+             DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
+             ahrs = null;
+         }
     	
 		
 	}
@@ -105,7 +112,10 @@ public class Robot extends IterativeRobot {
         LiveWindow.run();
     }
     
-    public static double getRobotAngle (){
+    public static double getRobotAngle () throws IllegalStateException{
+    	if (ahrs == null){
+    		throw new IllegalStateException(); 
+    	}
     	return ahrs.getAngle() ;
     	
     }
