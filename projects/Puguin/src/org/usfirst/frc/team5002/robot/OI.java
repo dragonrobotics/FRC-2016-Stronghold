@@ -37,24 +37,7 @@ public class OI {
 		LB.whileHeld(new BeltWizardry());
 	}
 		
-	/* 
-	 * A possible thingy for the prototype
-	 * please do your best to ignore it :3
-	 */
-	/*private Joystick bloop; {
-	bloop = new Joystick(1);
-	
-	Button RT = new JoystickButton(bloop, 1);
-	Button LT = new JoystickButton(bloop, 2);
-	Button RB = new JoystickButton(bloop, 3);
-	Button LB = new JoystickButton(bloop, 4);
-	
-	
-	RT.whileHeld(new LauncherMagic());
-	LT.whileHeld(new BeltMagic());
-	RB.whileHeld(new LauncherMagic());
-	LB.whileHeld(new BeltWizardry()); }
-	*/
+
 	
 	public Joystick getJoystick() {
 		return pugstick;

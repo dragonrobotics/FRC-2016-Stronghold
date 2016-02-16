@@ -11,15 +11,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  *
  */
 public class Belt extends Subsystem {
-	private CANTalon leftBelt, rightBelt;
+	private CANTalon leftBelt;
 
     
     public Belt() {
     	leftBelt = new CANTalon(2); /* TODO: Replace this with the actual motor id */
-//    	rightBelt = new CANTalon(4);
     	
     	leftBelt.changeControlMode(TalonControlMode.PercentVbus);
-//    	rightBelt.changeControlMode(TalonControlMode.PercentVbus);
     }
     
     /*** 
@@ -27,7 +25,6 @@ public class Belt extends Subsystem {
      */
     public void run() {
     	leftBelt.set(-.4);
-//    	rightBelt.set(-.2);
     }
     
     /***
@@ -37,7 +34,6 @@ public class Belt extends Subsystem {
      */
     public void run(double percentSpeed) {
     	leftBelt.set(percentSpeed);
-//    	rightBelt.set(percentSpeed);
     }
     
     /*** 
@@ -45,7 +41,6 @@ public class Belt extends Subsystem {
      */
     public void runBackwards() {
     	leftBelt.set(.4);
-//    	rightBelt.set(.2);
     }
     
 
@@ -54,14 +49,13 @@ public class Belt extends Subsystem {
      */
     public void stop() {
     	leftBelt.set(0);
-//    	rightBelt.set(0);
     }
 
     public void initDefaultCommand() {
     }
 	public boolean isSafe(){
 		
-		if (leftBelt.getTemperature() < 200 && rightBelt.getTemperature() < 200) {			
+		if (leftBelt.getTemperature() < 200) {			
 			return true;
 		}
 		
