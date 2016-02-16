@@ -22,7 +22,7 @@ public class Belt extends Subsystem {
 //    	rightBelt.changeControlMode(TalonControlMode.PercentVbus);
     }
     
-    public void initDefaultCommand() {
+    public void initDefaultCommand() {}
     /*** 
      * Run belt motors at max speed.
      */

@@ -26,17 +26,14 @@ public class DoLaunch extends Command {
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
-<<<<<<< HEAD
     	Robot.launcher.run();
     	if (this.timeSinceInitialized()>1){
     		Robot.belt.run(1.0);
     	}
-=======
 		Robot.launcher.run();
 		if (this.timeSinceInitialized() > 1) {
 			Robot.belt.run();
 		}
->>>>>>> branch 'master' of https://github.com/dragonrobotics/FRC-2016-Stronghold
     }
 
     // Make this return true when this Command no longer needs to run execute()

@@ -6,5 +6,6 @@
 	<classpathentry kind="lib" path="lib/java/current/lib/NetworkTables-sources.jar"/>
 	<classpathentry kind="lib" path="lib/java/current/lib/WPILib-sources.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.8.0_73"/>
+	<classpathentry kind="lib" path="lib/navx_frc.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
