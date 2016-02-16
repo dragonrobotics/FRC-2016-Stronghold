@@ -35,6 +35,7 @@ public class OI {
 //		R_Stick.whenPressed(new ExampleCommand());
 		RB.whileHeld(new LauncherMagic());
 		LB.whileHeld(new BeltWizardry());
+		A.whileHeld(new BeltMagic());
 	}
 		
 

@@ -16,10 +16,8 @@ public class Belt extends Subsystem {
     
     public Belt() {
     	leftBelt = new CANTalon(7); /* TODO: Replace this with the actual motor id */
-//    	rightBelt = new CANTalon(4);
     	
     	leftBelt.changeControlMode(TalonControlMode.PercentVbus);
-//    	rightBelt.changeControlMode(TalonControlMode.PercentVbus);
     }
     
     public void initDefaultCommand() {}
@@ -37,7 +35,6 @@ public class Belt extends Subsystem {
      */
     public void run(double percentSpeed) {
     	leftBelt.set(percentSpeed);
-//    	rightBelt.set(percentSpeed);
     }
     
 
@@ -54,7 +51,6 @@ public class Belt extends Subsystem {
      */
     public void stop() {
     	leftBelt.set(0);
-//    	rightBelt.set(0);
     }
 
 	public boolean isSafe(){

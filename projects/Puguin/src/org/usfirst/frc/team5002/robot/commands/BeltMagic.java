@@ -23,13 +23,14 @@ public class BeltMagic extends Command {
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
     //TODO:if switch is not activated then run, else stop 	
+    	
     	Robot.belt.run(-1.0);
+    	
     }
 
     // Make this return true when this Command no longer needs to run execute()
     protected boolean isFinished() {
-//        return Robot.launcher.getballswitch();
-    	return false;
+        return Robot.launcher.getballswitch();
     }
 
     // Called once after isFinished returns true
