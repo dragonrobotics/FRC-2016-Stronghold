@@ -111,4 +111,37 @@ public class Drivetrain extends Subsystem {
 		}
 
 	}
+	public void updateSD(){
+		SmartDashboard.putNumber("mc1 get", mc1.get());
+		SmartDashboard.putNumber("mc2 get", mc2.get());
+		SmartDashboard.putNumber("mc3 get", mc3.get());
+		SmartDashboard.putNumber("mc4 get", mc4.get());
+		SmartDashboard.putNumber("mc5 get", mc5.get());
+		SmartDashboard.putNumber("mc6 get", mc6.get());
+		SmartDashboard.putNumber("mc1 BusVoltage", mc1.getBusVoltage());
+		SmartDashboard.putNumber("mc2 BusVoltage", mc1.getBusVoltage());
+		SmartDashboard.putNumber("mc3 BusVoltage", mc1.getBusVoltage());
+		SmartDashboard.putNumber("mc4 BusVoltage", mc1.getBusVoltage());
+		SmartDashboard.putNumber("mc5 BusVoltage", mc1.getBusVoltage());
+		SmartDashboard.putNumber("mc6 BusVoltage", mc1.getBusVoltage());
+		SmartDashboard.putNumber("mc1 ClosedLoopError", mc1.getClosedLoopError());
+		SmartDashboard.putNumber("mc2 ClosedLoopError", mc2.getClosedLoopError());
+		SmartDashboard.putNumber("mc3 ClosedLoopError", mc3.getClosedLoopError());
+		SmartDashboard.putNumber("mc4 ClosedLoopError", mc4.getClosedLoopError());
+		SmartDashboard.putNumber("mc5 ClosedLoopError", mc5.getClosedLoopError());
+		SmartDashboard.putNumber("mc6 ClosedLoopError", mc6.getClosedLoopError());
+		SmartDashboard.putNumber("mc1 OutputVoltage", mc1.getOutputVoltage());
+		SmartDashboard.putNumber("mc2 OutputVoltage", mc2.getOutputVoltage());
+		SmartDashboard.putNumber("mc3 OutputVoltage", mc3.getOutputVoltage());
+		SmartDashboard.putNumber("mc4 OutputVoltage", mc4.getOutputVoltage());
+		SmartDashboard.putNumber("mc5 OutputVoltage", mc5.getOutputVoltage());
+		SmartDashboard.putNumber("mc6 OutputVoltage", mc6.getOutputVoltage());
+		SmartDashboard.putNumber("mc1 OutputCurrent", mc1.getOutputCurrent());
+		SmartDashboard.putNumber("mc2 OutputCurrent", mc2.getOutputCurrent());
+		SmartDashboard.putNumber("mc3 OutputCurrent", mc3.getOutputCurrent());
+		SmartDashboard.putNumber("mc4 OutputCurrent", mc4.getOutputCurrent());
+		SmartDashboard.putNumber("mc5 OutputCurrent", mc5.getOutputCurrent());
+		SmartDashboard.putNumber("mc6 OutputCurrent", mc6.getOutputCurrent());
+		
+		}
 }

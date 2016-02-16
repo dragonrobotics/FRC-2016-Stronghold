@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * 
@@ -66,6 +67,19 @@ public class Launcher extends Subsystem {
 		else{	
 			return false;
 		}
+	}
+
+	public void updateSD() {
+		SmartDashboard.putNumber("LeftWheel get", leftLaunchWheel.get());
+		SmartDashboard.putNumber("RightWheel get", rightLaunchWheel.get());
+		SmartDashboard.putNumber("LeftWheel BusVoltage", leftLaunchWheel.getBusVoltage());
+		SmartDashboard.putNumber("RightWheel BusVoltage", rightLaunchWheel.getBusVoltage());
+		SmartDashboard.putNumber("LeftWheel OutputVoltage", leftLaunchWheel.getOutputVoltage());
+		SmartDashboard.putNumber("RightWheel OutputVoltage", rightLaunchWheel.getOutputVoltage());
+		SmartDashboard.putNumber("LeftWheel OutputCurrent", leftLaunchWheel.getOutputCurrent());
+		SmartDashboard.putNumber("RightWheel OutputCurrent", rightLaunchWheel.getOutputCurrent());
+		SmartDashboard.putNumber("LeftWheel ClosedLoopError", leftLaunchWheel.getClosedLoopError());
+		SmartDashboard.putNumber("RightWheel ClosedLooperror", rightLaunchWheel.getClosedLoopError());
 	}
 }
 

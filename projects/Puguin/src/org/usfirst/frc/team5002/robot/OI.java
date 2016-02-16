@@ -105,8 +105,9 @@ public class OI {
 
 	}
 	
-	public void updateSD() {
-		SmartDashboard.putNumber("Joystick X", pugstick.getX());
+	public void updateSD(){
 		Robot.belt.updateSD();
+		Robot.drivetrain.updateSD();
+		Robot.launcher.updateSD();
 	}
 }
