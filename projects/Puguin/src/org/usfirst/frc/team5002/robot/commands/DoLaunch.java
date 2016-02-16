@@ -26,10 +26,10 @@ public class DoLaunch extends Command {
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
-    	Robot.launcher.run();
-    	if (this.timeSinceInitialized()>1){
-    		Robot.belt.run();
-    	}
+		Robot.launcher.run();
+		if (this.timeSinceInitialized() > 1) {
+			Robot.belt.run();
+		}
     }
 
     // Make this return true when this Command no longer needs to run execute()
