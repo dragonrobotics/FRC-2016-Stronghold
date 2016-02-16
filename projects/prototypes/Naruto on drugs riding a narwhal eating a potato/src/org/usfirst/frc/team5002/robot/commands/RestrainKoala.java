@@ -43,7 +43,8 @@ public class RestrainKoala extends Command {
 		Joystick stick = Robot.oi.getJoystick();
 		speed = -stick.getY();
 		// only assigns nonzero spin if button 8 is pressed
-		spin = stick.getRawButton(8) ? stick.getThrottle() : 0;
+//		spin = stick.getRawButton(8) ? stick.getThrottle() : 0;
+		spin = stick.getThrottle();
 	}
 
 	protected void execute() {

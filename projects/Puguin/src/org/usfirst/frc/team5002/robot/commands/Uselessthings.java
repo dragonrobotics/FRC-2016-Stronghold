@@ -22,13 +22,21 @@ public class Uselessthings extends Command {
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
-    	if (Robot.drivetrain.isSafe() == false){
+		/*
+		 * Chase Stockton:
+		 * TODO: make "emergency" method in the subsystems. Stopping them won't
+		 * do much of anything. Also, make another method in Robot.java that
+		 * cancels all active commands and restarts this safety command along
+		 * with any other command that should be running in the background (i.e.
+		 * TriggerHappy).
+		 */
+    	if (!Robot.drivetrain.isSafe()){
     		Robot.drivetrain.stop();
     	}
-    	if (Robot.launcher.isSafe() == false){
+    	if (!Robot.launcher.isSafe()){
     		Robot.launcher.stop();
     	}
-    	if (Robot.belt.isSafe() == false){
+    	if (!Robot.belt.isSafe()){
     		Robot.belt.stop();
     	}
     }

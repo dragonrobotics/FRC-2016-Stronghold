@@ -32,17 +32,17 @@ public class Pitcher extends Subsystem {
 		mcL = new CANTalon(3);
 		mcR = new CANTalon(4);
 
-//		mcL.changeControlMode(ControlMode.PercentVbus);
-//		mcR.changeControlMode(ControlMode.PercentVbus);
+		mcL.changeControlMode(TalonControlMode.PercentVbus);
+		mcR.changeControlMode(TalonControlMode.PercentVbus);
 
-		mcL.setFeedbackDevice(FeedbackDevice.QuadEncoder);
-		mcR.setFeedbackDevice(FeedbackDevice.QuadEncoder);
-		
-		mcL.changeControlMode(TalonControlMode.Speed);
-		mcR.changeControlMode(TalonControlMode.Speed);
-		
-		mcL.setPID(0.1, 0.000, 0, 0.1, 100, 50, 0);
-		mcR.setPID(0.1, 0.000, 0, 0.1, 100, 50, 0);
+//		mcL.setFeedbackDevice(FeedbackDevice.QuadEncoder);
+//		mcR.setFeedbackDevice(FeedbackDevice.QuadEncoder);
+//		
+//		mcL.changeControlMode(TalonControlMode.Speed);
+//		mcR.changeControlMode(TalonControlMode.Speed);
+//		
+//		mcL.setPID(0.1, 0.000, 0, 0.1, 100, 50, 0);
+//		mcR.setPID(0.1, 0.000, 0, 0.1, 100, 50, 0);
 	}
 
 	public void initDefaultCommand() {
@@ -70,19 +70,15 @@ public class Pitcher extends Subsystem {
 	 */
 	public void set(double speed, double spin, double spread) {
 		// prevents both wheels from spinning backwards and tearing up the ball.
-		double speedL,speedR;
 		if (speed < 0) {
 			speed = 0;
 		}
-		if (speed + Math.abs(spin) + Math.abs(spread)*Math.abs(spin) > 1) {
-			speed = 1 - Math.abs(spin) + Math.abs(spread)*Math.abs(spin);
+		if (speed + (Math.abs(spin) + spread * Math.abs(spin)) / 2 > 1) {
+			speed = 1 - (Math.abs(spin) + spread * Math.abs(spin)) / 2;
 		}
-		
-		speedL = speed + (spin+spread*spin)/2;
-		speedR = speed - (spin-spread*spin)/2;
 
-		mcL.set(1000*speedL);
-		mcR.set(1000*speedR);
+		mcL.set(-1 * (speed + (spin + Math.abs(spread * spin)) / 2));
+		mcR.set(-1 * (speed - (spin - Math.abs(spread * spin)) / 2));
 	}
 	
 	/**
@@ -91,12 +87,22 @@ public class Pitcher extends Subsystem {
 	 * @param speed - the base speed the motors run at. Acceptable values
 	 * 				  are between -1 and 1.
 	 * 
-	 * @param spin - differs the motors' speeds by this amount, effectively
+	 * @param spin - differs the motors' speeds by this amount, effectivelyvw
 	 *               applying "spin" to the ball. Acceptable values are
 	 *               between -1 and 1.
 	 */
 	public void set(double speed, double spin) {
-		set(speed, spin, 0);
+		set(speed, spin, 0.5);
+	}
+	
+	/**
+	 * Sets the wheels to run at a certain speed.
+	 * 
+	 * @param speed - the base speed the motors run at. Acceptable values
+	 * 				  are between -1 and 1.
+	 */
+	public void set(double speed) {
+		set(speed, 0, 0);
 	}
 	
 	/**

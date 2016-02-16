@@ -21,7 +21,7 @@ public class FireKoala extends Command {
 
     // Called repeatedly when this Command is scheduled to run
 	protected void execute() {
-		Robot.pitcher.set(0.735, /* Robot.oi.getJoystick().getThrottle() */0);
+		Robot.pitcher.set(0.735, Robot.oi.getJoystick().getThrottle());
 		if (timeSinceInitialized() > 2) {
 			Robot.belt.set(-0.8);
     	}

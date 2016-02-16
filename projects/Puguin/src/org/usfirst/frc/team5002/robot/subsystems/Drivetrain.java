@@ -119,11 +119,11 @@ public class Drivetrain extends Subsystem {
 		SmartDashboard.putNumber("mc5 get", mc5.get());
 		SmartDashboard.putNumber("mc6 get", mc6.get());
 		SmartDashboard.putNumber("mc1 BusVoltage", mc1.getBusVoltage());
-		SmartDashboard.putNumber("mc2 BusVoltage", mc1.getBusVoltage());
-		SmartDashboard.putNumber("mc3 BusVoltage", mc1.getBusVoltage());
-		SmartDashboard.putNumber("mc4 BusVoltage", mc1.getBusVoltage());
-		SmartDashboard.putNumber("mc5 BusVoltage", mc1.getBusVoltage());
-		SmartDashboard.putNumber("mc6 BusVoltage", mc1.getBusVoltage());
+		SmartDashboard.putNumber("mc2 BusVoltage", mc2.getBusVoltage());
+		SmartDashboard.putNumber("mc3 BusVoltage", mc3.getBusVoltage());
+		SmartDashboard.putNumber("mc4 BusVoltage", mc4.getBusVoltage());
+		SmartDashboard.putNumber("mc5 BusVoltage", mc5.getBusVoltage());
+		SmartDashboard.putNumber("mc6 BusVoltage", mc6.getBusVoltage());
 		SmartDashboard.putNumber("mc1 ClosedLoopError", mc1.getClosedLoopError());
 		SmartDashboard.putNumber("mc2 ClosedLoopError", mc2.getClosedLoopError());
 		SmartDashboard.putNumber("mc3 ClosedLoopError", mc3.getClosedLoopError());

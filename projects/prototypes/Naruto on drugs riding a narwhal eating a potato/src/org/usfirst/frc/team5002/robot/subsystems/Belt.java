@@ -59,8 +59,8 @@ public class Belt extends Subsystem {
 	 * Updates the smart dashboard with values from this subsystem.
 	 */
 	public void updateSD() {
-		SmartDashboard.putNumber("beltL", mcL.get());
-		SmartDashboard.putNumber("beltR", mcR.get());
-		SmartDashboard.putBoolean("beltBallSwitch", getBallSwitch());
+//		SmartDashboard.putNumber("beltL", mcL.get());
+//		SmartDashboard.putNumber("beltR", mcR.get());
+//		SmartDashboard.putBoolean("beltBallSwitch", getBallSwitch());
 	}
 }

@@ -5,23 +5,16 @@ package org.usfirst.frc.team5002.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.SPI.Port;
-import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.io.IOException;
-import org.usfirst.frc.team5002.robot.commands.ExampleCommand;
 import org.usfirst.frc.team5002.robot.commands.TriggerHappy;
 import org.usfirst.frc.team5002.robot.subsystems.Belt;
 import org.usfirst.frc.team5002.robot.subsystems.Drivetrain;
 import org.usfirst.frc.team5002.robot.subsystems.Jetson;
 import org.usfirst.frc.team5002.robot.subsystems.Launcher;
-
-//import com.kauailabs.navx.frc.AHRS;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -38,16 +31,16 @@ public class Robot extends IterativeRobot {
 	public static final Belt belt = new Belt();
 	public static Jetson jetson;
 	public static OI oi;
-//	public static AHRS ahrs;
+	public static AHRS ahrs;
 
     Command autonomousCommand;
 
     public Robot() {
     	 try {   
-//    		 ahrs = new AHRS(Port.kMXP); 
+   		 ahrs = new AHRS(Port.kMXP); 
          } catch (RuntimeException ex ) {
              DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
-//             ahrs = null;
+	             ahrs = null;
          }
     	
 		
@@ -60,8 +53,13 @@ public class Robot extends IterativeRobot {
     public void robotInit() {
 		oi = new OI();
 		
-        // instantiate the command used for the autonomous period
-        autonomousCommand = new ExampleCommand();
+        /*
+         * instantiate the command used for the autonomous period
+         * example:
+         * 
+         * autonomousCommand = new ExampleCommand();
+         */
+		
         TriggerHappy trigger = new TriggerHappy();
         trigger.start();
         
@@ -72,6 +70,20 @@ public class Robot extends IterativeRobot {
 			e.printStackTrace();
 			// we can't recover from this, really.
 			// I'm not really sure how to just kill the robot immediately.
+			
+			/*
+			 * Chase Stockton: Yes we absolutely can recover from this. We don't
+			 * need the jetson or vision processing to move the robot around or
+			 * fire the ball. Just take proper precaution in anything that tries
+			 * to access any feedback from the jetson (i.e. the command that
+			 * fires the ball).
+			 * 
+			 * More specifically, make a method in this class that returns
+			 * feedback from the jetson. If the jetson wasn't found, then throw
+			 * an IllegalStateException or something and let the caller worry
+			 * about handling the exception. Don't allow outside access to the
+			 * jetson in any manner other than that method.
+			 */
 		} 
     }
 	
@@ -126,12 +138,10 @@ public class Robot extends IterativeRobot {
     public void testPeriodic() {
         LiveWindow.run();
     }
-    
-    public static double getRobotAngle () throws IllegalStateException{
-//    	if (ahrs == null){
-//    		throw new IllegalStateException(); 
-//    	}
-//    	return ahrs.getAngle() ;
-    	return 0;
-    }
+public static double getRobotAngle() throws IllegalStateException {
+		if (ahrs == null) {
+			throw new IllegalStateException("AHRS not initialized.");
+		}
+		return ahrs.getAngle();
+	}
 }

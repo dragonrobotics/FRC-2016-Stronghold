@@ -36,7 +36,8 @@ public class PugstickAttack extends Command {
 		// see RestrainKoala.java for if statement shortcut below
 		Joystick stick = Robot.oi.getJoystick();
 		// only gives spin if button 8 is pressed
-		Robot.pitcher.set(-stick.getY(), stick.getRawButton(8) ? stick.getThrottle() : 0);
+//		Robot.pitcher.set(-stick.getY(), stick.getRawButton(8) ? stick.getThrottle() : 0);
+		Robot.pitcher.set(-stick.getY(), stick.getThrottle());
 	}
 
 	protected boolean isFinished() {

@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  *
  */
 public class Belt extends Subsystem {
-	private CANTalon leftBelt, rightBelt;
+	private CANTalon leftBelt;
 
     
     public Belt() {
@@ -23,6 +23,11 @@ public class Belt extends Subsystem {
     }
     
     public void initDefaultCommand() {
+    /*** 
+     * Run belt motors at max speed.
+     */
+    public void run() {
+    	leftBelt.set(-.4);
     }
     
     /***
@@ -35,6 +40,15 @@ public class Belt extends Subsystem {
 //    	rightBelt.set(percentSpeed);
     }
     
+
+    /*** 
+     * Run belt motors at max speed in reverse direction.
+     */
+    public void runBackwards() {
+    	leftBelt.set(.4);
+    }
+    
+
     /***
      * Stop both belt motors.
      */
@@ -45,7 +59,7 @@ public class Belt extends Subsystem {
 
 	public boolean isSafe(){
 		
-		if (leftBelt.getTemperature() < 200 && rightBelt.getTemperature() < 200) {			
+		if (leftBelt.getTemperature() < 200) {			
 			return true;
 		}
 		
