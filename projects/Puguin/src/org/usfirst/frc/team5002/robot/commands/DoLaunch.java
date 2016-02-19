@@ -10,7 +10,9 @@ import edu.wpi.first.wpilibj.command.Command;
  * Requires Belt and Launcher subsystems.
  */
 public class DoLaunch extends Command {
-
+/** 
+ * this works the shooting mechanism 
+ */
     public DoLaunch() {
         // Use requires() here to declare subsystem dependencies
         // eg. requires(chassis);

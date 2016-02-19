@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 /**
- *
+ *this project stops us from accidentally killing people by running them over, shooting rogue balls, and basically shutting down the machinery
  */
 public class Uselessthings extends Command {
 

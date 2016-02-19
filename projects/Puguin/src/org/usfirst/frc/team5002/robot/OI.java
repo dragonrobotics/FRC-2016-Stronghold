@@ -1,5 +1,4 @@
 package org.usfirst.frc.team5002.robot;
-
 import org.usfirst.frc.team5002.robot.commands.BeltMagic;
 import org.usfirst.frc.team5002.robot.commands.BeltWizardry;
 import org.usfirst.frc.team5002.robot.commands.LappingPug;

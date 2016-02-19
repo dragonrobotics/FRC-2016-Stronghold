@@ -5,7 +5,7 @@ import org.usfirst.frc.team5002.robot.Robot;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- *
+ *This also codes for the joystick drive in teleop
  */
 public class TeleopDriveyWivey extends Command {
 
