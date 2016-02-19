@@ -3,11 +3,11 @@ package org.usfirst.frc.team5002.robot.commands;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- * controls the flywheels on the front of the robot (it is Frank from MIB)
+ *
  */
-public class FranksWheels extends Command {
+public class PugOnViagra extends Command {
 
-    public FranksWheels() {
+    public PugOnViagra() {
         // Use requires() here to declare subsystem dependencies
         // eg. requires(chassis);
     }

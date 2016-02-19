@@ -39,8 +39,10 @@ public class Uselessthings extends Command {
     	if (!Robot.belt.isSafe()){
     		Robot.belt.stop();
     	}
+    	if (!Robot.thosearmthings.isSafe()){
+    		Robot.thosearmthings.stop();
     }
-
+}
     // Make this return true when this Command no longer needs to run execute()
     protected boolean isFinished() {
         return false;

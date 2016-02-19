@@ -3,7 +3,7 @@ package org.usfirst.frc.team5002.robot.commands;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- *
+ * Makes the tape measurer go out (like when a pug licks your face :3)    
  */
 public class PugKisses extends Command {
 

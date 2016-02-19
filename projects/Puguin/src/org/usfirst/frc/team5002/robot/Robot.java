@@ -15,6 +15,7 @@ import org.usfirst.frc.team5002.robot.subsystems.Belt;
 import org.usfirst.frc.team5002.robot.subsystems.Drivetrain;
 import org.usfirst.frc.team5002.robot.subsystems.Jetson;
 import org.usfirst.frc.team5002.robot.subsystems.Launcher;
+import org.usfirst.frc.team5002.robot.subsystems.ThoseArmThings;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -29,9 +30,11 @@ public class Robot extends IterativeRobot {
 	public static final Drivetrain drivetrain = new Drivetrain();
 	public static final Launcher launcher = new Launcher();
 	public static final Belt belt = new Belt();
+	public static final ThoseArmThings thosearmthings = new ThoseArmThings();
 	public static Jetson jetson;
 	public static OI oi;
 	public static AHRS ahrs;
+	
 
     Command autonomousCommand;
 
