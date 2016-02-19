@@ -28,9 +28,11 @@ public class Robot extends IterativeRobot {
 	public static final Launcher launcher = new Launcher();
 	public static final Belt belt = new Belt();
 	public static final ThoseArmThings thosearmthings = new ThoseArmThings();
+	public static final TongueOfYellow tongueofyellow = new TongueOfYellow();
 	public static Jetson jetson;
 	public static OI oi;
 	public static AHRS ahrs;
+	
 	
 
     Command autonomousCommand;
