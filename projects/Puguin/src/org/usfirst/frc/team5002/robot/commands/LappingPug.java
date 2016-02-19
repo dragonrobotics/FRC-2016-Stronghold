@@ -3,7 +3,7 @@ package org.usfirst.frc.team5002.robot.commands;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- *
+ *This summons the Pug god, a mystical being of immense metaphysical power
  */
 public class LappingPug extends Command {
 

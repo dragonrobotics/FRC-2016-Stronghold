@@ -5,7 +5,7 @@ import org.usfirst.frc.team5002.robot.Robot;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- *
+ *this (i think) is the code for the button on the controller that will use the shooting mechanism
  */
 public class LauncherMagic extends Command {
 

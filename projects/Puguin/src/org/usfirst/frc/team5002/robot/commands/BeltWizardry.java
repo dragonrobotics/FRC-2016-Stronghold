@@ -5,7 +5,7 @@ import org.usfirst.frc.team5002.robot.Robot;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- *
+ *this runs the belt on the other side of the bot
  */
 public class BeltWizardry extends Command {
 
