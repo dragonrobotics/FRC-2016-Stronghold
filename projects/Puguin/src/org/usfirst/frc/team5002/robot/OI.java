@@ -1,5 +1,4 @@
 package org.usfirst.frc.team5002.robot;
-
 import org.usfirst.frc.team5002.robot.commands.BeltMagic;
 import org.usfirst.frc.team5002.robot.commands.BeltWizardry;
 import org.usfirst.frc.team5002.robot.commands.LauncherMagic;
@@ -7,17 +6,14 @@ import org.usfirst.frc.team5002.robot.commands.LauncherMagic;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
-
 /**
  * This class is the glue that binds the controls on the physical operator
  * interface to the commands and command groups that allow control of the robot.
  */
 public class OI {
 	private Joystick pugstick;
-
 	public OI() {
 		pugstick = new Joystick(0);
-		
 		Button X = new JoystickButton(pugstick, 3); 											
 		Button Y = new JoystickButton(pugstick, 4); 
 		Button B = new JoystickButton(pugstick, 2);
@@ -37,9 +33,7 @@ public class OI {
 		LB.whileHeld(new BeltWizardry());
 		A.whileHeld(new BeltMagic());
 	}
-		
 
-	
 	public Joystick getJoystick() {
 		return pugstick;
 
@@ -49,5 +43,6 @@ public class OI {
 		Robot.belt.updateSD();
 		Robot.drivetrain.updateSD();
 		Robot.launcher.updateSD();
+		Robot.tongueofyellow.UpdateSD();
 	}
 }

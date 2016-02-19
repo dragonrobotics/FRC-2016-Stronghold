@@ -1,8 +1,5 @@
-
 package org.usfirst.frc.team5002.robot;
-
 import com.kauailabs.navx.frc.AHRS;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.SPI.Port;
@@ -15,7 +12,7 @@ import org.usfirst.frc.team5002.robot.subsystems.Belt;
 import org.usfirst.frc.team5002.robot.subsystems.Drivetrain;
 import org.usfirst.frc.team5002.robot.subsystems.Jetson;
 import org.usfirst.frc.team5002.robot.subsystems.Launcher;
-
+import org.usfirst.frc.team5002.robot.subsystems.TongueOfYellow;
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the IterativeRobot
@@ -24,15 +21,13 @@ import org.usfirst.frc.team5002.robot.subsystems.Launcher;
  * directory.
  */
 public class Robot extends IterativeRobot {
-	
-	//	public static final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
 	public static final Drivetrain drivetrain = new Drivetrain();
 	public static final Launcher launcher = new Launcher();
 	public static final Belt belt = new Belt();
 	public static Jetson jetson;
 	public static OI oi;
 	public static AHRS ahrs;
-
+	public static final TongueOfYellow tongueofyellow = new TongueOfYellow();
     Command autonomousCommand;
 
     public Robot() {
@@ -41,9 +36,7 @@ public class Robot extends IterativeRobot {
          } catch (RuntimeException ex ) {
              DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
 	             ahrs = null;
-         }
-    	
-		
+         } 	
 	}
     
     /** 
@@ -53,16 +46,8 @@ public class Robot extends IterativeRobot {
     public void robotInit() {
 		oi = new OI();
 		
-        /*
-         * instantiate the command used for the autonomous period
-         * example:
-         * 
-         * autonomousCommand = new ExampleCommand();
-         */
-		
         TriggerHappy trigger = new TriggerHappy();
         trigger.start();
-        
 		try {
 			jetson = new Jetson();
 			jetson.doDiscover(); // find the Jetson on the local network
@@ -93,8 +78,6 @@ public class Robot extends IterativeRobot {
 	
     public void autonomousInit() {
     	drivetrain.initAutonomous();
-    	
-        // schedule the autonomous command (example)
         if (autonomousCommand != null) autonomousCommand.start();
     }
 
