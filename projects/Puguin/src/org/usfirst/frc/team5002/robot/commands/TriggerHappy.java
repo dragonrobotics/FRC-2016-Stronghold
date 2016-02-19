@@ -6,7 +6,7 @@ import org.usfirst.frc.team5002.robot.Robot;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- *
+ *shoots the balls because that's important and stuff
  */
 public class TriggerHappy extends Command {
 	private Command FireBalls;

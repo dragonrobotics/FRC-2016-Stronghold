@@ -5,7 +5,7 @@ import org.usfirst.frc.team5002.robot.Robot;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- *
+ *this thing does things to other things which makes the belt system function
  */
 public class BeltMagic extends Command {
 
