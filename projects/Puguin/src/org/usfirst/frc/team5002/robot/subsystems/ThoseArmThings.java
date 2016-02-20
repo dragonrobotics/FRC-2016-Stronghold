@@ -3,10 +3,11 @@ package org.usfirst.frc.team5002.robot.subsystems;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
- *
- */
+*
+*/
 public class ThoseArmThings extends Subsystem {
 	private CANTalon leftArm, rightArm;
 
@@ -15,15 +16,9 @@ public class ThoseArmThings extends Subsystem {
 		rightArm = new CANTalon(9);
 		leftArm.changeControlMode(TalonControlMode.PercentVbus);
 		rightArm.changeControlMode(TalonControlMode.PercentVbus);
-
 	}
-	// Put methods for controlling this subsystem
-	// here. Call these from Commands.
 
 	public void initDefaultCommand() {
-		// Set the default command for a subsystem here.
-
-		// setDefaultCommand(new MySpecialCommand());
 	}
 
 	public void armsup() {
@@ -41,17 +36,24 @@ public class ThoseArmThings extends Subsystem {
 
 		if (leftArm.getTemperature() < 200 && rightArm.getTemperature() < 200) {
 			return true;
-		}
-
-		else {
+		} else {
 			return false;
 		}
 
 	}
 
 	public void stop() {
-		// TODO Auto-generated method stub
 		leftArm.set(0);
 		rightArm.set(0);
 	}
+
+	public void UpdateSD() {
+		SmartDashboard.putNumber("leftArm get", leftArm.get());
+		SmartDashboard.putNumber("rightArm get", rightArm.get());
+		SmartDashboard.putNumber("leftArm OutputVoltage", leftArm.getOutputVoltage());
+		SmartDashboard.putNumber("rightArm OutputVoltage", rightArm.getOutputVoltage());
+		SmartDashboard.putNumber("leftArm OutputCurrent", leftArm.getOutputCurrent());
+		SmartDashboard.putNumber("rightArm OutputCurrent", rightArm.getOutputCurrent());
+	}
+
 }
