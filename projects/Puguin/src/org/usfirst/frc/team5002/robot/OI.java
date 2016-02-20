@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class OI {
 	private Joystick pugstick;
-
 	public OI() {
 		pugstick = new Joystick(0);
 		pugstick.getRawAxis(1);
@@ -28,7 +27,6 @@ public class OI {
 		pugstick.getRawAxis(4);
 		pugstick.getRawAxis(5);
 		pugstick.getPOV();
-		
 		
 //		Button X = new JoystickButton(pugstick, 3); 											
 		Button Y = new JoystickButton(pugstick, 4); 
@@ -47,14 +45,10 @@ public class OI {
 		Paddle_4.whenPressed(new WhatAreThose());
 		RB.whileHeld(new LauncherMagic());
 		LB.whileHeld(new BeltWizardry());
-	
 	}
-		
-
 	
 	public Joystick getJoystick() {
 		return pugstick;
-
 	}
 	
 	public void updateSD(){
@@ -63,5 +57,6 @@ public class OI {
 		Robot.launcher.updateSD();
 		SmartDashboard.putNumber("POV", pugstick.getPOV());
 		Robot.tongueofyellow.UpdateSD();
+		Robot.thosearmthings.UpdateSD();
 	}
 }
