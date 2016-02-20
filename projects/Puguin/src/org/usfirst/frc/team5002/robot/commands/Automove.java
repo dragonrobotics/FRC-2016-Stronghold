@@ -7,42 +7,38 @@ import edu.wpi.first.wpilibj.command.Command;
 /**
  *
  */
-public class PugOnViagra extends Command {
-	private Command RaiseTheRoof;
-	private Command SadPug;
-	
-    public PugOnViagra() {
-    	RaiseTheRoof = new TOUCHDOWN();
-    	SadPug = new WhatAreThose();
+public class Automove extends Command {
+	private double x, y, angle;
+    public Automove(double x, double y, double angle) {
         // Use requires() here to declare subsystem dependencies
-        // eg. requires(chassis);
+        requires(Robot.drivetrain);
+        this.x = x;
+        this.y = y;
+        this.angle = angle;
     }
 
     // Called just before this Command runs the first time
     protected void initialize() {
-    	if (Robot.oi.getJoystick().getPOV() == 0) {
-			RaiseTheRoof.start();
-		}
-		if (Robot.oi.getJoystick().getPOV() == 180) {
-			SadPug.start();
-		}
     }
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
+    	Robot.drivetrain.autoDrive(x, y, angle);
     }
 
     // Make this return true when this Command no longer needs to run execute()
     protected boolean isFinished() {
-        return false;
+        return Robot.drivetrain.isInPosition();
     }
 
     // Called once after isFinished returns true
     protected void end() {
+    	Robot.drivetrain.stop();
     }
 
     // Called when another command which requires one or more of the same
     // subsystems is scheduled to run
     protected void interrupted() {
+    	end();
     }
 }
