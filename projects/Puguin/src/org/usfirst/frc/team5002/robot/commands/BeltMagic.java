@@ -5,42 +5,30 @@ import org.usfirst.frc.team5002.robot.Robot;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- *this thing does things to other things which makes the belt system function
+ * this thing does things to other things which makes the belt system function
  */
 public class BeltMagic extends Command {
+	public BeltMagic() {
+		requires(Robot.belt);
+	}
 
-    public BeltMagic() {
-        // Use requires() here to declare subsystem dependencies
-        // eg. requires(chassis);
-    	requires(Robot.belt);
-    }
+	protected void initialize() {
 
-    // Called just before this Command runs the first time
-    protected void initialize() {
-    	
-    }
+	}
 
-    // Called repeatedly when this Command is scheduled to run
-    protected void execute() {
-    //TODO:if switch is not activated then run, else stop 	
-    	
-    	Robot.belt.run(-1.0);
-    	
-    }
+	protected void execute() {
+		Robot.belt.run(-1.0);
+	}
 
-    // Make this return true when this Command no longer needs to run execute()
-    protected boolean isFinished() {
-        return Robot.launcher.getballswitch();
-    }
+	protected boolean isFinished() {
+		return Robot.launcher.getballswitch();
+	}
 
-    // Called once after isFinished returns true
-    protected void end() {
-    	Robot.belt.stop();
-    }
+	protected void end() {
+		Robot.belt.stop();
+	}
 
-    // Called when another command which requires one or more of the same
-    // subsystems is scheduled to run
-    protected void interrupted() {
-    	end();
-    }
+	protected void interrupted() {
+		end();
+	}
 }

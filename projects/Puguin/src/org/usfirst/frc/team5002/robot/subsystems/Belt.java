@@ -14,7 +14,6 @@ public class Belt extends Subsystem {
 	public Belt() {
 		leftBelt = new CANTalon(
 				7); /* TODO: Replace this with the actual motor id */
-
 		leftBelt.changeControlMode(TalonControlMode.PercentVbus);
 	}
 

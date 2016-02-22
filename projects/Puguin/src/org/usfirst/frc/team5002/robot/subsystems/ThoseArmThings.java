@@ -33,7 +33,6 @@ public class ThoseArmThings extends Subsystem {
 	}
 
 	public boolean isSafe() {
-
 		if (leftArm.getTemperature() < 200 && rightArm.getTemperature() < 200) {
 			return true;
 		} else {

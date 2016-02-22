@@ -7,39 +7,31 @@ import java.net.InetAddress;
 import java.nio.ByteBuffer;
 
 public class DiscoverPacket extends NetworkMessage {
-	
 
-	
 	/*
-	 enum class origin_t : unsigned char {
-		DRIVER_STATION = 0,
-		ROBORIO = 1,
-		JETSON = 2,
-		UNKNOWN = 0xFF
+	 * enum class origin_t : unsigned char { DRIVER_STATION = 0, ROBORIO = 1,
+	 * JETSON = 2, UNKNOWN = 0xFF
 	 */
-	
+
 	public enum origin_type {
-		DRIVER_STATION,
-		ROBORIO,
-		JETSON,
-		UNKNOWN
+		DRIVER_STATION, ROBORIO, JETSON, UNKNOWN
 	};
-	
+
 	public origin_type originator;
-	
+
 	public DiscoverPacket(InetAddress addr, origin_type t) {
 		originator = t;
 		this.addr = addr;
 	}
-	
+
 	public DiscoverPacket(InetAddress addr) {
 		originator = origin_type.ROBORIO;
 		this.addr = addr;
 	}
-	
+
 	@Override
 	public void writeObjectTo(ByteBuffer out) throws IOException {
-		switch(originator) {
+		switch (originator) {
 		case DRIVER_STATION:
 			out.put((byte) 0);
 			break;
@@ -58,7 +50,7 @@ public class DiscoverPacket extends NetworkMessage {
 	@Override
 	public void readObjectFrom(ByteBuffer in) throws IOException {
 		byte typebyte = in.get();
-		switch(typebyte) {
+		switch (typebyte) {
 		case 0:
 			originator = origin_type.DRIVER_STATION;
 			break;
@@ -77,7 +69,7 @@ public class DiscoverPacket extends NetworkMessage {
 	public byte getMessageID() {
 		return 5;
 	}
-	
+
 	@Override
 	public short getMessageSize() {
 		return 1;

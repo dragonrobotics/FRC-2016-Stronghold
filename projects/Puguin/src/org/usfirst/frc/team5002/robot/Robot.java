@@ -1,4 +1,5 @@
 package org.usfirst.frc.team5002.robot;
+
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
@@ -14,6 +15,7 @@ import org.usfirst.frc.team5002.robot.subsystems.Jetson;
 import org.usfirst.frc.team5002.robot.subsystems.Launcher;
 import org.usfirst.frc.team5002.robot.subsystems.ThoseArmThings;
 import org.usfirst.frc.team5002.robot.subsystems.TongueOfYellow;
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the IterativeRobot
@@ -22,8 +24,6 @@ import org.usfirst.frc.team5002.robot.subsystems.TongueOfYellow;
  * directory.
  */
 public class Robot extends IterativeRobot {
-	
-	//	public static final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
 	public static final Drivetrain drivetrain = new Drivetrain();
 	public static final Launcher launcher = new Launcher();
 	public static final Belt belt = new Belt();
@@ -32,39 +32,27 @@ public class Robot extends IterativeRobot {
 	public static Jetson jetson;
 	public static OI oi;
 	public static AHRS ahrs;
-	
-	
 
-    Command autonomousCommand;
+	Command autonomousCommand;
 
-    public Robot() {
-    	 try {   
-   		 ahrs = new AHRS(Port.kMXP); 
-         } catch (RuntimeException ex ) {
-             DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
-	             ahrs = null;
-         }
-    	
-		
+	public Robot() {
+		try {
+			ahrs = new AHRS(Port.kMXP);
+		} catch (RuntimeException ex) {
+			DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
+			ahrs = null;
+		}
 	}
-    
-    /** 
-     * This function is run when the robot is first started up and should be
-     * used for any initialization code.
-     */
-    public void robotInit() {
+
+	/**
+	 * This function is run when the robot is first started up and should be
+	 * used for any initialization code.
+	 */
+	public void robotInit() {
 		oi = new OI();
-		
-        /*
-         * instantiate the command used for the autonomous period
-         * example:
-         * 
-         * autonomousCommand = new ExampleCommand();
-         */
-		
-        TriggerHappy trigger = new TriggerHappy();
-        trigger.start();
-        
+		TriggerHappy trigger = new TriggerHappy();
+		trigger.start();
+
 		try {
 			jetson = new Jetson();
 			jetson.doDiscover(); // find the Jetson on the local network
@@ -72,7 +60,7 @@ public class Robot extends IterativeRobot {
 			e.printStackTrace();
 			// we can't recover from this, really.
 			// I'm not really sure how to just kill the robot immediately.
-			
+
 			/*
 			 * Chase Stockton: Yes we absolutely can recover from this. We don't
 			 * need the jetson or vision processing to move the robot around or
@@ -86,61 +74,56 @@ public class Robot extends IterativeRobot {
 			 * about handling the exception. Don't allow outside access to the
 			 * jetson in any manner other than that method.
 			 */
-		} 
-    }
-	
+		}
+	}
+
 	public void disabledPeriodic() {
 		Scheduler.getInstance().run();
 	}
+
+	public void autonomousInit() {
+		drivetrain.initAutonomous();
+
+		if (autonomousCommand != null)
+			autonomousCommand.start();
+	}
 	
-    public void autonomousInit() {
-    	drivetrain.initAutonomous();
-    	
-        // schedule the autonomous command (example)
-        if (autonomousCommand != null) autonomousCommand.start();
-    }
+	/**
+	 * This function is called periodically during autonomous
+	 */
+	public void autonomousPeriodic() {
+		Scheduler.getInstance().run();
+		oi.updateSD();
+	}
 
-    /**
-     * This function is called periodically during autonomous
-     */
-    public void autonomousPeriodic() {
-        Scheduler.getInstance().run();
-        oi.updateSD();
-    }
+	public void teleopInit() {
+		if (autonomousCommand != null)
+			autonomousCommand.cancel();
 
-    public void teleopInit() {
-		// This makes sure that the autonomous stops running when
-        // teleop starts running. If you want the autonomous to 
-        // continue until interrupted by another command, remove
-        // this line or comment it out.
-        if (autonomousCommand != null) autonomousCommand.cancel();
-        
-        drivetrain.initTeleop();
-    }
+		drivetrain.initTeleop();
+	}
 
-    /**
-     * This function is called when the disabled button is hit.
-     * You can use it to reset subsystems before shutting down.
-     */
-    public void disabledInit(){
+	/**
+	 * This function is called when the disabled button is hit. You can use it
+	 * to reset subsystems before shutting down.
+	 */
+	public void disabledInit() {}
+	/**
+	 * This function is called periodically during operator control
+	 */
+	public void teleopPeriodic() {
+		Scheduler.getInstance().run();
+		oi.updateSD();
+	}
 
-    }
+	/**
+	 * This function is called periodically during test mode
+	 */
+	public void testPeriodic() {
+		LiveWindow.run();
+	}
 
-    /**
-     * This function is called periodically during operator control
-     */
-    public void teleopPeriodic() {
-        Scheduler.getInstance().run();
-        oi.updateSD();
-    }
-    
-    /**
-     * This function is called periodically during test mode
-     */
-    public void testPeriodic() {
-        LiveWindow.run();
-    }
-public static double getRobotAngle() throws IllegalStateException {
+	public static double getRobotAngle() throws IllegalStateException {
 		if (ahrs == null) {
 			throw new IllegalStateException("AHRS not initialized.");
 		}

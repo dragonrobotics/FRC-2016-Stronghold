@@ -27,19 +27,19 @@ public class Drivetrain extends Subsystem {
 		mc5 = new CANTalon(35);
 		mc6 = new CANTalon(36);
 
-		mc1.changeControlMode(TalonControlMode.Position);		
+		mc1.changeControlMode(TalonControlMode.Position);
 		mc2.changeControlMode(TalonControlMode.Follower);
 		mc3.changeControlMode(TalonControlMode.Follower);
-		mc4.changeControlMode(TalonControlMode.Position);		
+		mc4.changeControlMode(TalonControlMode.Position);
 		mc5.changeControlMode(TalonControlMode.Follower);
 		mc6.changeControlMode(TalonControlMode.Follower);
 
 		mc1.setFeedbackDevice(FeedbackDevice.QuadEncoder);
 		mc4.setFeedbackDevice(FeedbackDevice.QuadEncoder);
-		
+
 		mc1.setPID(1.0, 0, 0);
 		mc4.setPID(1.0, 0, 0);
-		
+
 		mc2.set(1);
 		mc3.set(1);
 		mc5.set(4);
@@ -47,14 +47,14 @@ public class Drivetrain extends Subsystem {
 	}
 
 	public void initDefaultCommand() {
-		 setDefaultCommand(new TeleopDriveyWivey());
+		setDefaultCommand(new TeleopDriveyWivey());
 	}
-	
+
 	public void initTeleop() {
 		mc1.changeControlMode(TalonControlMode.Speed);
 		mc4.changeControlMode(TalonControlMode.Speed);
 	}
-	
+
 	public void initAutonomous() {
 		mc1.changeControlMode(TalonControlMode.Position);
 		mc4.changeControlMode(TalonControlMode.Position);
@@ -63,23 +63,21 @@ public class Drivetrain extends Subsystem {
 	public void joystickDrive(Joystick stick) {
 		mc1.set(stick.getY() - stick.getX());
 		mc4.set(stick.getY() + stick.getX());
-		 
-	} 
+
+	}
 
 	public void joystickFOCDrive(Joystick stick) {
 		Robot.getRobotAngle();
 		double PugAngle = Robot.getRobotAngle();
 		double JoystickAngle = stick.getDirectionDegrees();
-		
-		if (JoystickAngle < PugAngle){
+
+		if (JoystickAngle < PugAngle) {
 			mc1.set(1);
 			mc4.set(-1);
-		}
-		else if(JoystickAngle > PugAngle){
+		} else if (JoystickAngle > PugAngle) {
 			mc1.set(-1);
 			mc4.set(1);
-		}
-		else{
+		} else {
 			mc1.set(stick.getMagnitude());
 			mc4.set(stick.getMagnitude());
 		}
@@ -87,18 +85,23 @@ public class Drivetrain extends Subsystem {
 	}
 
 	public void autoDrive(double x, double y, double angle) {
-		 double initangle = Math.atan(x / y);  //Angle to the final position
-		 double initdistance = Math.sqrt (Math.pow(x, 2) + Math.pow(y, 2));  //Distance directly to the final position
-		 
-		 	mc1.set(0); //Replace 0's after experiment finds how to angle the robot
-		 	mc4.set(0);
-		 
-			mc1.set(initdistance);
-		 	mc4.set(-initdistance);
-		
+		double initangle = Math.atan(x / y); // Angle to the final position
+		double initdistance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)); // Distance
+																			// directly
+																			// to
+																			// the
+																			// final
+																			// position
+
+		mc1.set(0); // Replace 0's after experiment finds how to angle the robot
+		mc4.set(0);
+
+		mc1.set(initdistance);
+		mc4.set(-initdistance);
+
 	}
 
-	public boolean isInPosition() { 
+	public boolean isInPosition() {
 		return mc1.getClosedLoopError() + mc4.getClosedLoopError() < 50;
 	}
 
@@ -118,7 +121,8 @@ public class Drivetrain extends Subsystem {
 		}
 
 	}
-	public void updateSD(){
+
+	public void updateSD() {
 		SmartDashboard.putNumber("mc1 get", mc1.get());
 		SmartDashboard.putNumber("mc2 get", mc2.get());
 		SmartDashboard.putNumber("mc3 get", mc3.get());
@@ -149,6 +153,6 @@ public class Drivetrain extends Subsystem {
 		SmartDashboard.putNumber("mc4 OutputCurrent", mc4.getOutputCurrent());
 		SmartDashboard.putNumber("mc5 OutputCurrent", mc5.getOutputCurrent());
 		SmartDashboard.putNumber("mc6 OutputCurrent", mc6.getOutputCurrent());
-		
-		}
+
+	}
 }
