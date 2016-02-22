@@ -31,7 +31,7 @@ public class Robot extends IterativeRobot {
 	public static final TongueOfYellow tongueofyellow = new TongueOfYellow();
 	public static Jetson jetson;
 	public static OI oi;
-	public static AHRS ahrs;
+	private static AHRS ahrs;
 
 	Command autonomousCommand;
 
