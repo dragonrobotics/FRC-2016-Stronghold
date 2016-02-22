@@ -5,7 +5,11 @@
 	<classpathentry kind="lib" path="lib/java/current/lib/NetworkTables.jar"/>
 	<classpathentry kind="lib" path="lib/java/current/lib/NetworkTables-sources.jar"/>
 	<classpathentry kind="lib" path="lib/java/current/lib/WPILib-sources.jar"/>
-	<classpathentry kind="lib" path="lib/navx_frc.jar"/>
+	<classpathentry kind="lib" path="lib/navx_frc.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/C:/Users/Owner/navx-mxp/java/docs/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
