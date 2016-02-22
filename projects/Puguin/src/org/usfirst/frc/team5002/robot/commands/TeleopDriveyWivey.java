@@ -5,37 +5,29 @@ import org.usfirst.frc.team5002.robot.Robot;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- *This also codes for the joystick drive in teleop
+ * This also codes for the joystick drive in teleop
  */
 public class TeleopDriveyWivey extends Command {
+	public TeleopDriveyWivey() {
+		requires(Robot.drivetrain);
+	}
 
-    public TeleopDriveyWivey() {
-    	requires(Robot.drivetrain);
+	protected void initialize() {
+	}
 
-    }
+	protected void execute() {
+		Robot.drivetrain.joystickDrive(Robot.oi.getJoystick());
+	}
 
-    // Called just before this Command runs the first time
-    protected void initialize() {
-    }
+	protected boolean isFinished() {
+		return false;
+	}
 
-    // Called repeatedly when this Command is scheduled to run
-    protected void execute() {
-    	Robot.drivetrain.joystickDrive(Robot.oi.getJoystick());
-    }
+	protected void end() {
+		Robot.drivetrain.stop();
+	}
 
-    // Make this return true when this Command no longer needs to run execute()
-    protected boolean isFinished() {
-        return false;
-    }
-
-    // Called once after isFinished returns true
-    protected void end() {
-    	Robot.drivetrain.stop();
-    }
-
-    // Called when another command which requires one or more of the same
-    // subsystems is scheduled to run
-    protected void interrupted() {
-    	end();
-    }
+	protected void interrupted() {
+		end();
+	}
 }

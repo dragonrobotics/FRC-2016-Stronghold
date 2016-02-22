@@ -22,11 +22,6 @@ public class OI {
 	public OI() {
 		pugstick = new Joystick(0);
 		pugstick.getRawAxis(1);
-		pugstick.getRawAxis(2);
-		pugstick.getRawAxis(3);
-		pugstick.getRawAxis(4);
-		pugstick.getRawAxis(5);
-		pugstick.getPOV();
 		
 //		Button X = new JoystickButton(pugstick, 3); 											
 		Button Y = new JoystickButton(pugstick, 4); 
