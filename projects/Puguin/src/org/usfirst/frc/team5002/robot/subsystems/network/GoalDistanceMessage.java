@@ -15,6 +15,7 @@ public class GoalDistanceMessage extends NetworkMessage {
 	public Status goal_status;
 	public double distance;
 	public double score;
+	public double angle;
 
 	public GoalDistanceMessage(InetAddress addr) {
 		goal_status = Status.GOAL_NOT_FOUND;
@@ -33,6 +34,7 @@ public class GoalDistanceMessage extends NetworkMessage {
 
 		this.putDouble(out, distance);
 		this.putDouble(out, score);
+		this.putDouble(out, angle);
 	}
 
 	@Override
@@ -46,6 +48,7 @@ public class GoalDistanceMessage extends NetworkMessage {
 
 		distance = this.getDouble(in);
 		score = this.getDouble(in);
+		angle = this.getDouble(in);
 	}
 
 	@Override
