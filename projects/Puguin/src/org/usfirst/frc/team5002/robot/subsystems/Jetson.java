@@ -73,6 +73,15 @@ public class Jetson extends Subsystem {
 		}
 	}
 	
+	/***
+	 * isDaijoubu() -- get Jetson sortie status
+	 * 
+	 * @return is the Jetson connected or not?
+	 */
+	public boolean isDaijoubu() {
+		return (connection.isConnected());
+	}
+	
 	public double getDistance() throws IllegalStateException {
 		updateGoalStatus();
 		return lastKnownDistance;
