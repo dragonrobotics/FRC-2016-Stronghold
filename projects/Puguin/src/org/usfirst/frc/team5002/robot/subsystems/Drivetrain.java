@@ -2,6 +2,7 @@ package org.usfirst.frc.team5002.robot.subsystems;
 
 import org.usfirst.frc.team5002.robot.Robot;
 import org.usfirst.frc.team5002.robot.commands.TeleopDriveyWivey;
+import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
@@ -83,15 +84,15 @@ public class Drivetrain extends Subsystem {
 		}
 
 	}
-
 	public void autoDrive(double x, double y, double angle) {
 		double initangle = Math.atan(x / y); // Angle to the final position
-		double initdistance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)); // Distance
-																			// directly
-																			// to
-																			// the
-																			// final
-																			// position
+		double initdistance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)); 
+		// Distance
+		// directly
+		// to
+	    // the
+		// final
+	    // position
 
 		mc1.set(0); // Replace 0's after experiment finds how to angle the robot
 		mc4.set(0);

@@ -9,6 +9,7 @@ import org.usfirst.frc.team5002.robot.commands.TOUCHDOWN;
 import org.usfirst.frc.team5002.robot.commands.WhatAreThose;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Joystick.RumbleType;
 import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -22,6 +23,8 @@ public class OI {
 	public OI() {
 		pugstick = new Joystick(0);
 		pugstick.getRawAxis(1);
+		pugstick.getRawAxis(3);
+		pugstick.setRumble(RumbleType.kLeftRumble, 1); 
 		
 //		Button X = new JoystickButton(pugstick, 3); 											
 		Button Y = new JoystickButton(pugstick, 4); 
