@@ -84,7 +84,7 @@ public class Drivetrain extends Subsystem {
 		}
 
 	}
-	public void autoDrive(double x, double y, double angle) {
+	public void autoDrive(double x, double y) {
 		double initangle = Math.atan(x / y); // Angle to the final position
 		double initdistance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)); 
 		// Distance

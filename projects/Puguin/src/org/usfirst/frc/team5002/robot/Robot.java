@@ -31,7 +31,7 @@ public class Robot extends IterativeRobot {
 	public static final TongueOfYellow tongueofyellow = new TongueOfYellow();
 	public static Jetson jetson;
 	public static OI oi;
-	private static AHRS ahrs;
+	public static AHRS ahrs;
 
 	Command autonomousCommand;
 
@@ -94,6 +94,12 @@ public class Robot extends IterativeRobot {
 	public void autonomousPeriodic() {
 		Scheduler.getInstance().run();
 		oi.updateSD();
+		try {
+			jetson.checkForMessage();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void teleopInit() {
@@ -114,6 +120,13 @@ public class Robot extends IterativeRobot {
 	public void teleopPeriodic() {
 		Scheduler.getInstance().run();
 		oi.updateSD();
+		
+		try {
+			jetson.checkForMessage();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**

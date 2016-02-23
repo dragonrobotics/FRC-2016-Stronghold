@@ -25,21 +25,21 @@ public class AutonomousPuguinReal extends CommandGroup {
 			// if switch is activated, all other programs will be discontinued
 		}
 
-		addSequential(new Automove(0, 5, 0));
+		addSequential(new Automove(0, 5));
 		// move forward an additional 5 ticks
 
 		if (seesaw.get()) {
 			addSequential(new WhatAreThose());
 			// lower robot arms
-			addSequential(new Automove(0, 10, 0));
+			addSequential(new Automove(0, 10));
 			// move past the defense
 		}
 
 		else if (gate.get()) {
-			addSequential(new Automove(0, 10, 0));
+			addSequential(new Automove(0, 10));
 			// move past the defense
 		} else {
-			addSequential(new Automove(0, 10, 0));
+			addSequential(new Automove(0, 10));
 			// move past the defense
 		}
 
@@ -48,7 +48,7 @@ public class AutonomousPuguinReal extends CommandGroup {
 		 */
 
 		if (kindaLeft.get()) {
-			addSequential(new Automove(0, 0, 45));
+			addSequential(new Automove(0, 0));
 			// turn the robot to line up with the goal
 		}
 
@@ -67,7 +67,7 @@ public class AutonomousPuguinReal extends CommandGroup {
 
 		}
 
-		addSequential(new Seeker());
+//		addSequential(new Poi());
 		// find the goal
 		addSequential(new DoLaunch());
 		// Add Commands here:

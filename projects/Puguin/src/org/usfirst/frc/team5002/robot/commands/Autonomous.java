@@ -17,7 +17,7 @@ public class Autonomous extends Command {
 	}
 
 	protected void execute() {
-		Robot.drivetrain.autoDrive(1, 5, 30);
+		Robot.drivetrain.autoDrive(1, 5);
 	}
 
 	protected boolean isFinished() {

@@ -20,6 +20,7 @@ import java.nio.ByteOrder;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Queue;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
 import org.usfirst.frc.team5002.robot.subsystems.network.DiscoverPacket;
@@ -37,7 +38,69 @@ public class Jetson extends Subsystem {
 	private DatagramSocket udpSocket;
 	private OutputStream netOut;
 	private InputStream netIn;
-
+	
+	private enum JetsonStateMachine {
+		READ_HEADER,	// reading packet header
+		READ_DATA,		// reading packet payload
+		WAIT			// not reading packet
+	};
+	
+	private JetsonStateMachine curState = JetsonStateMachine.WAIT;
+	private ByteBuffer curHeaderBuf;
+	private ByteBuffer curPacketBuf;
+	private int curBufPos;
+	private short curPacketSize;
+	private byte curPacketType;
+	
+	private Queue<NetworkMessage> msgQueue;
+	
+	private double lastKnownDistance;
+	private double lastKnownAngle;
+	
+	private void updateGoalStatus() throws IllegalStateException {
+		if(!connection.isConnected()) {
+			throw new IllegalStateException("Not connected to Jetson yet.");
+		} else {
+			NetworkMessage i;
+			while(!msgQueue.isEmpty()) {
+				i = msgQueue.poll();
+				if((i != null) && (i instanceof GoalDistanceMessage)) {
+					GoalDistanceMessage m = (GoalDistanceMessage)i;
+					lastKnownDistance = m.distance;
+					lastKnownAngle = m.angle;
+				}
+			}
+		}
+	}
+	
+	/***
+	 * isDaijoubu() -- get Jetson sortie status
+	 * 
+	 * @return is the Jetson connected or not?
+	 */
+	public boolean isDaijoubu() {
+		return (connection.isConnected());
+	}
+	
+	public double getDistance() throws IllegalStateException {
+		updateGoalStatus();
+		return lastKnownDistance;
+	}
+	
+	public double getAngle() throws IllegalStateException {
+		updateGoalStatus();
+		return lastKnownAngle;
+	}
+	
+	private void resetAsyncState() {
+		curState = JetsonStateMachine.WAIT;
+		curHeaderBuf = null;
+		curPacketBuf = null;
+		curBufPos = 0;
+		curPacketSize = 0;
+		curPacketType = 0;
+	}
+	
 	public void initDefaultCommand() {
 	}
 
@@ -182,28 +245,129 @@ public class Jetson extends Subsystem {
 		netOut.write(ns.array(), 0, 4096);
 	}
 
-	public NetworkMessage readMessage() throws IOException {
+	public void checkForMessage() throws IOException {
+		switch(curState) {
+		default:
+		case WAIT: {
+			if(netIn.available() > 0) {
+				curHeaderBuf = ByteBuffer.allocate(7);
+				curHeaderBuf.order(ByteOrder.BIG_ENDIAN);
+				curState = JetsonStateMachine.READ_HEADER;
+				curBufPos = 0;
+				// fall through to READ_HEADER
+			} else {
+				break;
+			}
+		}
+		case READ_HEADER:
+			if(curBufPos > 7) {
+				if (curHeaderBuf.get() == (byte) 0x35 &&
+					curHeaderBuf.get() == (byte) 0x30 &&
+					curHeaderBuf.get() == (byte) 0x30 &&
+					curHeaderBuf.get() == (byte) 0x32) {
+
+						byte msgType = curHeaderBuf.get();
+						short size = curHeaderBuf.getShort();
+						
+						curPacketBuf = ByteBuffer.allocate(7+size);
+						
+						byte[] arr = curHeaderBuf.array();
+						curPacketBuf.put(arr, 0, 7);
+						
+						curPacketBuf.order(ByteOrder.BIG_ENDIAN);
+						
+						curBufPos = 0;
+						curPacketSize  = size;
+						curPacketType = msgType;
+						
+						curState = JetsonStateMachine.READ_DATA;
+						// fall through to READ_DATA
+				} else {
+					resetAsyncState(); // go back to WAIT state
+					break;
+				}
+			}
+			
+			if(netIn.available() > 0) {
+				byte[] arr = curHeaderBuf.array();
+				int nRead = netIn.read(arr, curBufPos, 7-curBufPos);
+				curBufPos += nRead;
+			} else {
+				break;
+			}
+			
+		case READ_DATA:
+			if(netIn.available() > 0) {
+				byte[] arr = curPacketBuf.array();
+				int nRead = netIn.read(arr, 7+curBufPos, curPacketSize-curBufPos);
+				curBufPos += nRead;
+			} else {
+				break;
+			}
+			
+			if(curBufPos > curPacketSize) {
+				switch (curPacketType) {
+				case 4:
+					GoalDistanceMessage out = new GoalDistanceMessage(connection.getInetAddress());
+					out.readObjectFrom(curPacketBuf);
+					
+					msgQueue.add(out);
+					
+					//return out;
+				default:
+					break;
+				}
+				
+				resetAsyncState(); // go back to WAIT state
+			}
+			
+			break;
+		}
+	}
+	
+	public void readMessage() throws IOException {
 		if (connection == null) {
 			this.doDiscover();
 		}
 
 		while (true) {
-			ByteBuffer buf = ByteBuffer.allocate(4096);
-			buf.order(ByteOrder.BIG_ENDIAN);
-			byte[] arr = buf.array();
-			netIn.read(arr);
+			ByteBuffer headerBuf = ByteBuffer.allocate(7);
+			headerBuf.order(ByteOrder.BIG_ENDIAN);
+			byte[] arr = headerBuf.array();
+			int currentPos = 0;
+			while(currentPos < 7) {
+				int nRead = netIn.read(arr, currentPos, 7-currentPos);
+				currentPos += nRead;
+			}
+				
+			if (headerBuf.get() == (byte) 0x35 &&
+				headerBuf.get() == (byte) 0x30 &&
+				headerBuf.get() == (byte) 0x30 &&
+				headerBuf.get() == (byte) 0x32) {
 
-			if (buf.get() == (byte) 0x35 && buf.get() == (byte) 0x30 && buf.get() == (byte) 0x30
-					&& buf.get() == (byte) 0x32) {
-
-				byte msgType = buf.get();
-				short size = buf.getShort();
-
+				byte msgType = headerBuf.get();
+				short size = headerBuf.getShort();
+				
+				ByteBuffer fullBuf = ByteBuffer.allocate(7+size);
+				fullBuf.put(arr, 0, 7);
+				
+				currentPos = 7;
+				int nTotalRead = 0;
+				arr = fullBuf.array();
+				while(nTotalRead < size) {
+					int nRead = netIn.read(arr, currentPos, size - nTotalRead);
+					currentPos += nRead;
+					nTotalRead += nRead;
+				}
+				
 				switch (msgType) {
 				case 4:
 					GoalDistanceMessage out = new GoalDistanceMessage(connection.getInetAddress());
-					out.readObjectFrom(buf);
-					return out;
+					out.readObjectFrom(fullBuf);
+					
+					msgQueue.add(out);
+					
+					//return out;
 				default:
 					continue;
 				}

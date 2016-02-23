@@ -10,18 +10,17 @@ import edu.wpi.first.wpilibj.command.Command;
 public class Automove extends Command {
 	private double x, y, angle;
 
-	public Automove(double x, double y, double angle) {
+	public Automove(double x, double y) {
 		requires(Robot.drivetrain);
 		this.x = x;
 		this.y = y;
-		this.angle = angle;
 	}
 
 	protected void initialize() {
 	}
 
 	protected void execute() {
-		Robot.drivetrain.autoDrive(x, y, angle);
+		Robot.drivetrain.autoDrive(x, y);
 	}
 
 	protected boolean isFinished() {
