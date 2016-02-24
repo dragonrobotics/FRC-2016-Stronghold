@@ -85,7 +85,7 @@ public class Drivetrain extends Subsystem {
 	}
 
 	public void autoDrive(double x, double y) {
-		double initangle = Math.atan(x / y); // Angle to the final position
+		double initangle = Math.atan2(y, x); // Angle to the final position
 		double initdistance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)); // Distance
 																			// directly
 																			// to
@@ -93,16 +93,50 @@ public class Drivetrain extends Subsystem {
 																			// final
 																			// position
 
-		mc1.set(0); // Replace 0's after experiment finds how to angle the robot
-		mc4.set(0);
+		autoTurn(initangle);
 
 		mc1.set(initdistance);
-		mc4.set(-initdistance);
-
+		mc4.set(initdistance);
 	}
 	
-	public void turnAngle(double hdg) {
-		// TODO: someone do this
+	/***
+	 * autoTurn -- turn to a given angle change in degrees.
+	 * @param hdg heading change in degrees. Positive values correspond to clockwise rotation.
+	 */
+	final double maxTurnOutput = 100.0;
+	public void autoTurn(double hdg) {
+		double startAngle = Robot.getRobotAngle();
+		double endAngle = startAngle + hdg;
+		
+		mc1.changeControlMode(TalonControlMode.Speed);
+		mc4.changeControlMode(TalonControlMode.Speed);
+		
+		while(true) {
+			double curErr = endAngle - Robot.getRobotAngle();
+			
+			if(Math.abs(curErr) < 1) {
+				break;
+			}
+			
+			curErr = Math.min(curErr, 100);
+			
+			double out = (curErr / 100) * maxTurnOutput;
+			
+			if(hdg > 0) {
+				mc1.set(out);
+				mc4.set(-out);
+			} else {
+				mc1.set(-out);
+				mc4.set(out);
+			}
+		}
+		
+		mc1.changeControlMode(TalonControlMode.Position);
+		mc4.changeControlMode(TalonControlMode.Position);
+	}
+	
+	public void turnToAngle() {
+		
 	}
 
 	public boolean isInPosition() {
