@@ -15,36 +15,36 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  *
  */
 public class Drivetrain extends Subsystem {
-	private CANTalon mc1, mc2, mc3, mc4, mc5, mc6;
+	private CANTalon mcLT, mcLB, mcLF, mcRT, mcRB, mcRF;
 
 	/**
 	 * constructor for drivetrain initializes CANTalon stuff
 	 */
 	public Drivetrain() {
-		mc1 = new CANTalon(31);
-		mc2 = new CANTalon(32);
-		mc3 = new CANTalon(33);
-		mc4 = new CANTalon(34);
-		mc5 = new CANTalon(35);
-		mc6 = new CANTalon(36);
+		mcLT = new CANTalon(6);
+		mcLB = new CANTalon(10);
+		mcLF = new CANTalon(11);
+		mcRT = new CANTalon(9);
+		mcRB = new CANTalon(8);
+		mcRF = new CANTalon(5);
 
-		mc1.changeControlMode(TalonControlMode.Position);
-		mc2.changeControlMode(TalonControlMode.Follower);
-		mc3.changeControlMode(TalonControlMode.Follower);
-		mc4.changeControlMode(TalonControlMode.Position);
-		mc5.changeControlMode(TalonControlMode.Follower);
-		mc6.changeControlMode(TalonControlMode.Follower);
+		mcLT.changeControlMode(TalonControlMode.Position);
+		mcLB.changeControlMode(TalonControlMode.Follower);
+		mcLF.changeControlMode(TalonControlMode.Follower);
+		mcRT.changeControlMode(TalonControlMode.Position);
+		mcRB.changeControlMode(TalonControlMode.Follower);
+		mcRF.changeControlMode(TalonControlMode.Follower);
 
-		mc1.setFeedbackDevice(FeedbackDevice.QuadEncoder);
-		mc4.setFeedbackDevice(FeedbackDevice.QuadEncoder);
+		mcLT.setFeedbackDevice(FeedbackDevice.QuadEncoder);
+		mcRT.setFeedbackDevice(FeedbackDevice.QuadEncoder);
 
-		mc1.setPID(1.0, 0, 0);
-		mc4.setPID(1.0, 0, 0);
+		mcLT.setPID(1.0, 0, 0);
+		mcRT.setPID(1.0, 0, 0);
 
-		mc2.set(1);
-		mc3.set(1);
-		mc5.set(4);
-		mc6.set(4);
+		mcLB.set(1);
+		mcLF.set(1);
+		mcRB.set(4);
+		mcRF.set(4);
 	}
 
 	public void initDefaultCommand() {
@@ -52,18 +52,18 @@ public class Drivetrain extends Subsystem {
 	}
 
 	public void initTeleop() {
-		mc1.changeControlMode(TalonControlMode.Speed);
-		mc4.changeControlMode(TalonControlMode.Speed);
+		mcLT.changeControlMode(TalonControlMode.Speed);
+		mcRT.changeControlMode(TalonControlMode.Speed);
 	}
 
 	public void initAutonomous() {
-		mc1.changeControlMode(TalonControlMode.Position);
-		mc4.changeControlMode(TalonControlMode.Position);
+		mcLT.changeControlMode(TalonControlMode.Position);
+		mcRT.changeControlMode(TalonControlMode.Position);
 	}
 
 	public void joystickDrive(Joystick stick) {
-		mc1.set(stick.getY() - stick.getX());
-		mc4.set(stick.getY() + stick.getX());
+		mcLT.set(stick.getY() - stick.getX());
+		mcRT.set(stick.getY() + stick.getX());
 
 	}
 
@@ -73,14 +73,14 @@ public class Drivetrain extends Subsystem {
 		double JoystickAngle = stick.getDirectionDegrees();
 
 		if (JoystickAngle < PugAngle) {
-			mc1.set(1);
-			mc4.set(-1);
+			mcLT.set(1);
+			mcRT.set(-1);
 		} else if (JoystickAngle > PugAngle) {
-			mc1.set(-1);
-			mc4.set(1);
+			mcLT.set(-1);
+			mcRT.set(1);
 		} else {
-			mc1.set(stick.getMagnitude());
-			mc4.set(stick.getMagnitude());
+			mcLT.set(stick.getMagnitude());
+			mcRT.set(stick.getMagnitude());
 		}
 
 	}
@@ -96,8 +96,8 @@ public class Drivetrain extends Subsystem {
 
 		autoTurn(initangle);
 
-		mc1.set(initdistance);
-		mc4.set(initdistance);
+		mcLT.set(initdistance);
+		mcRT.set(initdistance);
 	}
 	
 	/***
@@ -109,8 +109,8 @@ public class Drivetrain extends Subsystem {
 		double startAngle = Robot.getRobotAngle();
 		double endAngle = startAngle + hdg;
 		
-		mc1.changeControlMode(TalonControlMode.Speed);
-		mc4.changeControlMode(TalonControlMode.Speed);
+		mcLT.changeControlMode(TalonControlMode.Speed);
+		mcRT.changeControlMode(TalonControlMode.Speed);
 		
 		while(true) {
 			double curErr = endAngle - Robot.getRobotAngle();
@@ -124,30 +124,30 @@ public class Drivetrain extends Subsystem {
 			double out = (curErr / 100) * maxTurnOutput;
 			
 			if(hdg > 0) {
-				mc1.set(out);
-				mc4.set(-out);
+				mcLT.set(out);
+				mcRT.set(-out);
 			} else {
-				mc1.set(-out);
-				mc4.set(out);
+				mcLT.set(-out);
+				mcRT.set(out);
 			}
 		}
 		
-		mc1.changeControlMode(TalonControlMode.Position);
-		mc4.changeControlMode(TalonControlMode.Position);
+		mcLT.changeControlMode(TalonControlMode.Position);
+		mcRT.changeControlMode(TalonControlMode.Position);
 	}
 
 	public boolean isInPosition() {
-		return mc1.getClosedLoopError() + mc4.getClosedLoopError() < 50;
+		return mcLT.getClosedLoopError() + mcRT.getClosedLoopError() < 50;
 	}
 
 	public void stop() {
-		mc1.set(0);
-		mc4.set(0);
+		mcLT.set(0);
+		mcRT.set(0);
 	}
 
 	public boolean isSafe() {
 
-		if (mc1.getTemperature() < 200 && mc4.getTemperature() < 200) {
+		if (mcLT.getTemperature() < 200 && mcRT.getTemperature() < 200) {
 			return true;
 		}
 
@@ -158,36 +158,36 @@ public class Drivetrain extends Subsystem {
 	}
 
 	public void updateSD() {
-		SmartDashboard.putNumber("mc1 get", mc1.get());
-		SmartDashboard.putNumber("mc2 get", mc2.get());
-		SmartDashboard.putNumber("mc3 get", mc3.get());
-		SmartDashboard.putNumber("mc4 get", mc4.get());
-		SmartDashboard.putNumber("mc5 get", mc5.get());
-		SmartDashboard.putNumber("mc6 get", mc6.get());
-		SmartDashboard.putNumber("mc1 BusVoltage", mc1.getBusVoltage());
-		SmartDashboard.putNumber("mc2 BusVoltage", mc2.getBusVoltage());
-		SmartDashboard.putNumber("mc3 BusVoltage", mc3.getBusVoltage());
-		SmartDashboard.putNumber("mc4 BusVoltage", mc4.getBusVoltage());
-		SmartDashboard.putNumber("mc5 BusVoltage", mc5.getBusVoltage());
-		SmartDashboard.putNumber("mc6 BusVoltage", mc6.getBusVoltage());
-		SmartDashboard.putNumber("mc1 ClosedLoopError", mc1.getClosedLoopError());
-		SmartDashboard.putNumber("mc2 ClosedLoopError", mc2.getClosedLoopError());
-		SmartDashboard.putNumber("mc3 ClosedLoopError", mc3.getClosedLoopError());
-		SmartDashboard.putNumber("mc4 ClosedLoopError", mc4.getClosedLoopError());
-		SmartDashboard.putNumber("mc5 ClosedLoopError", mc5.getClosedLoopError());
-		SmartDashboard.putNumber("mc6 ClosedLoopError", mc6.getClosedLoopError());
-		SmartDashboard.putNumber("mc1 OutputVoltage", mc1.getOutputVoltage());
-		SmartDashboard.putNumber("mc2 OutputVoltage", mc2.getOutputVoltage());
-		SmartDashboard.putNumber("mc3 OutputVoltage", mc3.getOutputVoltage());
-		SmartDashboard.putNumber("mc4 OutputVoltage", mc4.getOutputVoltage());
-		SmartDashboard.putNumber("mc5 OutputVoltage", mc5.getOutputVoltage());
-		SmartDashboard.putNumber("mc6 OutputVoltage", mc6.getOutputVoltage());
-		SmartDashboard.putNumber("mc1 OutputCurrent", mc1.getOutputCurrent());
-		SmartDashboard.putNumber("mc2 OutputCurrent", mc2.getOutputCurrent());
-		SmartDashboard.putNumber("mc3 OutputCurrent", mc3.getOutputCurrent());
-		SmartDashboard.putNumber("mc4 OutputCurrent", mc4.getOutputCurrent());
-		SmartDashboard.putNumber("mc5 OutputCurrent", mc5.getOutputCurrent());
-		SmartDashboard.putNumber("mc6 OutputCurrent", mc6.getOutputCurrent());
+		SmartDashboard.putNumber("mc1 get", mcLT.get());
+		SmartDashboard.putNumber("mc2 get", mcLB.get());
+		SmartDashboard.putNumber("mc3 get", mcLF.get());
+		SmartDashboard.putNumber("mc4 get", mcRT.get());
+		SmartDashboard.putNumber("mc5 get", mcRB.get());
+		SmartDashboard.putNumber("mc6 get", mcRF.get());
+		SmartDashboard.putNumber("mc1 BusVoltage", mcLT.getBusVoltage());
+		SmartDashboard.putNumber("mc2 BusVoltage", mcLB.getBusVoltage());
+		SmartDashboard.putNumber("mc3 BusVoltage", mcLF.getBusVoltage());
+		SmartDashboard.putNumber("mc4 BusVoltage", mcRT.getBusVoltage());
+		SmartDashboard.putNumber("mc5 BusVoltage", mcRB.getBusVoltage());
+		SmartDashboard.putNumber("mc6 BusVoltage", mcRF.getBusVoltage());
+		SmartDashboard.putNumber("mc1 ClosedLoopError", mcLT.getClosedLoopError());
+		SmartDashboard.putNumber("mc2 ClosedLoopError", mcLB.getClosedLoopError());
+		SmartDashboard.putNumber("mc3 ClosedLoopError", mcLF.getClosedLoopError());
+		SmartDashboard.putNumber("mc4 ClosedLoopError", mcRT.getClosedLoopError());
+		SmartDashboard.putNumber("mc5 ClosedLoopError", mcRB.getClosedLoopError());
+		SmartDashboard.putNumber("mc6 ClosedLoopError", mcRF.getClosedLoopError());
+		SmartDashboard.putNumber("mc1 OutputVoltage", mcLT.getOutputVoltage());
+		SmartDashboard.putNumber("mc2 OutputVoltage", mcLB.getOutputVoltage());
+		SmartDashboard.putNumber("mc3 OutputVoltage", mcLF.getOutputVoltage());
+		SmartDashboard.putNumber("mc4 OutputVoltage", mcRT.getOutputVoltage());
+		SmartDashboard.putNumber("mc5 OutputVoltage", mcRB.getOutputVoltage());
+		SmartDashboard.putNumber("mc6 OutputVoltage", mcRF.getOutputVoltage());
+		SmartDashboard.putNumber("mc1 OutputCurrent", mcLT.getOutputCurrent());
+		SmartDashboard.putNumber("mc2 OutputCurrent", mcLB.getOutputCurrent());
+		SmartDashboard.putNumber("mc3 OutputCurrent", mcLF.getOutputCurrent());
+		SmartDashboard.putNumber("mc4 OutputCurrent", mcRT.getOutputCurrent());
+		SmartDashboard.putNumber("mc5 OutputCurrent", mcRB.getOutputCurrent());
+		SmartDashboard.putNumber("mc6 OutputCurrent", mcRF.getOutputCurrent());
 
 	}
 }

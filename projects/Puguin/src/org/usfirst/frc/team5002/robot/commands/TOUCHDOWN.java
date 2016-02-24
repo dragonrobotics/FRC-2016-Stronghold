@@ -5,7 +5,7 @@ import org.usfirst.frc.team5002.robot.Robot;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- * makes arms on robot go up (like a when that fat guy at football games stands
+ * makes arms on robot go up (like when a guy at a football game stands
  * up and yells "TOUCHDOWN" really loudly while lifting his arms)
  */
 public class TOUCHDOWN extends Command {
