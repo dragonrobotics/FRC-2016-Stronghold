@@ -105,7 +105,7 @@ public class Poi extends Command {
 				if(rightOfGoal) {
 					Robot.drivetrain.autoTurn(angleToPerpendicular);
 				} else {
-					Robot.drivetrain.autoTurn(angleToPerpendicular);
+					Robot.drivetrain.autoTurn(-angleToPerpendicular);
 				}
 			}
 			

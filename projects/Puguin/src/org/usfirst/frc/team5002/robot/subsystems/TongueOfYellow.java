@@ -9,9 +9,9 @@ import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
  *
  */
 public class TongueOfYellow extends Subsystem {
-	CANTalon WinchMotor = new CANTalon(0);
+	CANTalon WinchMotor = new CANTalon(36);  
 	public TongueOfYellow() {
-		WinchMotor = new CANTalon(0); // replace with actual motor id
+		WinchMotor = new CANTalon(36); // replace with actual motor id
 		WinchMotor.changeControlMode(TalonControlMode.PercentVbus);
 	}
 

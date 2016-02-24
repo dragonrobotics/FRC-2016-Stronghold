@@ -10,17 +10,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * 
  */
 public class Launcher extends Subsystem {
-	private CANTalon leftLaunchWheel, rightLaunchWheel;
+	private CANTalon bottomLaunchWheel, toptLaunchWheel;
 	private DigitalInput ballswitch;
 
 	public Launcher() {
-		leftLaunchWheel = new CANTalon(
-				5); /* TODO: Replace this with the actual motor id */
-		rightLaunchWheel = new CANTalon(6);
+		bottomLaunchWheel = new CANTalon(12); /* TODO: Replace this with the actual motor id */
+		toptLaunchWheel = new CANTalon(1);
 		ballswitch = new DigitalInput(0); // TODO: Replace this with the actual
 											// port
-		leftLaunchWheel.changeControlMode(TalonControlMode.PercentVbus);
-		rightLaunchWheel.changeControlMode(TalonControlMode.PercentVbus);
+		bottomLaunchWheel.changeControlMode(TalonControlMode.PercentVbus);
+		toptLaunchWheel.changeControlMode(TalonControlMode.PercentVbus);
 	}
 
 	/**
@@ -36,8 +35,8 @@ public class Launcher extends Subsystem {
 	 * Run Launcher motors at max speed.
 	 */
 	public void run() {
-		leftLaunchWheel.set(.75);
-		rightLaunchWheel.set(.75);
+		bottomLaunchWheel.set(.75);
+		toptLaunchWheel.set(.75);
 	}
 
 	/***
@@ -48,16 +47,16 @@ public class Launcher extends Subsystem {
 	 *            max forwards). See motor set() method.
 	 */
 	public void run(double speed) {
-		leftLaunchWheel.set(speed);
-		rightLaunchWheel.set(speed);
+		bottomLaunchWheel.set(speed);
+		toptLaunchWheel.set(speed);
 	}
 
 	/***
 	 * Stop launcher motors.
 	 */
 	public void stop() {
-		leftLaunchWheel.set(0);
-		rightLaunchWheel.set(0);
+		bottomLaunchWheel.set(0);
+		toptLaunchWheel.set(0);
 	}
 
 	public void initDefaultCommand() {
@@ -65,7 +64,7 @@ public class Launcher extends Subsystem {
 
 	public boolean isSafe() {
 
-		if (leftLaunchWheel.getTemperature() < 200 && rightLaunchWheel.getTemperature() < 200) {
+		if (bottomLaunchWheel.getTemperature() < 200 && toptLaunchWheel.getTemperature() < 200) {
 			return true;
 		}
 
@@ -75,15 +74,15 @@ public class Launcher extends Subsystem {
 	}
 
 	public void updateSD() {
-		SmartDashboard.putNumber("LeftWheel get", leftLaunchWheel.get());
-		SmartDashboard.putNumber("RightWheel get", rightLaunchWheel.get());
-		SmartDashboard.putNumber("LeftWheel BusVoltage", leftLaunchWheel.getBusVoltage());
-		SmartDashboard.putNumber("RightWheel BusVoltage", rightLaunchWheel.getBusVoltage());
-		SmartDashboard.putNumber("LeftWheel OutputVoltage", leftLaunchWheel.getOutputVoltage());
-		SmartDashboard.putNumber("RightWheel OutputVoltage", rightLaunchWheel.getOutputVoltage());
-		SmartDashboard.putNumber("LeftWheel OutputCurrent", leftLaunchWheel.getOutputCurrent());
-		SmartDashboard.putNumber("RightWheel OutputCurrent", rightLaunchWheel.getOutputCurrent());
-		SmartDashboard.putNumber("LeftWheel ClosedLoopError", leftLaunchWheel.getClosedLoopError());
-		SmartDashboard.putNumber("RightWheel ClosedLooperror", rightLaunchWheel.getClosedLoopError());
+		SmartDashboard.putNumber("LeftWheel get", bottomLaunchWheel.get());
+		SmartDashboard.putNumber("RightWheel get", toptLaunchWheel.get());
+		SmartDashboard.putNumber("LeftWheel BusVoltage", bottomLaunchWheel.getBusVoltage());
+		SmartDashboard.putNumber("RightWheel BusVoltage", toptLaunchWheel.getBusVoltage());
+		SmartDashboard.putNumber("LeftWheel OutputVoltage", bottomLaunchWheel.getOutputVoltage());
+		SmartDashboard.putNumber("RightWheel OutputVoltage", toptLaunchWheel.getOutputVoltage());
+		SmartDashboard.putNumber("LeftWheel OutputCurrent", bottomLaunchWheel.getOutputCurrent());
+		SmartDashboard.putNumber("RightWheel OutputCurrent", toptLaunchWheel.getOutputCurrent());
+		SmartDashboard.putNumber("LeftWheel ClosedLoopError", bottomLaunchWheel.getClosedLoopError());
+		SmartDashboard.putNumber("RightWheel ClosedLooperror", toptLaunchWheel.getClosedLoopError());
 	}
 }
