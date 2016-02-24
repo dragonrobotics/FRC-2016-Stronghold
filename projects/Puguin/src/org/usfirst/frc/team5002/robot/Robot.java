@@ -13,6 +13,7 @@ import org.usfirst.frc.team5002.robot.subsystems.Belt;
 import org.usfirst.frc.team5002.robot.subsystems.Drivetrain;
 import org.usfirst.frc.team5002.robot.subsystems.Jetson;
 import org.usfirst.frc.team5002.robot.subsystems.Launcher;
+import org.usfirst.frc.team5002.robot.subsystems.Positioner;
 import org.usfirst.frc.team5002.robot.subsystems.ThoseArmThings;
 import org.usfirst.frc.team5002.robot.subsystems.TongueOfYellow;
 
@@ -29,6 +30,7 @@ public class Robot extends IterativeRobot {
 	public static final Belt belt = new Belt();
 	public static final ThoseArmThings thosearmthings = new ThoseArmThings();
 	public static final TongueOfYellow tongueofyellow = new TongueOfYellow();
+	public static final Positioner positioner = new Positioner();
 	public static Jetson jetson;
 	public static OI oi;
 	public static AHRS ahrs;
@@ -94,6 +96,9 @@ public class Robot extends IterativeRobot {
 	public void autonomousPeriodic() {
 		Scheduler.getInstance().run();
 		oi.updateSD();
+		positioner.updateFromAccelerometer();
+		positioner.updateFromOdometry((drivetrain.getLVel() + drivetrain.getRVel()) / 2);
+		
 		try {
 			jetson.checkForMessage();
 		} catch (IOException e) {
@@ -120,6 +125,8 @@ public class Robot extends IterativeRobot {
 	public void teleopPeriodic() {
 		Scheduler.getInstance().run();
 		oi.updateSD();
+		positioner.updateFromAccelerometer();
+		positioner.updateFromOdometry((drivetrain.getLVel() + drivetrain.getRVel()) / 2);
 		
 		try {
 			jetson.checkForMessage();

@@ -5,7 +5,7 @@ import org.usfirst.frc.team5002.robot.Robot;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- * Poi -- Drives the robot to the final battle, poi~!
+ * Poi -- Drives the robot to the decisive battle, poi~!
  */
 public class Poi extends Command {
 	double angleToPerpendicular;
@@ -78,9 +78,9 @@ public class Poi extends Command {
 		case TURN_PERPENDICULAR:
 			if(!stateCommandSent) {
 				if(rightOfGoal) {
-					Robot.drivetrain.turnAngle(-angleToPerpendicular);
+					Robot.drivetrain.autoTurn(-angleToPerpendicular);
 				} else {
-					Robot.drivetrain.turnAngle(angleToPerpendicular);
+					Robot.drivetrain.autoTurn(angleToPerpendicular);
 				}
 				stateCommandSent = true;
 			}
@@ -103,9 +103,9 @@ public class Poi extends Command {
 		case TURN_TO_GOAL:
 			if(!stateCommandSent) {
 				if(rightOfGoal) {
-					Robot.drivetrain.turnAngle(angleToPerpendicular);
+					Robot.drivetrain.autoTurn(angleToPerpendicular);
 				} else {
-					Robot.drivetrain.turnAngle(=angleToPerpendicular);
+					Robot.drivetrain.autoTurn(angleToPerpendicular);
 				}
 			}
 			

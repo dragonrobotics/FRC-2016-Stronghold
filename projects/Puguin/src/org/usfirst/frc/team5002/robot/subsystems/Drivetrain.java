@@ -135,6 +135,14 @@ public class Drivetrain extends Subsystem {
 		mc1.changeControlMode(TalonControlMode.Position);
 		mc4.changeControlMode(TalonControlMode.Position);
 	}
+	
+	public int getLVel() {
+		return mc1.getEncVelocity();
+	}
+	
+	public int getRVel() {
+		return mc4.getEncVelocity();
+	}
 
 	public boolean isInPosition() {
 		return mc1.getClosedLoopError() + mc4.getClosedLoopError() < 50;
