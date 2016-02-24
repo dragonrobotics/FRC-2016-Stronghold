@@ -2,6 +2,7 @@ package org.usfirst.frc.team5002.robot.subsystems;
 
 import org.usfirst.frc.team5002.robot.Robot;
 import org.usfirst.frc.team5002.robot.commands.TeleopDriveyWivey;
+import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
@@ -83,15 +84,15 @@ public class Drivetrain extends Subsystem {
 		}
 
 	}
-
 	public void autoDrive(double x, double y) {
-		double initangle = Math.atan2(y, x); // Angle to the final position
-		double initdistance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)); // Distance
-																			// directly
-																			// to
-																			// the
-																			// final
-																			// position
+		double initangle = Math.atan(x / y); // Angle to the final position
+		double initdistance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)); 
+		// Distance
+		// directly
+		// to
+	    // the
+		// final
+	    // position
 
 		autoTurn(initangle);
 
@@ -133,10 +134,6 @@ public class Drivetrain extends Subsystem {
 		
 		mc1.changeControlMode(TalonControlMode.Position);
 		mc4.changeControlMode(TalonControlMode.Position);
-	}
-	
-	public void turnToAngle() {
-		
 	}
 
 	public boolean isInPosition() {
