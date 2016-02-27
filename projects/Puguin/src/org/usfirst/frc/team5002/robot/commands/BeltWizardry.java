@@ -1,30 +1,38 @@
 package org.usfirst.frc.team5002.robot.commands;
+
 import org.usfirst.frc.team5002.robot.Robot;
 import edu.wpi.first.wpilibj.command.Command;
+
 /**
- * Runs the belt forever and ever and ever.
+ * Runs the belt forever and ever and ever. until the code says to stop.
  */
 public class BeltWizardry extends Command {
-    public BeltWizardry() {
-    	requires(Robot.belt);
-    }
+	public BeltWizardry() {
+		requires(Robot.belt);
+	}
 
-    protected void initialize() {
-    }
+	protected void initialize() {
+	}
 
-    protected void execute() {
-    	Robot.belt.run(1.0);
-    }
+	/**
+	 * runs the belt forward at max speed
+	 */
+	protected void execute() {
+		Robot.belt.run(1.0);
+	}
 
-    protected boolean isFinished() {
-        return false;
-    }
+	protected boolean isFinished() {
+		return false;
+	}
 
-    protected void end() {
-    	Robot.belt.stop();
-    }
+	/**
+	 * stops the belt.
+	 */
+	protected void end() {
+		Robot.belt.stop();
+	}
 
-    protected void interrupted() {
-    	end();
-    }
+	protected void interrupted() {
+		end();
+	}
 }
