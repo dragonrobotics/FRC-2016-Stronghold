@@ -6,6 +6,10 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 
+/**
+ * Network message used to discover various targets on the robot LAN.
+ * Used most often for the RoboRIO-Jetson discovery protocol (see doDiscover() in the Jetson subsystem for more details)
+ */
 public class DiscoverPacket extends NetworkMessage {
 
 	/*
