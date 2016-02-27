@@ -2,7 +2,6 @@ package org.usfirst.frc.team5002.robot.subsystems;
 
 import org.usfirst.frc.team5002.robot.Robot;
 import org.usfirst.frc.team5002.robot.commands.TeleopDriveyWivey;
-import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;

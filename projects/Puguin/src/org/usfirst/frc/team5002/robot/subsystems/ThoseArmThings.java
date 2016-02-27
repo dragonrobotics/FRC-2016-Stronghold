@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 * Super gate lifting arms.
 */
 public class ThoseArmThings extends Subsystem {
-	private CANTalon leftArm, rightArm;
+	private CANTalon leftArm;
 
 	public ThoseArmThings() {
 		leftArm = new CANTalon(13);
