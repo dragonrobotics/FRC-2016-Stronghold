@@ -78,5 +78,6 @@ public class OI {
 		Robot.tongueofyellow.UpdateSD();
 		Robot.thosearmthings.UpdateSD();
 		
+		Robot.barofwheels.UpdateSD();
 	}
 }

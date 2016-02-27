@@ -12,15 +12,16 @@ public class Belt extends Subsystem {
 	private CANTalon onlyBelt;
 
 	public Belt() {
-		onlyBelt = new CANTalon(14); 
+		onlyBelt = new CANTalon(14);
 		onlyBelt.changeControlMode(TalonControlMode.PercentVbus);
+		
 	}
 
 	public void initDefaultCommand() {
 	}
 
 	/***
-	 * Run belt motors at max speed.
+	 * Run belt motors backwards at 40% speed
 	 */
 	public void run() {
 		onlyBelt.set(-.4);
@@ -64,6 +65,9 @@ public class Belt extends Subsystem {
 		}
 	}
 
+	/**
+	 * send data to the smartdashboard
+	 */
 	public void updateSD() {
 		SmartDashboard.putNumber("belt get", onlyBelt.get());
 		SmartDashboard.putNumber("belt temp", onlyBelt.getTemperature());

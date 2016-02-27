@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import java.io.IOException;
 import org.usfirst.frc.team5002.robot.commands.TriggerHappy;
+import org.usfirst.frc.team5002.robot.subsystems.BarOfWheels;
 import org.usfirst.frc.team5002.robot.subsystems.Belt;
 import org.usfirst.frc.team5002.robot.subsystems.Drivetrain;
 import org.usfirst.frc.team5002.robot.subsystems.Jetson;
@@ -31,6 +32,7 @@ public class Robot extends IterativeRobot {
 	public static final ThoseArmThings thosearmthings = new ThoseArmThings();
 	public static final TongueOfYellow tongueofyellow = new TongueOfYellow();
 	public static final Positioner positioner = new Positioner();
+	public static final BarOfWheels barofwheels = new BarOfWheels();
 	public static Jetson jetson;
 	public static OI oi;
 	public static AHRS ahrs;
