@@ -20,22 +20,35 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class OI {
 	private Joystick pugstick;
+	/**
+	 * This creates the Joystick and sets the Axis, 
+	 * and allows the left trigger to rumble.  
+	 */
+
 	public OI() {
 		pugstick = new Joystick(0);
 		pugstick.getRawAxis(1);
 		pugstick.getRawAxis(3);
-		pugstick.setRumble(RumbleType.kLeftRumble, 1); 
+		pugstick.setRumble(RumbleType.kLeftRumble, 1);
 		
-//		Button X = new JoystickButton(pugstick, 3); 											
-		Button Y = new JoystickButton(pugstick, 4); 
+		/**
+		 * Sets the buttons on the remote. 
+		 */
+		// Button X = new JoystickButton(pugstick, 3);
+		Button Y = new JoystickButton(pugstick, 4);
 		Button B = new JoystickButton(pugstick, 2);
 		Button A = new JoystickButton(pugstick, 1);
-		Button Paddle_2 = new JoystickButton(pugstick,9);
-		Button Paddle_4 = new JoystickButton(pugstick,10);
+		Button Paddle_2 = new JoystickButton(pugstick, 9);
+		Button Paddle_4 = new JoystickButton(pugstick, 10);
 		Button RB = new JoystickButton(pugstick, 6);
 		Button LB = new JoystickButton(pugstick, 5);
-		
-//		X.whileHeld(new ());
+
+		/**
+		 * when buttons: X, Y, B, A, RB, LB are held down,
+		 * the code is activated. When the Paddles are
+		 * pressed, the code is activated.
+		 */
+		// X.whileHeld(new ());
 		Y.whileHeld(new PugKisses());
 		B.whileHeld(new BeltMagic());
 		A.whileHeld(new LappingPug());
@@ -45,11 +58,19 @@ public class OI {
 		LB.whileHeld(new BeltWizardry());
 	}
 	
+	/**
+	 * Keeps the code continually active
+	 * @return
+	 */
 	public Joystick getJoystick() {
 		return pugstick;
 	}
-	
-	public void updateSD(){
+
+	/**
+	 * Sends all of the data collected in the subsystems
+	 * to the smartdashboard.
+	 */
+	public void updateSD() {
 		Robot.belt.updateSD();
 		Robot.drivetrain.updateSD();
 		Robot.launcher.updateSD();

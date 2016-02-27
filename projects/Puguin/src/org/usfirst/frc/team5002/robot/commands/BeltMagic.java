@@ -16,6 +16,9 @@ public class BeltMagic extends Command {
 
 	}
 
+	/**
+	 * runs the belt backwards at max speed
+	 */
 	protected void execute() {
 		Robot.belt.run(-1.0);
 	}
@@ -24,6 +27,9 @@ public class BeltMagic extends Command {
 		return Robot.launcher.getballswitch();
 	}
 
+	/**
+	 * stops the belt
+	 */
 	protected void end() {
 		Robot.belt.stop();
 	}

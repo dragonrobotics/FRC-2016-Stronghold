@@ -3,9 +3,6 @@ package org.usfirst.frc.team5002.robot.commands;
 import org.usfirst.frc.team5002.robot.Robot;
 
 import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.CANTalon;
-import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
-import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 
 /**
  * this project stops us from accidentally killing people by running them over,
