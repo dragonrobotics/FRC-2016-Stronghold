@@ -1,17 +1,15 @@
- package org.usfirst.frc.team5002.robot.commands;
+package org.usfirst.frc.team5002.robot.commands;
 
 import org.usfirst.frc.team5002.robot.Robot;
 
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- * controls the flywheels on the front of the robot (it is Frank from MIB) this
- * works the wheels
- * 
- * TODO: Is currently a no-op.
+ * runs flywheels backwards
  */
-public class FranksWheels extends Command {
-	public FranksWheels() {
+public class FranksSleehw extends Command {
+
+	public FranksSleehw() {
 		requires(Robot.barofwheels);
 	}
 
@@ -19,10 +17,10 @@ public class FranksWheels extends Command {
 	}
 
 	/**
-	 * runs motor at max speed
+	 * run motor backwards at max speed
 	 */
 	protected void execute() {
-		Robot.barofwheels.run(1.0);
+		Robot.barofwheels.run(-1.0);
 	}
 
 	protected boolean isFinished() {
@@ -30,7 +28,7 @@ public class FranksWheels extends Command {
 	}
 
 	/**
-	 * stops the motor
+	 * stops motor
 	 */
 	protected void end() {
 		Robot.barofwheels.stop();

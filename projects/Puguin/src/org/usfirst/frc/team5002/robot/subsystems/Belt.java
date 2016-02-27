@@ -9,21 +9,21 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  *
  */
 public class Belt extends Subsystem {
-	private CANTalon leftBelt;
+	private CANTalon onlyBelt;
 
 	public Belt() {
-		leftBelt = new CANTalon(14); /* TODO: Replace this with the actual motor id */
-		leftBelt.changeControlMode(TalonControlMode.PercentVbus);
+		onlyBelt = new CANTalon(14); /* TODO: Replace this with the actual motor id */
+		onlyBelt.changeControlMode(TalonControlMode.PercentVbus);
 	}
 
 	public void initDefaultCommand() {
 	}
 
 	/***
-	 * Run belt motors at max speed.
+	 * Run belt motors backwards at 40% speed
 	 */
 	public void run() {
-		leftBelt.set(-.4);
+		onlyBelt.set(-.4);
 	}
 
 	/***
@@ -34,21 +34,21 @@ public class Belt extends Subsystem {
 	 *            max forwards). See motor set() method.
 	 */
 	public void run(double percentSpeed) {
-		leftBelt.set(percentSpeed);
+		onlyBelt.set(percentSpeed);
 	}
 
 	/***
 	 * Run belt motors at max speed in reverse direction.
 	 */
 	public void runBackwards() {
-		leftBelt.set(.4);
+		onlyBelt.set(.4);
 	}
 
 	/***
 	 * Stop both belt motors.
 	 */
 	public void stop() {
-		leftBelt.set(0);
+		onlyBelt.set(0);
 	}
 
 	/**
@@ -57,17 +57,20 @@ public class Belt extends Subsystem {
 	 * @return boolean -- are motor temperatures within acceptable bounds?
 	 */
 	public boolean isSafe() {
-		if (leftBelt.getTemperature() < 200) {
+		if (onlyBelt.getTemperature() < 200) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 
+	/**
+	 * send data to the smartdashboard
+	 */
 	public void updateSD() {
-		SmartDashboard.putNumber("belt get", leftBelt.get());
-		SmartDashboard.putNumber("belt temp", leftBelt.getTemperature());
-		SmartDashboard.putNumber("belt current", leftBelt.getOutputCurrent());
-		SmartDashboard.putNumber("belt voltage", leftBelt.getOutputVoltage());
+		SmartDashboard.putNumber("belt get", onlyBelt.get());
+		SmartDashboard.putNumber("belt temp", onlyBelt.getTemperature());
+		SmartDashboard.putNumber("belt current", onlyBelt.getOutputCurrent());
+		SmartDashboard.putNumber("belt voltage", onlyBelt.getOutputVoltage());
 	}
 }
