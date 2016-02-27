@@ -5,7 +5,7 @@ import org.usfirst.frc.team5002.robot.Robot;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- * Poi -- Drives the robot to the decisive battle, poi~!
+ * Drives the robot to the decisive battle, poi~!
  */
 public class Poi extends Command {
 	double angleToPerpendicular;

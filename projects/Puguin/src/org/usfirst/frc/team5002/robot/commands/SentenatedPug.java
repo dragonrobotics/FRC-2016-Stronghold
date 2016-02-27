@@ -6,6 +6,8 @@ import edu.wpi.first.wpilibj.command.Command;
 
 /**
  * this uses the joystick so the dudes can actually move the bot in Teleop
+ * 
+ * (though nothing will be able to make them drive it /well/, because build team)
  */
 public class SentenatedPug extends Command {
 	public SentenatedPug() {

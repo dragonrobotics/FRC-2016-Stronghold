@@ -6,7 +6,9 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- * runs during designated autonomous period
+ * Another autonomous logic command.
+ * 
+ * TODO: Is currently very minimal-- only continually runs the robot diagonally forever.
  */
 public class Autonomous extends Command {
 	public Autonomous() {

@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 /**
- *
+ * Yet another autonomous logic command. Probably the right one, though.
  */
 public class AutonomousPuguinReal extends CommandGroup {
 	private DigitalInput seesaw, gate, kindaLeft, notLeft, moreNotLeft, reallyNotLeft, safetyKillSwitchThing;
