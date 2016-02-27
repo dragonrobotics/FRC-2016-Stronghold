@@ -12,7 +12,7 @@ public class Belt extends Subsystem {
 	private CANTalon onlyBelt;
 
 	public Belt() {
-		onlyBelt = new CANTalon(14); /* TODO: Replace this with the actual motor id */
+		onlyBelt = new CANTalon(14);
 		onlyBelt.changeControlMode(TalonControlMode.PercentVbus);
 		
 	}
