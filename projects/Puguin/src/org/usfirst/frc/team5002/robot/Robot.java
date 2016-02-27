@@ -99,6 +99,7 @@ public class Robot extends IterativeRobot {
 		positioner.updateFromAccelerometer();
 		positioner.updateFromOdometry((drivetrain.getLVel() + drivetrain.getRVel()) / 2);
 		
+		// do asynch recv
 		try {
 			jetson.checkForMessage();
 		} catch (IOException e) {

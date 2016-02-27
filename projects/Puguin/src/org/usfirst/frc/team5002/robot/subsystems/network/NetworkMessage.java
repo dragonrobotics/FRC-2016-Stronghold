@@ -11,6 +11,8 @@ import java.nio.ByteBuffer;
  * Also implements functions for sending and receiving complex datatypes sanely over the network,
  * because Java is stupid and does weird shit to its strings (and presumably doubles)
  * 
+ * For detailed information on network packet structure, please refer to the source code for lib5002-net
+ * (in a separate repository).
  */
 public abstract class NetworkMessage {
 	public InetAddress addr;
