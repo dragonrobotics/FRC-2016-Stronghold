@@ -77,5 +77,6 @@ public class OI {
 		SmartDashboard.putNumber("POV", pugstick.getPOV());
 		Robot.tongueofyellow.UpdateSD();
 		Robot.thosearmthings.UpdateSD();
+		
 	}
 }
