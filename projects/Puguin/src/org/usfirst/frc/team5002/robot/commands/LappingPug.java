@@ -4,8 +4,9 @@ import org.usfirst.frc.team5002.robot.Robot;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- * makes the tape measurer come back in (like when a pug is drinking water and
- * they draw their tongue back in)
+ * makes the tape measurer retract.
+ * This shortens the length that is exposed.
+ * (like when a pug is drinking water and they draw their tongue back in)
  * 
  * TODO: doesn't seem to have a stop condition
  */

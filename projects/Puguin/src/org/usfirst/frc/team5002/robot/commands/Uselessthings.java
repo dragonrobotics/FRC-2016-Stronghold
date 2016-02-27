@@ -7,6 +7,9 @@ import edu.wpi.first.wpilibj.command.Command;
 /**
  * this project stops us from accidentally killing people by running them over,
  * shooting rogue balls, and basically shutting down the machinery
+ * It just makes sure the motors don't get hot enough to explode into 
+ * flaming balls of fire (which would be ironic because ,ya know, we're 'Dragons')
+ * 
  */
 public class Uselessthings extends Command {
 	public Uselessthings() {

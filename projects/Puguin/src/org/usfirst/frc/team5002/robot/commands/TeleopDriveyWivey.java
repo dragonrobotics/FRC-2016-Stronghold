@@ -5,7 +5,9 @@ import org.usfirst.frc.team5002.robot.Robot;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- * This also codes for the joystick drive in teleop
+ * This codes for the Joystick when Teleop Drive is activated
+ * (The name of the code is a play off of Doctor Who's quote, 
+ * "Wibbly wobbly timey wimey," because we're all nerds here.)
  */
 public class TeleopDriveyWivey extends Command {
 	public TeleopDriveyWivey() {

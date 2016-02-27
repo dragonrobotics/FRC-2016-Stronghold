@@ -5,7 +5,7 @@ import org.usfirst.frc.team5002.robot.Robot;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- * I don't want to know, poi~
+ * Gets the POV for the joystick
  */
 public class PugOnViagra extends Command {
 	private Command RaiseTheRoof;

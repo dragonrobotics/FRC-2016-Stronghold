@@ -5,7 +5,8 @@ import org.usfirst.frc.team5002.robot.Robot;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- * Makes the tape measurer go out (like when a pug licks your face :3)
+ * Makes the tape measurer reel out
+ * (like when a pug sticks its toungue out to lick your face :3)
  */
 public class PugKisses extends Command {
 	public PugKisses() {

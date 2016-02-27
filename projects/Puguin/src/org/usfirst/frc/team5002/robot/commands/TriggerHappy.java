@@ -5,7 +5,9 @@ import org.usfirst.frc.team5002.robot.Robot;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- * shoots the balls because that's important and stuff
+ * Gets the axes for the triggers on the joystick
+ * to ensure a successful launch
+ * (and so build team/Chase don't yell at us)
  */
 public class TriggerHappy extends Command {
 	private Command FireBalls;

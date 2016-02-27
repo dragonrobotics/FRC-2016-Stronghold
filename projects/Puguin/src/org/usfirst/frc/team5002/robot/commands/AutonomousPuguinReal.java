@@ -46,6 +46,10 @@ public class AutonomousPuguinReal extends CommandGroup {
 		/*
 		 * end of defense rotation switch
 		 */
+		/** 
+		 * TODO please clarify on what the heck 'really not left'
+		 *  (and others) means.
+		 */
 
 		if (kindaLeft.get()) {
 			addSequential(new Automove(0, 0));
