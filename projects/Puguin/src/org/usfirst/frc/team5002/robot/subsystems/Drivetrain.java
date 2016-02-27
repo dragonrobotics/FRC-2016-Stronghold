@@ -137,11 +137,11 @@ public class Drivetrain extends Subsystem {
 	}
 	
 	public int getLVel() {
-		return mc1.getEncVelocity();
+		return mcLT.getEncVelocity();
 	}
 	
 	public int getRVel() {
-		return mc4.getEncVelocity();
+		return mcRT.getEncVelocity();
 	}
 
 	public boolean isInPosition() {
