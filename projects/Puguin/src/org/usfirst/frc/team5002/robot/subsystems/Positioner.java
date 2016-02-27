@@ -5,10 +5,28 @@ import org.usfirst.frc.team5002.robot.Robot;
 import edu.wpi.first.wpilibj.command.Subsystem;
 
 /**
- *
+ * Keeps track of the position of the robot on the field.
+ * The axes are as follows:
+ * 
+ * X = perpendicular to initial heading of robot (left and right)
+ * Y = parallel to initial robot heading (forward and back)
+ * Z = up and down
  */
 public class Positioner extends Subsystem {
     
+	/**
+	 * Internal Kalman Filter implementation.
+	 * 
+	 * The Kalman Filter combines known transition models, inputs (previous state, controls, etc.)
+	 * , sensor measurements, and an estimate of their covariances to attempt to produce the best
+	 * possible estimate of the true system state.
+	 * 
+	 * In other words, it tries to combine what we measure with what we think it should be to
+	 * get as close as possible to reality.
+	 *  
+	 * @author sebastian
+	 *
+	 */
 	class KalmanFilter {
 	    /* Kalman Filter parameters: */
 	    private double R;
@@ -76,6 +94,9 @@ public class Positioner extends Subsystem {
 	final KalmanFilter odoFilter = new KalmanFilter(1, 1, 1, (wheelDiameter) / (gearRatio*encoderResolution), 1);
 	*/
 	
+	/**
+	 * Initializes the positioner's internal state.
+	 */
 	public Positioner() {
 		lastTS = System.nanoTime();
 		lastOdoTS = System.nanoTime();
@@ -86,16 +107,33 @@ public class Positioner extends Subsystem {
         //setDefaultCommand(new MySpecialCommand());
     }
     
+    /**
+     * Directly set our current position.
+     * 
+     * @param x position on X axis
+     * @param y position on Y axis
+     */
     public void setPosition(double x, double y) {
     	curX = x;
     	curY = y;
     }
     
+    /**
+     * Attempt to update our current position.
+     * 
+     * @param x Position delta on X axis
+     * @param y Position delta on Y axis
+     */
     public void updatePosition(double x, double y) {
     	curX += x;
     	curY += y;
     }
     
+    /**
+     * Update our current position after a straight-line drive.
+     * 
+     * @param speed 
+     */
     public void updateFromOdometry(double speed) {
     	long curTS = System.nanoTime();
     	long elapsed = curTS - lastOdoTS;
@@ -111,6 +149,9 @@ public class Positioner extends Subsystem {
     
     }
     
+    /**
+     * Attempt to update our position by double-integrating with filtered accelerometer values.
+     */
     public void updateFromAccelerometer() {
     	long curTS = System.nanoTime();
     	long elapsed = curTS - lastTS;

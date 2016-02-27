@@ -51,6 +51,11 @@ public class Belt extends Subsystem {
 		leftBelt.set(0);
 	}
 
+	/**
+	 * Perform safety checks for motor temperature.
+	 * 
+	 * @return boolean -- are motor temperatures within acceptable bounds?
+	 */
 	public boolean isSafe() {
 		if (leftBelt.getTemperature() < 200) {
 			return true;

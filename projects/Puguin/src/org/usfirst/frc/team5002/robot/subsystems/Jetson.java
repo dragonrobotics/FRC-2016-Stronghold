@@ -57,6 +57,10 @@ public class Jetson extends Subsystem {
 	private double lastKnownDistance;
 	private double lastKnownAngle;
 	
+	/**
+	 * Process queued goal state messages from the Jetson.
+	 * @throws IllegalStateException if a connection to the Jetson could not be established.
+	 */
 	private void updateGoalStatus() throws IllegalStateException {
 		if(!connection.isConnected()) {
 			throw new IllegalStateException("Not connected to Jetson yet.");
@@ -74,7 +78,7 @@ public class Jetson extends Subsystem {
 	}
 	
 	/***
-	 * isDaijoubu() -- get Jetson sortie status
+	 * Get Jetson sortie status.
 	 * 
 	 * @return is the Jetson connected or not?
 	 */
@@ -82,16 +86,31 @@ public class Jetson extends Subsystem {
 		return (connection.isConnected());
 	}
 	
+	/**
+	 * Get last received goal distance from the Jetson.
+	 * 
+	 * @return how far the camera / robot is from the goal
+	 * @throws IllegalStateException if a connection to the Jetson could not be established.
+	 */
 	public double getDistance() throws IllegalStateException {
 		updateGoalStatus();
 		return lastKnownDistance;
 	}
 	
+	/**
+	 * Get last received angle off goal centerline from the Jetson.
+	 * 
+	 * @return approximate angle off goal target.
+	 * @throws IllegalStateException if a connection to the Jetson could not be established.
+	 */
 	public double getAngle() throws IllegalStateException {
 		updateGoalStatus();
 		return lastKnownAngle;
 	}
 	
+	/**
+	 *  Reset the internal asynchronous receive buffers and state machine.
+	 */
 	private void resetAsyncState() {
 		curState = JetsonStateMachine.WAIT;
 		curHeaderBuf = null;
@@ -101,9 +120,16 @@ public class Jetson extends Subsystem {
 		curPacketType = 0;
 	}
 	
+	/**
+	 * Set default command. Does nothing currently.
+	 */
 	public void initDefaultCommand() {
 	}
 
+	/**
+	 * Get the LAN IP address of the Jetson.
+	 * @return the Jetson's IP address.
+	 */
 	public InetAddress getJetsonAddress() {
 		if (connection == null) {
 			return null;
@@ -112,6 +138,11 @@ public class Jetson extends Subsystem {
 		return connection.getInetAddress();
 	}
 
+	/**
+	 * Attempts to initialize network resources required to find and communicate with the Jetson.
+	 * 
+	 * @throws IOException in the event of network errors (mostly passed up the network stack).
+	 */
 	public Jetson() throws IOException {
 		Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
 		NetworkInterface ifn = null;
@@ -142,6 +173,10 @@ public class Jetson extends Subsystem {
 		udpSocket.setBroadcast(true);
 	}
 
+	/**
+	 * Attempt to find the Jetson using a UDP discovery protocol.
+	 * @throws IOException in the event of network errors.
+	 */
 	public void doDiscover() throws IOException {
 		while (true) {
 			// this.sendUDP(new DiscoverPacket(ifaddr.getBroadcast()));
@@ -161,6 +196,14 @@ public class Jetson extends Subsystem {
 		}
 	}
 
+	/**
+	 * Send a network message to the Jetson over UDP.
+	 * 
+	 * Due to the packet size limitations of UDP, use of this function should be limited to small, simple packets.
+	 * 
+	 * @param msg Network message type to send
+	 * @throws IOException in the event of network errors.
+	 */
 	public void sendUDP(NetworkMessage msg) throws IOException {
 		ByteBuffer ns = ByteBuffer.allocate(4096);
 		ns.order(ByteOrder.BIG_ENDIAN);
@@ -183,6 +226,13 @@ public class Jetson extends Subsystem {
 		udpSocket.send(outpacket);
 	}
 
+	/**
+	 * Synchronously receives a network message over UDP.
+	 * This operation blocks.
+	 * 
+	 * @return Received network message
+	 * @throws IOException in the event of network errors.
+	 */
 	public NetworkMessage receiveUDP() throws IOException {
 		ByteBuffer buf = ByteBuffer.allocate(4096);
 		buf.order(ByteOrder.BIG_ENDIAN);
@@ -221,6 +271,14 @@ public class Jetson extends Subsystem {
 		return null;
 	}
 
+	/**
+	 * Sends a network message to the Jetson over TCP.
+	 * As it communicates to the TCP server on the Jetson, this requires the discovery protocol to be run first.
+	 * See doDiscover() for more information.
+	 * 
+	 * @param msg message to send
+	 * @throws IOException in the event of network errors.
+	 */
 	public void sendMessage(NetworkMessage msg) throws IOException {
 		if (connection == null) {
 			this.doDiscover();
@@ -245,6 +303,14 @@ public class Jetson extends Subsystem {
 		netOut.write(ns.array(), 0, 4096);
 	}
 
+	/**
+	 * Asynchronously check for received messages or received message fragments.
+	 * Received messages will be added to a queue as they are received.
+	 * Partially received messages will be added to an internal buffer.
+	 * The discovery protocol must be run first (see doDiscover() for more information).
+	 * 
+	 * @throws IOException in the event of network errors.
+	 */
 	public void checkForMessage() throws IOException {
 		switch(curState) {
 		default:
@@ -325,6 +391,13 @@ public class Jetson extends Subsystem {
 		}
 	}
 	
+	/**
+	 * Synchronously waits for a message from the Jetson over TCP.
+	 * As this requires a connection to the Jetson, the discovery protocol must be run first (see doDiscover()) for more information.
+	 * This operation will block.
+	 * 
+	 * @throws IOException in the event of network errors.
+	 */
 	public void readMessage() throws IOException {
 		if (connection == null) {
 			this.doDiscover();

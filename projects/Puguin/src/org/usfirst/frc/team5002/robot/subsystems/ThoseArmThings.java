@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
-*
+* Super gate lifting arms.
 */
 public class ThoseArmThings extends Subsystem {
 	private CANTalon leftArm, rightArm;
@@ -21,17 +21,28 @@ public class ThoseArmThings extends Subsystem {
 	public void initDefaultCommand() {
 	}
 
+	/**
+	 * Moves the arms up.
+	 */
 	public void armsup() {
 		leftArm.set(1.0);
 	
 	}
 
+	/**
+	 * Moves the arms down.
+	 */
 	public void armsdown() {
 		leftArm.set(-1.0);
 
 
 	}
-
+	
+	/**
+	 * Safety check for the motors.
+	 * 
+	 * @return are the motor temps within safe values?
+	 */
 	public boolean isSafe() {
 		if (leftArm.getTemperature() < 200 ) {
 			
@@ -42,11 +53,17 @@ public class ThoseArmThings extends Subsystem {
 
 	}
 
+	/**
+	 * Stop all arm movement.
+	 */
 	public void stop() {
 		leftArm.set(0);
 	
 	}
 
+	/**
+	 * Send debugging information to the Smart Dashboard.
+	 */
 	public void UpdateSD() {
 		SmartDashboard.putNumber("leftArm get", leftArm.get());
 		SmartDashboard.putNumber("leftArm OutputVoltage", leftArm.getOutputVoltage());
