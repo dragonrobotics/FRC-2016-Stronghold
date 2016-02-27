@@ -6,6 +6,9 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 
+/**
+ * Network message requesting goal data from the Jetson.
+ */
 public class GetGoalDistanceMessage extends NetworkMessage {
 	public GetGoalDistanceMessage(InetAddress address) {
 		this.addr = address;

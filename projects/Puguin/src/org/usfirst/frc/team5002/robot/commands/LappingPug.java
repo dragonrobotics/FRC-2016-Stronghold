@@ -6,6 +6,8 @@ import edu.wpi.first.wpilibj.command.Command;
 /**
  * makes the tape measurer come back in (like when a pug is drinking water and
  * they draw their tongue back in)
+ * 
+ * TODO: doesn't seem to have a stop condition
  */
 public class LappingPug extends Command {
 

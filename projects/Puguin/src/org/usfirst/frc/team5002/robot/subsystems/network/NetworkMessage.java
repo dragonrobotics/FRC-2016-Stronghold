@@ -6,6 +6,14 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 
+/**
+ * Base class for all of the messages sent over and received from the network.
+ * Also implements functions for sending and receiving complex datatypes sanely over the network,
+ * because Java is stupid and does weird shit to its strings (and presumably doubles)
+ * 
+ * For detailed information on network packet structure, please refer to the source code for lib5002-net
+ * (in a separate repository).
+ */
 public abstract class NetworkMessage {
 	public InetAddress addr;
 
@@ -54,11 +62,29 @@ public abstract class NetworkMessage {
 		this.putLenString(out, Double.toString(d));
 	}
 
+	/**
+	 * Writes the message to a ByteBuffer for transmission.
+	 * @param out Output byte buffer
+	 * @throws IOException
+	 */
 	abstract public void writeObjectTo(ByteBuffer out) throws IOException;
 
+	/**
+	 * Reads the message from a byte buffer (from a received message)
+	 * @param in Byte buffer containing the message as raw bytes
+	 * @throws IOException
+	 */
 	abstract public void readObjectFrom(ByteBuffer in) throws IOException;
 
+	/**
+	 * Gets the network message's 1-byte type ID.
+	 * @return the type identifier for this network message.
+	 */
 	abstract public byte getMessageID();
 
+	/**
+	 * Gets the size of the network message when serialized.
+	 * @return size of the serialized network message.
+	 */
 	abstract public short getMessageSize();
 }

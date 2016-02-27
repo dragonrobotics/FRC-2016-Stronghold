@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
- * 
+ * Ball launcher and detector contact switch.
  */
 public class Launcher extends Subsystem {
 	private CANTalon bottomLaunchWheel, toptLaunchWheel;

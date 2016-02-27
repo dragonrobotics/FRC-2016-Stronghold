@@ -12,9 +12,17 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
- *
+ * Robot drivetrain.
+ * 
+ * The drivetrain is a tracked slipdrive system with three motors per side.
+ * Two motors have encoders and are used for automatic drive measurement.
  */
 public class Drivetrain extends Subsystem {
+	/** 
+	 * Motor objects onboard the robot.
+	 * L = Left, R = Right, B = Back, F = Forward.
+	 * Motors LT and RT are used as auto driving targets.
+	 */
 	private CANTalon mcLT, mcLB, mcLF, mcRT, mcRB, mcRF;
 
 	/**
@@ -47,26 +55,44 @@ public class Drivetrain extends Subsystem {
 		mcRF.set(4);
 	}
 
+	/**
+	 * Sets default command for the drivetrain (teleop mode)
+	 */
 	public void initDefaultCommand() {
 		setDefaultCommand(new TeleopDriveyWivey());
 	}
 
+	/**
+	 * Prepares motor controllers to accept values for teleop driving (speed)
+	 */
 	public void initTeleop() {
 		mcLT.changeControlMode(TalonControlMode.Speed);
 		mcRT.changeControlMode(TalonControlMode.Speed);
 	}
 
+	/**
+	 * Prepares motor controllers to accept values for auto driving (position / distance)
+	 */
 	public void initAutonomous() {
 		mcLT.changeControlMode(TalonControlMode.Position);
 		mcRT.changeControlMode(TalonControlMode.Position);
 	}
 
+	/**
+	 * Set motor values directly from a joystick object.
+	 * Call from teleop code.
+	 * @param stick -- Joystick to use for driving.
+	 */
 	public void joystickDrive(Joystick stick) {
 		mcLT.set(stick.getY() - stick.getX());
 		mcRT.set(stick.getY() + stick.getX());
 
 	}
 
+	/**
+	 * Drive the robot in Field-Oriented Control mode.
+	 * @param stick Joystick to use for driving.
+	 */
 	public void joystickFOCDrive(Joystick stick) {
 		Robot.getRobotAngle();
 		double PugAngle = Robot.getRobotAngle();
@@ -84,6 +110,13 @@ public class Drivetrain extends Subsystem {
 		}
 
 	}
+	
+	/**
+	 * Move the robot a given distance relative to its current position.
+	 * 
+	 * @param x Distance to drive on the x-axis
+	 * @param y Distance to drive on the y-axis
+	 */
 	public void autoDrive(double x, double y) {
 		double initangle = Math.atan(x / y); // Angle to the final position
 		double initdistance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)); 
@@ -102,6 +135,7 @@ public class Drivetrain extends Subsystem {
 	
 	/***
 	 * autoTurn -- turn to a given angle change in degrees.
+	 * Heading zero corresponds to straight ahead.
 	 * @param hdg heading change in degrees. Positive values correspond to clockwise rotation.
 	 */
 	final double maxTurnOutput = 100.0;
@@ -136,23 +170,43 @@ public class Drivetrain extends Subsystem {
 		mcRT.changeControlMode(TalonControlMode.Position);
 	}
 	
+	
+	/**
+	 * Get current turning speed of the left-side tracks.
+	 * @return encoder-measured robot speed on left side.
+	 */
 	public int getLVel() {
 		return mcLT.getEncVelocity();
 	}
 	
+	/**
+	 * Get current turning speed of the right-side tracks.
+	 * @return encoder-measured robot speed on right side.
+	 */
 	public int getRVel() {
 		return mcRT.getEncVelocity();
 	}
 
+	/**
+	 * Test if both the left and right tracks are in position after an auto-drive command.
+	 * @return whether or not the left and right tracks have completed an auto-drive command
+	 */
 	public boolean isInPosition() {
 		return mcLT.getClosedLoopError() + mcRT.getClosedLoopError() < 50;
 	}
 
+	/**
+	 * Immediately stop the left and right tracks.
+	 */
 	public void stop() {
 		mcLT.set(0);
 		mcRT.set(0);
 	}
 
+	/**
+	 * Test if motor temperatures are within acceptable limits.
+	 * @return if motor temperatures are within safe limits.
+	 */
 	public boolean isSafe() {
 
 		if (mcLT.getTemperature() < 200 && mcRT.getTemperature() < 200) {
@@ -165,6 +219,9 @@ public class Drivetrain extends Subsystem {
 
 	}
 
+	/**
+	 * Update the Smart Dashboard with drivetrain debugging information.
+	 */
 	public void updateSD() {
 		SmartDashboard.putNumber("mc1 get", mcLT.get());
 		SmartDashboard.putNumber("mc2 get", mcLB.get());

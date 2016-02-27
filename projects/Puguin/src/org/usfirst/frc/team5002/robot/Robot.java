@@ -99,6 +99,7 @@ public class Robot extends IterativeRobot {
 		positioner.updateFromAccelerometer();
 		positioner.updateFromOdometry((drivetrain.getLVel() + drivetrain.getRVel()) / 2);
 		
+		// do asynch recv
 		try {
 			jetson.checkForMessage();
 		} catch (IOException e) {
@@ -143,6 +144,13 @@ public class Robot extends IterativeRobot {
 		LiveWindow.run();
 	}
 
+	/**
+	 * Get the current accumulated heading of the robot; when the robot is started up, this will be zero.
+	 * Clockwise turns make this value increase, while counterclockwise turns make this decrease.
+	 * This angle is continuous-- its range is beyond 360.
+	 * @return accumulated heading displacement from robot start value.
+	 * @throws IllegalStateException if the AHRS has not been initialized.
+	 */
 	public static double getRobotAngle() throws IllegalStateException {
 		if (ahrs == null) {
 			throw new IllegalStateException("AHRS not initialized.");

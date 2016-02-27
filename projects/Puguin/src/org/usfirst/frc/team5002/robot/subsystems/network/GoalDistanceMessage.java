@@ -6,6 +6,9 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 
+/**
+ * Network message containing Jetson goal processing status information.
+ */
 public class GoalDistanceMessage extends NetworkMessage {
 	public enum Status {
 		GOAL_FOUND, // 255

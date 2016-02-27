@@ -5,7 +5,7 @@ import org.usfirst.frc.team5002.robot.Robot;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- *
+ * Command that moves the robot to a given position relative to the robot.
  */
 public class Automove extends Command {
 	private double x, y, angle;
