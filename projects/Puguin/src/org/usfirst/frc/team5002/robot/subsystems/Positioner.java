@@ -14,6 +14,22 @@ import edu.wpi.first.wpilibj.command.Subsystem;
  */
 public class Positioner extends Subsystem {
     
+	public static double 
+	
+	class fieldGridSquare {
+		public int posX;
+		public int posY;
+		
+		
+		
+		public fieldGridSquare()
+	}
+	
+	class fieldGridVertex {
+		double pathCost;
+		
+	}
+	
 	/**
 	 * Internal Kalman Filter implementation.
 	 * 
