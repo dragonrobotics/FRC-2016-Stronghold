@@ -7,11 +7,11 @@ import edu.wpi.first.wpilibj.command.Command;
 /**
  * Gets the POV for the joystick
  */
-public class PugOnViagra extends Command {
+public class POV extends Command {
 	private Command RaiseTheRoof;
 	private Command SadPug;
 
-	public PugOnViagra() {
+	public POV() {
 		RaiseTheRoof = new TOUCHDOWN();
 		SadPug = new WhatAreThose();
 	}
