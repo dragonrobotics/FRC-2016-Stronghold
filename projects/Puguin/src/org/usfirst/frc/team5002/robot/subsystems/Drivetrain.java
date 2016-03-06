@@ -28,7 +28,7 @@ public class Drivetrain extends Subsystem {
 	 * The drivetrain ignores angle changes less than this value, 
 	 * to prevent it from constantly turning without moving forward.
 	 */
-	static final controllerDeadzone = 2.5;
+	
 	
 	/**
 	 * constructor for drivetrain initializes CANTalon stuff
@@ -100,7 +100,7 @@ public class Drivetrain extends Subsystem {
 		Robot.getRobotAngle();
 		double PugAngle = Robot.getRobotAngle() % 360.0;
 		double JoystickAngle = stick.getDirectionDegrees();
-
+		double controllerDeadzone = 2.5;
 		if (Math.abs(PugAngle-JoystickAngle) > controllerDeadzone) {
 			autoTurn(JoystickAngle - PugAngle);
 		} else {
