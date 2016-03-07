@@ -37,7 +37,7 @@ public class Poi extends Command {
 			
 			targetY -= tDist;
 			
-			targetAngle = Math.atan2(targetY, targetX);
+			targetAngle = Math.atan2(targetX, targetY);
 			targetDistance = Math.sqrt(Math.pow(targetX, 2) + Math.pow(targetY, 2));
 		} else {
 			taiha = true;
