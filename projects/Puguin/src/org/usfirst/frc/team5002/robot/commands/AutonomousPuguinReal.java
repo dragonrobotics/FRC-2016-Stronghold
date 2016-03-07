@@ -71,7 +71,7 @@ public class AutonomousPuguinReal extends CommandGroup {
 
 		}
 
-//		addSequential(new Poi());
+		addSequential(new Poi(10.0)); // TODO: fill in with ideal shooting distance
 		// find the goal
 		addSequential(new DoLaunch());
 		// Add Commands here:
