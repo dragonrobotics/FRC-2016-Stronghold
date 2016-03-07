@@ -8,62 +8,37 @@ import edu.wpi.first.wpilibj.command.Command;
  * Drives the robot to the decisive battle, poi~!
  */
 public class Poi extends Command {
-	double angleToPerpendicular;
-	double distanceToAlign;
-	double distanceToTarget;
+	double targetAngle;
+	double targetDistance;
 	
-	boolean rightOfGoal = false;
+	boolean onTargetAngle = false;
+	
 	boolean taiha = false;
-	boolean stateCommandSent = false;
-	
-	private enum State {
-		TURN_PERPENDICULAR,
-		ALIGN_X,
-		TURN_TO_GOAL,
-		ALIGN_Y,
-		FINISHED,
-	}
 	
 	State state;
 	
 	/***
 	 * Poi(boolean, double) - Start driving, poi~!
-	 * @param right - are we right of the target goal, poi~?
 	 * @param tDist - how far we want to be from the goal in the end, poi~
 	 */
-	public Poi(boolean right, double tDist) {
+	public Poi(double tDist) {
 		requires(Robot.drivetrain);
 		
 		if(Robot.jetson.isDaijoubu()) {
 			rightOfGoal = right;
 			
 			double startDistance = Robot.jetson.getDistance();
-			double startAngle = Robot.jetson.getAngle(); // heading diff
+			double startAngle = Robot.jetson.getAngle() + (Robot.getRobotAngle() % 360.0);
 			
-			// operating in the coordinate system of the goal:
-			// targetDistance = tDist
-			// targetAngle = 0
+			// transform to robot-local cartesian coordinates.
+			// remember that X = forward/back, Y = left/right relative to starting angle
+			double targetX = startDistance * Math.sin(Math.toRadians(startAngle));
+			double targetY = startDistance * Math.cos(Math.toRadians(startAngle));
 			
-			// then transform to the coordinate system of the robot
+			targetX -= tDist;
 			
-			double ourX = startDistance * Math.cos(Math.toRadians(startAngle));
-			double ourY = startDistance * Math.sin(Math.toRadians(startAngle));
-			
-			angleToPerpendicular = 90 - startAngle;
-			
-			// drive from (startAngle, startDistance) to (0, tDist):
-			// turn so that we're perpendicular to goal
-			// drive to align to goal
-			// turn to face goal
-			// drive to reach target distance
-			
-			distanceToAlign = startDistance * Math.cos(Math.toRadians(angleToPerpendicular));
-			double goalDistAtAlign = startDistance * Math.sin(Math.toRadians(angleToPerpendicular));
-			
-			distanceToTarget = goalDistAtAlign - tDist;
-			
-			state = State.TURN_PERPENDICULAR;
-			stateCommandSent = false;
+			targetAngle = Math.atan2(targetY, targetX);
+			targetDistance = Math.sqrt(Math.pow(targetX, 2) + Math.pow(targetY, 2));
 		} else {
 			taiha = true;
 		}
@@ -74,67 +49,51 @@ public class Poi extends Command {
 	}
 
 	protected void execute() {
-		switch(state) {
-		case TURN_PERPENDICULAR:
-			if(!stateCommandSent) {
-				if(rightOfGoal) {
-					Robot.drivetrain.autoTurn(-angleToPerpendicular);
-				} else {
-					Robot.drivetrain.autoTurn(angleToPerpendicular);
-				}
-				stateCommandSent = true;
-			}
+		double curAngleErr = endAngle - Robot.getRobotAngle();
+		
+		if(Math.abs(curAngleErr) > 1) {
+			onTargetAngle = false;
 			
-			if(!Robot.drivetrain.isInPosition()) {
-				break;
+			mcLT.changeControlMode(TalonControlMode.Speed);
+			mcRT.changeControlMode(TalonControlMode.Speed);
+		
+			if(Math.abs(curAngleErr) > 100)
+				curAngleErr = 100 * (curAngleErr < 0 ? -1 : 1);
+			
+			double out = (Math.abs(curAngleErr) / 100) * maxTurnOutput;
+			
+			if(curAngleErr > 0) {
+				mcLT.set(out);
+				mcRT.set(-out);
 			} else {
-				state = State.ALIGN_X;
-			}
-		case ALIGN_X:
-			if(!stateCommandSent) {
-				Robot.drivetrain.autoDrive(0, distanceToAlign);
+				mcLT.set(-out);
+				mcRT.set(out);
 			}
 			
-			if(!Robot.drivetrain.isInPosition()) {
-				break;
-			} else {
-				state = State.TURN_TO_GOAL;
-			}
-		case TURN_TO_GOAL:
-			if(!stateCommandSent) {
-				if(rightOfGoal) {
-					Robot.drivetrain.autoTurn(angleToPerpendicular);
-				} else {
-					Robot.drivetrain.autoTurn(-angleToPerpendicular);
-				}
-			}
+			mcLT.changeControlMode(TalonControlMode.Position);
+			mcRT.changeControlMode(TalonControlMode.Position);
+		} else {
+			onTargetAngle = true;
 			
-			if(!Robot.drivetrain.isInPosition()) {
-				break;
-			} else {
-				state = State.ALIGN_Y;
-			}
+			mcLT.changeControlMode(TalonControlMode.Position);
+			mcRT.changeControlMode(TalonControlMode.Position);
 			
-		case ALIGN_Y:
-			if(!stateCommandSent) {
-				Robot.drivetrain.autoDrive(0, distanceToTarget);
-			}
-			
-			if(!Robot.drivetrain.isInPosition()) {
-				break;
-			} else {
-				state = State.FINISHED;
-			}
+			mcLT.set(targetDistance);
+			mcRT.set(targetDistance);
 		}
 	}
 
 	protected boolean isFinished() {
-		return (state == State.FINISHED);
+		return taiha || (onTargetAngle && Robot.drivetrain.isInPosition());
 	}
 
 	protected void end() {
+		mcLT.changeControlMode(TalonControlMode.Position);
+		mcRT.changeControlMode(TalonControlMode.Position);
 	}
 
 	protected void interrupted() {
+		mcLT.changeControlMode(TalonControlMode.Position);
+		mcRT.changeControlMode(TalonControlMode.Position);
 	}
 }
