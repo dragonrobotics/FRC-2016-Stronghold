@@ -31,11 +31,11 @@ public class Poi extends Command {
 			double startAngle = Robot.jetson.getAngle() + (Robot.getRobotAngle() % 360.0);
 			
 			// transform to robot-local cartesian coordinates.
-			// remember that X = forward/back, Y = left/right relative to starting angle
-			double targetX = startDistance * Math.sin(Math.toRadians(startAngle));
+			// remember that 0 degrees heading is directly forward from starting orientation (Y axis), so we swap sin/cos.
 			double targetY = startDistance * Math.cos(Math.toRadians(startAngle));
+			double targetX = startDistance * Math.sin(Math.toRadians(startAngle));
 			
-			targetX -= tDist;
+			targetY -= tDist;
 			
 			targetAngle = Math.atan2(targetY, targetX);
 			targetDistance = Math.sqrt(Math.pow(targetX, 2) + Math.pow(targetY, 2));
