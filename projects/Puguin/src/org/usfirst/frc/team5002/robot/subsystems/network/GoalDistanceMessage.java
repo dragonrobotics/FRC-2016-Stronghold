@@ -35,9 +35,9 @@ public class GoalDistanceMessage extends NetworkMessage {
 			out.put((byte) 0);
 		}
 
-		this.putDouble(out, distance);
 		this.putDouble(out, score);
 		this.putDouble(out, angle);
+		this.putDouble(out, distance);
 	}
 
 	@Override
@@ -49,9 +49,9 @@ public class GoalDistanceMessage extends NetworkMessage {
 			goal_status = Status.GOAL_NOT_FOUND;
 		}
 
-		distance = this.getDouble(in);
 		score = this.getDouble(in);
 		angle = this.getDouble(in);
+		distance = this.getDouble(in);
 	}
 
 	@Override
