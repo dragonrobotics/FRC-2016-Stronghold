@@ -12,7 +12,7 @@ public class BarOfWheels extends Subsystem {
 	private CANTalon BarSpinner;
 
 	public BarOfWheels() {
-		BarSpinner = new CANTalon(36);/* replace this with actual motor id */
+		BarSpinner = new CANTalon(36);/* TODO change this number with the actually ID */
 		BarSpinner.changeControlMode(TalonControlMode.PercentVbus);
 	}
 

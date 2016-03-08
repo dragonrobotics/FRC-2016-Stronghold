@@ -2,6 +2,8 @@ package org.usfirst.frc.team5002.robot;
 
 import org.usfirst.frc.team5002.robot.commands.BeltMagic;
 import org.usfirst.frc.team5002.robot.commands.BeltWizardry;
+import org.usfirst.frc.team5002.robot.commands.FranksSleehw;
+import org.usfirst.frc.team5002.robot.commands.FranksWheels;
 import org.usfirst.frc.team5002.robot.commands.LappingPug;
 import org.usfirst.frc.team5002.robot.commands.LauncherMagic;
 import org.usfirst.frc.team5002.robot.commands.PugKisses;
@@ -51,11 +53,13 @@ public class OI {
 		// X.whileHeld(new ());
 		Y.whileHeld(new PugKisses());
 		B.whileHeld(new BeltMagic());
+		B.whileHeld(new FranksSleehw()); //Can you even use one button for two commands?
 		A.whileHeld(new LappingPug());
 		Paddle_2.whenPressed(new TOUCHDOWN());
 		Paddle_4.whenPressed(new WhatAreThose());
 		RB.whileHeld(new LauncherMagic());
 		LB.whileHeld(new BeltWizardry());
+		LB.whileHeld(new FranksWheels());
 	}
 	
 	/**
