@@ -7,6 +7,7 @@ import org.usfirst.frc.team5002.robot.commands.FranksWheels;
 import org.usfirst.frc.team5002.robot.commands.LappingPug;
 import org.usfirst.frc.team5002.robot.commands.LauncherMagic;
 import org.usfirst.frc.team5002.robot.commands.PugKisses;
+import org.usfirst.frc.team5002.robot.commands.BipolarCamera;
 import org.usfirst.frc.team5002.robot.commands.TOUCHDOWN;
 import org.usfirst.frc.team5002.robot.commands.WhatAreThose;
 
@@ -36,7 +37,7 @@ public class OI {
 		/**
 		 * Sets the buttons on the remote. 
 		 */
-		// Button X = new JoystickButton(pugstick, 3);
+		Button X = new JoystickButton(pugstick, 3);
 		Button Y = new JoystickButton(pugstick, 4);
 		Button B = new JoystickButton(pugstick, 2);
 		Button A = new JoystickButton(pugstick, 1);
@@ -44,13 +45,14 @@ public class OI {
 		Button Paddle_4 = new JoystickButton(pugstick, 10);
 		Button RB = new JoystickButton(pugstick, 6);
 		Button LB = new JoystickButton(pugstick, 5);
+		
 
 		/**
 		 * when buttons: X, Y, B, A, RB, LB are held down,
 		 * the code is activated. When the Paddles are
 		 * pressed, the code is activated.
 		 */
-		// X.whileHeld(new ());
+		X.whenPressed(new BipolarCamera());
 		Y.whileHeld(new PugKisses());
 		B.whileHeld(new BeltMagic());
 		B.whileHeld(new FranksSleehw()); //Can you even use one button for two commands?
@@ -60,6 +62,7 @@ public class OI {
 		RB.whileHeld(new LauncherMagic());
 		LB.whileHeld(new BeltWizardry());
 		LB.whileHeld(new FranksWheels());
+		
 	}
 	
 	/**

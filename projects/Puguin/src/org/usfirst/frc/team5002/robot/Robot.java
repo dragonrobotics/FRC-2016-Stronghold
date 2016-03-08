@@ -1,6 +1,8 @@
 package org.usfirst.frc.team5002.robot;
 
 import com.kauailabs.navx.frc.AHRS;
+
+import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.SPI.Port;
@@ -36,9 +38,9 @@ public class Robot extends IterativeRobot {
 	public static Jetson jetson;
 	public static OI oi;
 	public static AHRS ahrs;
-
+	
 	Command autonomousCommand;
-
+	CameraServer server;
 	public Robot() {
 		try {
 			ahrs = new AHRS(Port.kMXP);
@@ -46,6 +48,10 @@ public class Robot extends IterativeRobot {
 			DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
 			ahrs = null;
 		}
+        server = CameraServer.getInstance();
+        server.setQuality(50);
+        //the camera name (ex "cam0") can be found through the roborio web interface
+        server.startAutomaticCapture("cam0");
 	}
 
 	/**
