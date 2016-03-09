@@ -8,14 +8,11 @@ import edu.wpi.first.wpilibj.command.Command;
  * Drives the robot to the decisive battle, poi~!
  */
 public class Poi extends Command {
-	double targetAngle;
-	double targetDistance;
-	
-	boolean onTargetAngle = false;
+	double targetX;
+	double targetY;
+	double finalTurnAngle;
 	
 	boolean taiha = false;
-	
-	State state;
 	
 	/***
 	 * Poi(boolean, double) - Start driving, poi~!
@@ -25,75 +22,37 @@ public class Poi extends Command {
 		requires(Robot.drivetrain);
 		
 		if(Robot.jetson.isDaijoubu()) {
-			rightOfGoal = right;
-			
 			double startDistance = Robot.jetson.getDistance();
-			double startAngle = Robot.jetson.getAngle() + (Robot.getRobotAngle() % 360.0);
+			double startAngle = Robot.jetson.getAngle() + Robot.getRobotAngle();
 			
 			// transform to robot-local cartesian coordinates.
 			// remember that 0 degrees heading is directly forward from starting orientation (Y axis), so we swap sin/cos.
-			double targetY = startDistance * Math.cos(Math.toRadians(startAngle));
-			double targetX = startDistance * Math.sin(Math.toRadians(startAngle));
+			targetY = startDistance * Math.cos(Math.toRadians(startAngle));
+			targetX = startDistance * Math.sin(Math.toRadians(startAngle));
 			
 			targetY -= tDist;
 			
-			targetAngle = Math.atan2(targetX, targetY);
-			targetDistance = Math.hypot(targetX, targetY);
+			// move vector = (atan2(tY, tX), hypot(tX, tY))
+			// final turn = -(move vector angle)
+			
+			finalTurnAngle = Math.floor(Robot.getRobotAngle() / 360.0) * 360.0;
 		} else {
 			taiha = true;
 		}
 	}
 
-	protected void initialize() {
-		
-	}
+	protected void initialize() {}
 
 	protected void execute() {
-		double curAngleErr = endAngle - Robot.getRobotAngle();
-		
-		if(Math.abs(curAngleErr) > 1) {
-			onTargetAngle = false;
-			
-			mcLT.changeControlMode(TalonControlMode.Speed);
-			mcRT.changeControlMode(TalonControlMode.Speed);
-		
-			if(Math.abs(curAngleErr) > 100)
-				curAngleErr = 100 * (curAngleErr < 0 ? -1 : 1);
-			
-			double out = (Math.abs(curAngleErr) / 100) * maxTurnOutput;
-			
-			if(curAngleErr > 0) {
-				mcLT.set(out);
-				mcRT.set(-out);
-			} else {
-				mcLT.set(-out);
-				mcRT.set(out);
-			}
-			
-			mcLT.changeControlMode(TalonControlMode.Position);
-			mcRT.changeControlMode(TalonControlMode.Position);
-		} else {
-			onTargetAngle = true;
-			
-			mcLT.changeControlMode(TalonControlMode.Position);
-			mcRT.changeControlMode(TalonControlMode.Position);
-			
-			mcLT.set(targetDistance);
-			mcRT.set(targetDistance);
-		}
+		Robot.drivetrain.autoDrive(targetX, targetY);
+		Robot.drivetrain.autoTurn(finalTurnAngle);
 	}
 
 	protected boolean isFinished() {
-		return taiha || (onTargetAngle && Robot.drivetrain.isInPosition());
+		return taiha || Robot.drivetrain.isInPosition();
 	}
 
-	protected void end() {
-		mcLT.changeControlMode(TalonControlMode.Position);
-		mcRT.changeControlMode(TalonControlMode.Position);
-	}
+	protected void end() {}
 
-	protected void interrupted() {
-		mcLT.changeControlMode(TalonControlMode.Position);
-		mcRT.changeControlMode(TalonControlMode.Position);
-	}
+	protected void interrupted() {}
 }
