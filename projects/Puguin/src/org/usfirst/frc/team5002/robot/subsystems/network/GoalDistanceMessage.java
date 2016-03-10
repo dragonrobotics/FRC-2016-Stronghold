@@ -1,8 +1,6 @@
 package org.usfirst.frc.team5002.robot.subsystems.network;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 
