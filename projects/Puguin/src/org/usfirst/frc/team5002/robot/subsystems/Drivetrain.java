@@ -25,12 +25,15 @@ public class Drivetrain extends Subsystem {
 	private CANTalon mcLT, mcLB, mcLF, mcRT, mcRB, mcRF;
 
 	/**
+<<<<<<< master
 	 * The drivetrain ignores angle changes less than this value, 
 	 * to prevent it from constantly turning without moving forward.
 	 */
 	
 	
 	/**
+=======
+>>>>>>> 0f23e37 Update teleop driving functions to use autodrive backend
 	 * constructor for drivetrain initializes CANTalon stuff
 	 */
 	public Drivetrain() {
@@ -89,7 +92,9 @@ public class Drivetrain extends Subsystem {
 	 * @param stick -- Joystick to use for driving.
 	 */
 	public void joystickDrive(Joystick stick) {
-		autoDrive(stick.getX(), stick.getX());
+		mcLT.set(stick.getY() - stick.getX());
+		mcRT.set(stick.getY() + stick.getX());
+
 	}
 
 	/**
@@ -98,11 +103,14 @@ public class Drivetrain extends Subsystem {
 	 */
 	public void joystickFOCDrive(Joystick stick) {
 		Robot.getRobotAngle();
-		double PugAngle = Robot.getRobotAngle() % 360.0;
+		double PugAngle = Robot.getRobotAngle();
 		double JoystickAngle = stick.getDirectionDegrees();
-		double controllerDeadzone = 2.5;
-		if (Math.abs(PugAngle-JoystickAngle) > controllerDeadzone) {
-			autoTurn(JoystickAngle - PugAngle);
+		if (JoystickAngle < PugAngle) {
+			mcLT.set(1);
+			mcRT.set(-1);
+		} else if (JoystickAngle > PugAngle) {
+			mcLT.set(-1);
+			mcRT.set(1);
 		} else {
 			mcLT.set(stick.getMagnitude());
 			mcRT.set(stick.getMagnitude());
@@ -117,14 +125,14 @@ public class Drivetrain extends Subsystem {
 	 * @param y Distance to drive on the y-axis
 	 */
 	public void autoDrive(double x, double y) {
-		double initangle = Math.atan2(y, x); // Angle to the final position
+		double initangle = Math.atan(x / y); // Angle to the final position
 		double initdistance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)); 
 		// Distance
 		// directly
 		// to
-		// the
+	    // the
 		// final
-		// position
+	    // position
 
 		autoTurn(initangle);
 
@@ -133,27 +141,15 @@ public class Drivetrain extends Subsystem {
 	}
 	
 	/***
-	 * Maximum speed while turning.
-	 */
-	final double maxTurnOutput = 100.0;
-	
-	/***
-	 * turn to a given angle change in degrees.
-	 *
+	 * autoTurn -- turn to a given angle change in degrees.
 	 * Heading zero corresponds to straight ahead.
 	 * @param hdg heading change in degrees. Positive values correspond to clockwise rotation.
 	 */
+	final double maxTurnOutput = 100.0;
 	public void autoTurn(double hdg) {
-		autoTurnAbsolute(Robot.getRobotAngle() + hdg);
-	}
-	
-	/***
-	 * turn to an absolute robot angle in degrees.
-	 *
-	 * Note that angles here are continuous: heading = (Angle % 360.0).
-	 * @param hdg heading change in degrees. Positive values correspond to clockwise rotation.
-	 */
-	public void autoTurnAbsolute(double endAngle) {
+		double startAngle = Robot.getRobotAngle();
+		double endAngle = startAngle + hdg;
+		
 		mcLT.changeControlMode(TalonControlMode.Speed);
 		mcRT.changeControlMode(TalonControlMode.Speed);
 		
@@ -164,12 +160,11 @@ public class Drivetrain extends Subsystem {
 				break;
 			}
 			
-			if(Math.abs(curErr) > 100)
-				curErr = 100 * (curErr < 0 ? -1 : 1);
+			curErr = Math.min(curErr, 100);
 			
-			double out = (Math.abs(curErr) / 100) * maxTurnOutput;
+			double out = (curErr / 100) * maxTurnOutput;
 			
-			if(curErr > 0) {
+			if(hdg > 0) {
 				mcLT.set(out);
 				mcRT.set(-out);
 			} else {
