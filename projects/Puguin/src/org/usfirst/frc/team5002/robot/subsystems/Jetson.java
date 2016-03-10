@@ -2,6 +2,8 @@ package org.usfirst.frc.team5002.robot.subsystems;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -11,8 +13,10 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -23,21 +27,32 @@ import java.util.List;
 import java.util.Queue;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.vision.USBCamera;
+
 import org.usfirst.frc.team5002.robot.subsystems.network.DiscoverPacket;
 import org.usfirst.frc.team5002.robot.subsystems.network.GoalDistanceMessage;
 import org.usfirst.frc.team5002.robot.subsystems.network.NetworkMessage;
+import org.usfirst.frc.team5002.robot.subsystems.network.StartVideoStream;
+
+import com.ni.vision.NIVision;
+import com.ni.vision.NIVision.Image;
+import com.ni.vision.NIVision.RawData;
 
 /**
  *
  */
 public class Jetson extends Subsystem {
 	final static int remotePort = 5800;
+	final static int cameraRemotePort = 1180;
+	final static byte[] cameraHeader = {0x01, 0x00, 0x00, 0x00};
 
 	private InterfaceAddress ifaddr;
 	private Socket connection;
 	private DatagramSocket udpSocket;
 	private OutputStream netOut;
 	private InputStream netIn;
+	
+	private Thread camThread;
 	
 	private enum JetsonStateMachine {
 		READ_HEADER,	// reading packet header
@@ -205,7 +220,7 @@ public class Jetson extends Subsystem {
 	 * @throws IOException in the event of network errors.
 	 */
 	public void sendUDP(NetworkMessage msg) throws IOException {
-		ByteBuffer ns = ByteBuffer.allocate(4096);
+		ByteBuffer ns = ByteBuffer.allocate(msg.getMessageSize()+7);
 		ns.order(ByteOrder.BIG_ENDIAN);
 
 		ns.put((byte) 0x35);
@@ -284,7 +299,7 @@ public class Jetson extends Subsystem {
 			this.doDiscover();
 		}
 
-		ByteBuffer ns = ByteBuffer.allocate(4096);
+		ByteBuffer ns = ByteBuffer.allocate(msg.getMessageSize()+7);
 		ns.order(ByteOrder.BIG_ENDIAN);
 
 		ns.put((byte) 0x35);
@@ -300,7 +315,7 @@ public class Jetson extends Subsystem {
 
 		msg.writeObjectTo(ns);
 
-		netOut.write(ns.array(), 0, 4096);
+		netOut.write(ns.array(), 0, msg.getMessageSize()+7);
 	}
 
 	/**
@@ -446,5 +461,110 @@ public class Jetson extends Subsystem {
 				}
 			}
 		}
+	}
+	
+	public void initCameraStream(String camName) {
+		USBCamera cam = new USBCamera(camName);
+		camThread = new Thread(new Runnable() {
+				public void run() {
+					try {
+						miniCameraServer(cam);
+					} catch(IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		);
+		
+		camThread.setName("Rio->Jetson Camera Stream");
+		camThread.start();
+		
+		try {
+			sendMessage(new StartVideoStream(this.connection.getInetAddress()));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Re-implements the WPILib camera server class for the Jetson.
+	 * @param camera
+	 * @throws IOException 
+	 */
+	private void miniCameraServer(USBCamera camera) throws IOException {
+		ServerSocket listenSocket = new ServerSocket();
+	    listenSocket.setReuseAddress(true);
+	    InetSocketAddress address = new InetSocketAddress(cameraRemotePort);
+	    listenSocket.bind(address);
+	    
+	    while(true) {
+	    	// wait for connection
+	    	Socket connSock = listenSocket.accept();
+	    	
+	    	DataInputStream in = new DataInputStream(connSock.getInputStream());
+	    	DataOutputStream out = new DataOutputStream(connSock.getOutputStream());
+	    	
+	    	int fps = in.readInt();
+	    	in.readInt(); // compression is irrelevant
+	    	int size = in.readInt();
+	    	
+	    	switch(size) {
+	    	case 0:	// 640 x 480
+	    		camera.setSize(640, 480);
+	    		break;
+	    	case 1: // 320 x 240
+	    		camera.setSize(320, 240);
+	    		break;
+	    	case 2:	// 160 x 120
+	    		camera.setSize(160, 120);
+	    		break;
+	    	}
+	    	
+	    	long period = (long) (1000 / (1.0 * fps));
+	    	long loopTime = System.currentTimeMillis();
+	    	
+	    	while(true) {
+	    		// capture loop
+	    		loopTime = System.currentTimeMillis();
+	    		
+		    	Image frame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
+		    	camera.getImage(frame);
+		    	
+		    	RawData data =
+		    	        NIVision.imaqFlatten(frame, NIVision.FlattenType.FLATTEN_IMAGE,
+		    	            NIVision.CompressionType.COMPRESSION_JPEG, 10 * 50);
+		    	ByteBuffer buf = data.getBuffer();
+		    	
+		    	int dataStart = 0;
+				while (dataStart < buf.limit() - 1) {
+					if ((buf.get(dataStart) & 0xff) == 0xFF && (buf.get(dataStart + 1) & 0xff) == 0xD8)
+					  break;
+					dataStart++;
+				}
+				
+				buf.position(dataStart);
+				
+				byte[] payload = new byte[buf.remaining()];
+				buf.get(payload, 0, buf.remaining());
+				
+				out.write(cameraHeader);
+				out.writeInt(payload.length);
+				out.write(payload);
+				out.flush();
+				
+				long timeDelta = (System.currentTimeMillis() - loopTime);
+				
+				if(timeDelta < period) {
+					try {
+						Thread.sleep(period - timeDelta);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+	    	}
+			
+	    }
 	}
 }

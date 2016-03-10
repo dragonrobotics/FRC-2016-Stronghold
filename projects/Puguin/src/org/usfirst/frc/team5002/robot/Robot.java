@@ -66,6 +66,7 @@ public class Robot extends IterativeRobot {
 		try {
 			jetson = new Jetson();
 			jetson.doDiscover(); // find the Jetson on the local network
+			jetson.initCameraStream("cam0");
 		} catch (IOException e) {
 			e.printStackTrace();
 			// we can't recover from this, really.
