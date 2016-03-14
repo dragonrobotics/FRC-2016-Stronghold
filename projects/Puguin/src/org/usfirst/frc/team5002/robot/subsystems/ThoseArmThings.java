@@ -25,7 +25,7 @@ public class ThoseArmThings extends Subsystem {
 	 * Moves the arms up.
 	 */
 	public void armsup() {
-		leftArm.set(1.0);
+		leftArm.set(.8);
 	
 	}
 
@@ -33,7 +33,7 @@ public class ThoseArmThings extends Subsystem {
 	 * Moves the arms down.
 	 */
 	public void armsdown() {
-		leftArm.set(-1.0);
+		leftArm.set(-0.4);
 
 
 	}

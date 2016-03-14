@@ -24,7 +24,8 @@ public class Automove extends Command {
 	}
 
 	protected boolean isFinished() {
-		return Robot.drivetrain.isInPosition();
+//		return Robot.drivetrain.isInPosition();
+		return true;
 	}
 
 	protected void end() {

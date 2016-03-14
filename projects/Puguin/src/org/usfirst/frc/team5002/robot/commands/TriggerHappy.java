@@ -10,12 +10,11 @@ import edu.wpi.first.wpilibj.command.Command;
  * (and so build team/Chase don't yell at us)
  */
 public class TriggerHappy extends Command {
-	private Command FireBalls;
-	private Command GetBalls;
-
+	private Command FireBalls, GetBalls, GetBalls2;
 	public TriggerHappy() {
 		FireBalls = new DoLaunch();
-		GetBalls = new BeltMagic();
+		GetBalls = new BeltWizardry();
+		GetBalls2 = new FranksWheels();
 	}
 
 	protected void initialize() {
@@ -24,9 +23,12 @@ public class TriggerHappy extends Command {
 	protected void execute() {
 		if (Robot.oi.getJoystick().getRawAxis(3) == -1) {
 			FireBalls.start();
+			
 		}
 		if (Robot.oi.getJoystick().getRawAxis(3) == 1) {
 			GetBalls.start();
+			GetBalls2.start();
+			
 		}
 	}
 

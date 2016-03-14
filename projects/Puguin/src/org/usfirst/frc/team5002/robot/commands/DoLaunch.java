@@ -23,14 +23,10 @@ public class DoLaunch extends Command {
 	}
 
 	protected void execute() {
-		Robot.launcher.run();
-		if (this.timeSinceInitialized() > 1) {
-			Robot.belt.run(1.0);
-		}
-		Robot.launcher.run();
 		if (this.timeSinceInitialized() > 1) {
 			Robot.belt.run();
 		}
+		Robot.launcher.run(.75);
 	}
 
 	protected boolean isFinished() {

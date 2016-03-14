@@ -20,11 +20,11 @@ public class BeltMagic extends Command {
 	 * runs the belt backwards at max speed
 	 */
 	protected void execute() {
-		Robot.belt.run(-1.0);
+		Robot.belt.runBackwards();
 	}
 
 	protected boolean isFinished() {
-		return Robot.launcher.getballswitch();
+		return false;
 	}
 
 	/**

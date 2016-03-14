@@ -12,7 +12,7 @@ public class BarOfWheels extends Subsystem {
 	private CANTalon BarSpinner;
 
 	public BarOfWheels() {
-		BarSpinner = new CANTalon(36);/* TODO change this number with the actually ID */
+		BarSpinner = new CANTalon(7);/* TODO change this number with the actually ID */
 		BarSpinner.changeControlMode(TalonControlMode.PercentVbus);
 	}
 
@@ -23,23 +23,14 @@ public class BarOfWheels extends Subsystem {
 	 * run motor at max speed
 	 */
 	public void run() {
-		BarSpinner.set(1.0);
+		BarSpinner.set(0.6);
 	}
-
-	/**
-	 * run motor at specified speed
-	 * @param percentspeed
-	 */
-	public void run(double percentspeed) {
-		BarSpinner.set(percentspeed);
-
-	}
-
+	
 	/**
 	 * run motor backwards at max speed
 	 */
 	public void runbackwards() {
-		BarSpinner.set(-1.0);
+		BarSpinner.set(-0.6);
 	}
 
 	/**

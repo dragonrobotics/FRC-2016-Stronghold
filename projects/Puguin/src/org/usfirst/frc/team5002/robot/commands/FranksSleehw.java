@@ -20,7 +20,7 @@ public class FranksSleehw extends Command {
 	 * run motor backwards at max speed
 	 */
 	protected void execute() {
-		Robot.barofwheels.run(-1.0);
+		Robot.barofwheels.run();
 	}
 
 	protected boolean isFinished() {

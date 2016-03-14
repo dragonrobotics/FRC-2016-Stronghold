@@ -10,33 +10,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * Ball launcher and detector contact switch.
  */
 public class Launcher extends Subsystem {
-	private CANTalon bottomLaunchWheel, toptLaunchWheel;
-	private DigitalInput ballswitch;
+	private CANTalon bottomLaunchWheel, topLaunchWheel;
+	private static final double maxSpeed = 17000;
 
 	public Launcher() {
 		bottomLaunchWheel = new CANTalon(12); /* TODO: Replace this with the actual motor id */
-		toptLaunchWheel = new CANTalon(1);
-		ballswitch = new DigitalInput(0); // TODO: Replace this with the actual
-											// port
-		bottomLaunchWheel.changeControlMode(TalonControlMode.PercentVbus);
-		toptLaunchWheel.changeControlMode(TalonControlMode.PercentVbus);
-	}
-
-	/**
-	 * Ball on switch or na.
-	 * 
-	 * @return state of the switch
-	 */
-	public boolean getballswitch() {
-		return ballswitch.get();
-	}
-
-	/***
-	 * Run Launcher motors at max speed.
-	 */
-	public void run() {
-		bottomLaunchWheel.set(.75);
-		toptLaunchWheel.set(.75);
+		topLaunchWheel = new CANTalon(1);
+		
+		bottomLaunchWheel.changeControlMode(TalonControlMode.Speed);
+		topLaunchWheel.changeControlMode(TalonControlMode.Speed);
 	}
 
 	/***
@@ -47,16 +29,27 @@ public class Launcher extends Subsystem {
 	 *            max forwards). See motor set() method.
 	 */
 	public void run(double speed) {
-		bottomLaunchWheel.set(speed);
-		toptLaunchWheel.set(speed);
+		checkControlMode(TalonControlMode.Speed);
+		
+		bottomLaunchWheel.set(-maxSpeed * speed);
+		topLaunchWheel.set(-maxSpeed * speed);
 	}
 
 	/***
 	 * Stop launcher motors.
 	 */
+	public void checkControlMode(TalonControlMode mode){
+		if (bottomLaunchWheel.getControlMode() != mode){
+			bottomLaunchWheel.changeControlMode(mode);
+		}
+		if (topLaunchWheel.getControlMode() != mode){
+			bottomLaunchWheel.changeControlMode(mode);
+		}
+		
+	}
 	public void stop() {
 		bottomLaunchWheel.set(0);
-		toptLaunchWheel.set(0);
+		topLaunchWheel.set(0);
 	}
 
 	public void initDefaultCommand() {
@@ -64,7 +57,7 @@ public class Launcher extends Subsystem {
 
 	public boolean isSafe() {
 
-		if (bottomLaunchWheel.getTemperature() < 200 && toptLaunchWheel.getTemperature() < 200) {
+		if (bottomLaunchWheel.getTemperature() < 200 && topLaunchWheel.getTemperature() < 200) {
 			return true;
 		}
 
@@ -74,15 +67,11 @@ public class Launcher extends Subsystem {
 	}
 
 	public void updateSD() {
-		SmartDashboard.putNumber("LeftWheel get", bottomLaunchWheel.get());
-		SmartDashboard.putNumber("RightWheel get", toptLaunchWheel.get());
-		SmartDashboard.putNumber("LeftWheel BusVoltage", bottomLaunchWheel.getBusVoltage());
-		SmartDashboard.putNumber("RightWheel BusVoltage", toptLaunchWheel.getBusVoltage());
-		SmartDashboard.putNumber("LeftWheel OutputVoltage", bottomLaunchWheel.getOutputVoltage());
-		SmartDashboard.putNumber("RightWheel OutputVoltage", toptLaunchWheel.getOutputVoltage());
-		SmartDashboard.putNumber("LeftWheel OutputCurrent", bottomLaunchWheel.getOutputCurrent());
-		SmartDashboard.putNumber("RightWheel OutputCurrent", toptLaunchWheel.getOutputCurrent());
-		SmartDashboard.putNumber("LeftWheel ClosedLoopError", bottomLaunchWheel.getClosedLoopError());
-		SmartDashboard.putNumber("RightWheel ClosedLooperror", toptLaunchWheel.getClosedLoopError());
+		SmartDashboard.putNumber("drivetrain.bottomLaunchWheel.Speed", bottomLaunchWheel.getSpeed());
+		SmartDashboard.putNumber("drivetrain.topLaunchWheel.Speed", topLaunchWheel.getSpeed());
+		SmartDashboard.putNumber("drivetrain.bottomLaunchWheel.Error", bottomLaunchWheel.getError());
+		SmartDashboard.putNumber("drivetrain.topLaunchWheel.Error", topLaunchWheel.getError());
+		SmartDashboard.putNumber("drivetrain.bottomLaunchWheel.Current", bottomLaunchWheel.getOutputCurrent());
+		SmartDashboard.putNumber("drivetrain.topLaunchWheel.Current", topLaunchWheel.getOutputCurrent());
 	}
 }

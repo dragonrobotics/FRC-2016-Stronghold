@@ -7,6 +7,8 @@ import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Joystick.RumbleType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -23,19 +25,15 @@ public class Drivetrain extends Subsystem {
 	 * Motors LT and RT are used as auto driving targets.
 	 */
 	private CANTalon mcLT, mcLB, mcLF, mcRT, mcRB, mcRF;
-
+	private double sec = 0;
+	
+//	private static final double maxSpeed = 400;
+	private static final double maxSpeed = 1;
 	/**
-<<<<<<< master
 	 * The drivetrain ignores angle changes less than this value, 
 	 * to prevent it from constantly turning without moving forward.
 	 */
 	
-	
-	/**
-=======
->>>>>>> 0f23e37 Update teleop driving functions to use autodrive backend
-	 * constructor for drivetrain initializes CANTalon stuff
-	 */
 	public Drivetrain() {
 		mcLT = new CANTalon(6);
 		mcLB = new CANTalon(10);
@@ -44,23 +42,22 @@ public class Drivetrain extends Subsystem {
 		mcRB = new CANTalon(8);
 		mcRF = new CANTalon(5);
 
-		mcLT.changeControlMode(TalonControlMode.Position);
+		mcLT.changeControlMode(TalonControlMode.PercentVbus);
+		mcRT.changeControlMode(TalonControlMode.PercentVbus);
+//		mcLT.changeControlMode(TalonControlMode.Position);
 		mcLB.changeControlMode(TalonControlMode.Follower);
 		mcLF.changeControlMode(TalonControlMode.Follower);
-		mcRT.changeControlMode(TalonControlMode.Position);
+//		mcRT.changeControlMode(TalonControlMode.Position);
 		mcRB.changeControlMode(TalonControlMode.Follower);
 		mcRF.changeControlMode(TalonControlMode.Follower);
 
 		mcLT.setFeedbackDevice(FeedbackDevice.QuadEncoder);
 		mcRT.setFeedbackDevice(FeedbackDevice.QuadEncoder);
 
-		mcLT.setPID(1.0, 0, 0);
-		mcRT.setPID(1.0, 0, 0);
-
-		mcLB.set(1);
-		mcLF.set(1);
-		mcRB.set(4);
-		mcRF.set(4);
+		mcLB.set(mcLT.getDeviceID());
+		mcLF.set(mcLT.getDeviceID());
+		mcRB.set(mcRT.getDeviceID());
+		mcRF.set(mcRT.getDeviceID());
 	}
 
 	/**
@@ -71,29 +68,28 @@ public class Drivetrain extends Subsystem {
 	}
 
 	/**
-	 * Prepares motor controllers to accept values for teleop driving (speed)
-	 */
-	public void initTeleop() {
-		mcLT.changeControlMode(TalonControlMode.Speed);
-		mcRT.changeControlMode(TalonControlMode.Speed);
-	}
-
-	/**
-	 * Prepares motor controllers to accept values for auto driving (position / distance)
-	 */
-	public void initAutonomous() {
-		mcLT.changeControlMode(TalonControlMode.Position);
-		mcRT.changeControlMode(TalonControlMode.Position);
-	}
-
-	/**
 	 * Set motor values directly from a joystick object.
 	 * Call from teleop code.
 	 * @param stick -- Joystick to use for driving.
 	 */
 	public void joystickDrive(Joystick stick) {
-		mcLT.set(stick.getY() - stick.getX());
-		mcRT.set(stick.getY() + stick.getX());
+		checkControlMode(TalonControlMode.Speed);
+		try{
+			if(Robot.getRobotRoll() > 45) {
+				stick.setRumble(RumbleType.kLeftRumble, (float)(Math.min(60-Robot.getRobotRoll(),15))/15);
+			}
+		} catch(IllegalStateException e) {}
+		
+		double y = stick.getY(),
+				x = stick.getX()/(1.2+3*Math.abs(y));
+			
+		if (Math.abs(x) + Math.abs(y) > 1) {
+			x /= Math.abs(x)+Math.abs(y);
+			y /= Math.abs(x)+Math.abs(y);
+		}
+		
+		mcLT.set(-maxSpeed / (stick.getRawAxis(2)*3+1) * (stick.getY() - stick.getX()));
+		mcRT.set(maxSpeed / (stick.getRawAxis(2)*3+1) * (stick.getY() + stick.getX()));
 
 	}
 
@@ -102,8 +98,9 @@ public class Drivetrain extends Subsystem {
 	 * @param stick Joystick to use for driving.
 	 */
 	public void joystickFOCDrive(Joystick stick) {
-		Robot.getRobotAngle();
-		double PugAngle = Robot.getRobotAngle();
+		checkControlMode(TalonControlMode.Speed);
+		Robot.getRobotYaw();
+		double PugAngle = Robot.getRobotYaw();
 		double JoystickAngle = stick.getDirectionDegrees();
 		if (JoystickAngle < PugAngle) {
 			mcLT.set(1);
@@ -125,7 +122,8 @@ public class Drivetrain extends Subsystem {
 	 * @param y Distance to drive on the y-axis
 	 */
 	public void autoDrive(double x, double y) {
-		double initangle = Math.atan(x / y); // Angle to the final position
+		checkControlMode(TalonControlMode.Position);
+		double initangle = Math.atan2(x , y); // Angle to the final position
 		double initdistance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)); 
 		// Distance
 		// directly
@@ -146,15 +144,17 @@ public class Drivetrain extends Subsystem {
 	 * @param hdg heading change in degrees. Positive values correspond to clockwise rotation.
 	 */
 	final double maxTurnOutput = 100.0;
+	
 	public void autoTurn(double hdg) {
-		double startAngle = Robot.getRobotAngle();
+		checkControlMode(TalonControlMode.Position);
+		double startAngle = Robot.getRobotYaw();
 		double endAngle = startAngle + hdg;
 		
 		mcLT.changeControlMode(TalonControlMode.Speed);
 		mcRT.changeControlMode(TalonControlMode.Speed);
 		
 		while(true) {
-			double curErr = endAngle - Robot.getRobotAngle();
+			double curErr = endAngle - Robot.getRobotYaw();
 			
 			if(Math.abs(curErr) < 1) {
 				break;
@@ -175,6 +175,30 @@ public class Drivetrain extends Subsystem {
 		
 		mcLT.changeControlMode(TalonControlMode.Position);
 		mcRT.changeControlMode(TalonControlMode.Position);
+	}
+	
+	public void moveForward(double pos){
+		checkControlMode(TalonControlMode.Position);
+		
+//		double robotang = 0;
+//		try{
+//			if(Robot.getRobotRoll() > 60) {
+//				mcLT.set(999999999);
+//				mcRT.set(999999999);
+//				return;
+//			}
+//			robotang = Robot.getRobotYaw();
+//			robotang = Math.min(10 * robotang, 200);
+//		} finally {
+//			mcLT.set(pos + robotang);
+//			mcRT.set(pos - robotang);
+//		}
+		mcLT.set(pos);
+		mcRT.set(-pos); 
+	}
+	public void zeroMotors(){
+		mcLT.setEncPosition(0);
+		mcRT.setEncPosition(0);
 	}
 	
 	
@@ -198,8 +222,25 @@ public class Drivetrain extends Subsystem {
 	 * Test if both the left and right tracks are in position after an auto-drive command.
 	 * @return whether or not the left and right tracks have completed an auto-drive command
 	 */
-	public boolean isInPosition() {
-		return mcLT.getClosedLoopError() + mcRT.getClosedLoopError() < 50;
+	public double getError() {
+		return mcLT.getClosedLoopError() + mcRT.getClosedLoopError();
+	}
+	
+	public void checkControlMode(TalonControlMode mode){
+//		if (mcLT.getControlMode() != mode){
+//			mcLT.changeControlMode(mode);
+//		}
+//		if (mcRT.getControlMode() != mode){
+//			mcRT.changeControlMode(mode);
+//		}
+//		if (mode == TalonControlMode.Speed){
+//			mcLT.setProfile(0);
+//			mcRT.setProfile(0);
+//		}
+//		if (mode == TalonControlMode.Position){
+//			mcLT.setProfile(1);
+//			mcRT.setProfile(1);
+//		}
 	}
 
 	/**
@@ -216,13 +257,7 @@ public class Drivetrain extends Subsystem {
 	 */
 	public boolean isSafe() {
 
-		if (mcLT.getTemperature() < 200 && mcRT.getTemperature() < 200) {
-			return true;
-		}
-
-		else {
-			return false;
-		}
+		return mcLT.getTemperature() < 200 && mcRT.getTemperature() < 200; 
 
 	}
 
@@ -230,36 +265,11 @@ public class Drivetrain extends Subsystem {
 	 * Update the Smart Dashboard with drivetrain debugging information.
 	 */
 	public void updateSD() {
-		SmartDashboard.putNumber("mc1 get", mcLT.get());
-		SmartDashboard.putNumber("mc2 get", mcLB.get());
-		SmartDashboard.putNumber("mc3 get", mcLF.get());
-		SmartDashboard.putNumber("mc4 get", mcRT.get());
-		SmartDashboard.putNumber("mc5 get", mcRB.get());
-		SmartDashboard.putNumber("mc6 get", mcRF.get());
-		SmartDashboard.putNumber("mc1 BusVoltage", mcLT.getBusVoltage());
-		SmartDashboard.putNumber("mc2 BusVoltage", mcLB.getBusVoltage());
-		SmartDashboard.putNumber("mc3 BusVoltage", mcLF.getBusVoltage());
-		SmartDashboard.putNumber("mc4 BusVoltage", mcRT.getBusVoltage());
-		SmartDashboard.putNumber("mc5 BusVoltage", mcRB.getBusVoltage());
-		SmartDashboard.putNumber("mc6 BusVoltage", mcRF.getBusVoltage());
-		SmartDashboard.putNumber("mc1 ClosedLoopError", mcLT.getClosedLoopError());
-		SmartDashboard.putNumber("mc2 ClosedLoopError", mcLB.getClosedLoopError());
-		SmartDashboard.putNumber("mc3 ClosedLoopError", mcLF.getClosedLoopError());
-		SmartDashboard.putNumber("mc4 ClosedLoopError", mcRT.getClosedLoopError());
-		SmartDashboard.putNumber("mc5 ClosedLoopError", mcRB.getClosedLoopError());
-		SmartDashboard.putNumber("mc6 ClosedLoopError", mcRF.getClosedLoopError());
-		SmartDashboard.putNumber("mc1 OutputVoltage", mcLT.getOutputVoltage());
-		SmartDashboard.putNumber("mc2 OutputVoltage", mcLB.getOutputVoltage());
-		SmartDashboard.putNumber("mc3 OutputVoltage", mcLF.getOutputVoltage());
-		SmartDashboard.putNumber("mc4 OutputVoltage", mcRT.getOutputVoltage());
-		SmartDashboard.putNumber("mc5 OutputVoltage", mcRB.getOutputVoltage());
-		SmartDashboard.putNumber("mc6 OutputVoltage", mcRF.getOutputVoltage());
-		SmartDashboard.putNumber("mc1 OutputCurrent", mcLT.getOutputCurrent());
-		SmartDashboard.putNumber("mc2 OutputCurrent", mcLB.getOutputCurrent());
-		SmartDashboard.putNumber("mc3 OutputCurrent", mcLF.getOutputCurrent());
-		SmartDashboard.putNumber("mc4 OutputCurrent", mcRT.getOutputCurrent());
-		SmartDashboard.putNumber("mc5 OutputCurrent", mcRB.getOutputCurrent());
-		SmartDashboard.putNumber("mc6 OutputCurrent", mcRF.getOutputCurrent());
-
+		SmartDashboard.putNumber("drivetrain.mcLT.Speed", mcLT.getSpeed());
+		SmartDashboard.putNumber("drivetrain.mcRT.Speed", mcRT.getSpeed());
+		SmartDashboard.putNumber("drivetrain.mcLT.Error", mcLT.getError());
+		SmartDashboard.putNumber("drivetrain.mcRT.Error", mcRT.getError());
+		SmartDashboard.putNumber("drivetrain.mcLT.Current", mcLT.getOutputCurrent());
+		SmartDashboard.putNumber("drivetrain.mcRT.Current", mcRT.getOutputCurrent());
 	}
 }

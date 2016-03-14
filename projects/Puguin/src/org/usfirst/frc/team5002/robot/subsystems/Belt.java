@@ -2,6 +2,7 @@ package org.usfirst.frc.team5002.robot.subsystems;
 
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -10,39 +11,35 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class Belt extends Subsystem {
 	private CANTalon onlyBelt;
+	private DigitalInput ballswitch;
 
 	public Belt() {
 		onlyBelt = new CANTalon(14);
 		onlyBelt.changeControlMode(TalonControlMode.PercentVbus);
 		
+		ballswitch = new DigitalInput(0); // TODO: Replace this with the actual
+		// port
 	}
 
 	public void initDefaultCommand() {
+	}
+	
+	public boolean getballswitch() {
+		return ballswitch.get();
 	}
 
 	/***
 	 * Run belt motors backwards at 40% speed
 	 */
 	public void run() {
-		onlyBelt.set(-.4);
-	}
-
-	/***
-	 * Run belt motors at specified speed.
-	 * 
-	 * @param percentSpeed
-	 *            Speed to run motors at, range: -1.0 to 1.0 (max backwards to
-	 *            max forwards). See motor set() method.
-	 */
-	public void run(double percentSpeed) {
-		onlyBelt.set(percentSpeed);
+		onlyBelt.set(1.0);
 	}
 
 	/***
 	 * Run belt motors at max speed in reverse direction.
 	 */
 	public void runBackwards() {
-		onlyBelt.set(.4);
+		onlyBelt.set(-1.0);
 	}
 
 	/***
@@ -70,8 +67,6 @@ public class Belt extends Subsystem {
 	 */
 	public void updateSD() {
 		SmartDashboard.putNumber("belt get", onlyBelt.get());
-		SmartDashboard.putNumber("belt temp", onlyBelt.getTemperature());
-		SmartDashboard.putNumber("belt current", onlyBelt.getOutputCurrent());
-		SmartDashboard.putNumber("belt voltage", onlyBelt.getOutputVoltage());
+		SmartDashboard.putBoolean("belt.switch.get", ballswitch.get());
 	}
 }

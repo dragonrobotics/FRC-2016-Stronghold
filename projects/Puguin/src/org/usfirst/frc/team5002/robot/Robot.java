@@ -9,7 +9,12 @@ import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import java.io.IOException;
+
+import org.usfirst.frc.team5002.robot.commands.Autonomous;
 import org.usfirst.frc.team5002.robot.commands.TriggerHappy;
 import org.usfirst.frc.team5002.robot.subsystems.BarOfWheels;
 import org.usfirst.frc.team5002.robot.subsystems.Belt;
@@ -39,6 +44,7 @@ public class Robot extends IterativeRobot {
 	public static OI oi;
 	public static AHRS ahrs;
 	
+	private static SendableChooser autoChooser;
 	Command autonomousCommand;
 	CameraServer server;
 	public Robot() {
@@ -60,31 +66,49 @@ public class Robot extends IterativeRobot {
 	 */
 	public void robotInit() {
 		oi = new OI();
-		TriggerHappy trigger = new TriggerHappy();
-		trigger.start();
+//		TriggerHappy trigger = new TriggerHappy();
+//		trigger.start();
 
-		try {
-			jetson = new Jetson();
-			jetson.doDiscover(); // find the Jetson on the local network
-			jetson.initCameraStream("cam0");
-		} catch (IOException e) {
-			e.printStackTrace();
-			// we can't recover from this, really.
-			// I'm not really sure how to just kill the robot immediately.
+//		try {
+//			jetson = new Jetson();
+//			jetson.doDiscover(); // find the Jetson on the local network
+//			jetson.initCameraStream("cam0");
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			// we can't recover from this, really.
+//			// I'm not really sure how to just kill the robot immediately.
+//
+//			/*
+//			 * Chase Stockton: Yes we absolutely can recover from this. We don't
+//			 * need the jetson or vision processing to move the robot around or
+//			 * fire the ball. Just take proper precaution in anything that tries
+//			 * to access any feedback from the jetson (i.e. the command that
+//			 * fires the ball).
+//			 * 
+//			 * More specifically, make a method in this class that returns
+//			 * feedback from the jetson. If the jetson wasn't found, then throw
+//			 * an IllegalStateException or something and let the caller worry
+//			 * about handling the exception. Don't allow outside access to the
+//			 * jetson in any manner other than that method.
+//			 */
+//		}
+		autoChooser = new SendableChooser();
+		autoChooser.addDefault("None", 0);
+		autoChooser.addObject("Up To Defense", 1);
+		autoChooser.addObject("Over Defense", 2);
+		SmartDashboard.putData("Autonomous Command",autoChooser);
+		SmartDashboard.putData(Scheduler.getInstance());
+	}
 
-			/*
-			 * Chase Stockton: Yes we absolutely can recover from this. We don't
-			 * need the jetson or vision processing to move the robot around or
-			 * fire the ball. Just take proper precaution in anything that tries
-			 * to access any feedback from the jetson (i.e. the command that
-			 * fires the ball).
-			 * 
-			 * More specifically, make a method in this class that returns
-			 * feedback from the jetson. If the jetson wasn't found, then throw
-			 * an IllegalStateException or something and let the caller worry
-			 * about handling the exception. Don't allow outside access to the
-			 * jetson in any manner other than that method.
-			 */
+	public void autonomousInit() {
+		int c = (int) autoChooser.getSelected();
+		if (c == 1){
+			autonomousCommand = new Autonomous(1.1);
+			autonomousCommand.start();
+		}
+		if (c == 2) {
+			autonomousCommand = new Autonomous(2.5);
+			autonomousCommand.start();
 		}
 	}
 
@@ -92,38 +116,24 @@ public class Robot extends IterativeRobot {
 		Scheduler.getInstance().run();
 	}
 
-	public void autonomousInit() {
-		drivetrain.initAutonomous();
-
-		if (autonomousCommand != null)
-			autonomousCommand.start();
-	}
-	
 	/**
 	 * This function is called periodically during autonomous
 	 */
 	public void autonomousPeriodic() {
 		Scheduler.getInstance().run();
 		oi.updateSD();
-		positioner.updateFromAccelerometer();
-		positioner.updateFromOdometry((drivetrain.getLVel() + drivetrain.getRVel()) / 2);
-		
-		// do asynch recv
-		try {
-			jetson.checkForMessage();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		positioner.updateFromAccelerometer();
+//		positioner.updateFromOdometry((drivetrain.getLVel() + drivetrain.getRVel()) / 2);
+//		
+//		// do asynch recv
+//		try {
+//			jetson.checkForMessage();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
-
-	public void teleopInit() {
-		if (autonomousCommand != null)
-			autonomousCommand.cancel();
-
-		drivetrain.initTeleop();
-	}
-
+	
 	/**
 	 * This function is called when the disabled button is hit. You can use it
 	 * to reset subsystems before shutting down.
@@ -135,15 +145,15 @@ public class Robot extends IterativeRobot {
 	public void teleopPeriodic() {
 		Scheduler.getInstance().run();
 		oi.updateSD();
-		positioner.updateFromAccelerometer();
-		positioner.updateFromOdometry((drivetrain.getLVel() + drivetrain.getRVel()) / 2);
+//		positioner.updateFromAccelerometer();
+//		positioner.updateFromOdometry((drivetrain.getLVel() + drivetrain.getRVel()) / 2);
 		
-		try {
-			jetson.checkForMessage();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			jetson.checkForMessage();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 
 	/**
@@ -160,10 +170,24 @@ public class Robot extends IterativeRobot {
 	 * @return accumulated heading displacement from robot start value.
 	 * @throws IllegalStateException if the AHRS has not been initialized.
 	 */
-	public static double getRobotAngle() throws IllegalStateException {
+	public static double getRobotYaw() throws IllegalStateException {
 		if (ahrs == null) {
 			throw new IllegalStateException("AHRS not initialized.");
 		}
 		return ahrs.getAngle();
 	}
+	
+	public static double getRobotRoll() throws IllegalStateException {
+		if (ahrs == null) {
+			throw new IllegalStateException("AHRS not initialized.");
+		}
+		return ahrs.getRoll();
+	}
+	public static double getRobotPitch() throws IllegalStateException {
+		if (ahrs == null) {
+			throw new IllegalStateException("AHRS not initialized.");
+		}
+		return ahrs.getPitch();
+	}
+	
 }
