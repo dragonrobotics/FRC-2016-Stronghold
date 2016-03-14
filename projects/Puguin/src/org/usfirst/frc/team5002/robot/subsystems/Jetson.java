@@ -26,8 +26,6 @@ import edu.wpi.first.wpilibj.vision.USBCamera;
 import org.usfirst.frc.team5002.robot.subsystems.network.DiscoverPacket;
 import org.usfirst.frc.team5002.robot.subsystems.network.GoalDistanceMessage;
 import org.usfirst.frc.team5002.robot.subsystems.network.NetworkMessage;
-import org.usfirst.frc.team5002.robot.subsystems.network.StartVideoStream;
-
 import com.ni.vision.NIVision;
 import com.ni.vision.NIVision.Image;
 import com.ni.vision.NIVision.RawData;
@@ -37,7 +35,7 @@ import com.ni.vision.NIVision.RawData;
  */
 public class Jetson extends Subsystem {
 	final static int remotePort = 5800;
-	final static int cameraRemotePort = 1180;
+	final static int cameraRemotePort = 5801;
 	final static byte[] cameraHeader = {0x01, 0x00, 0x00, 0x00};
 
 	private InterfaceAddress ifaddr;
@@ -463,7 +461,7 @@ public class Jetson extends Subsystem {
 		camThread = new Thread(new Runnable() {
 				public void run() {
 					try {
-						miniCameraServer(cam);
+						miniCameraClient(cam);
 					} catch(IOException e) {
 						e.printStackTrace();
 					}
@@ -473,93 +471,82 @@ public class Jetson extends Subsystem {
 		
 		camThread.setName("Rio->Jetson Camera Stream");
 		camThread.start();
-		
-		try {
-			sendMessage(new StartVideoStream(this.connection.getInetAddress()));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 	
 	/**
-	 * Re-implements the WPILib camera server class for the Jetson.
-	 * @param camera
-	 * @throws IOException 
+	 * Implements a camera streaming CLIENT (connects to a stream recv server on the Jetson)
+	 * @param camera - camera object to stream
+	 * @throws IOException in event of network errors
+	 * @throws IllegalStateException if not connected to Jetson yet (see DoDiscover)
 	 */
-	private void miniCameraServer(USBCamera camera) throws IOException {
-		ServerSocket listenSocket = new ServerSocket();
-	    listenSocket.setReuseAddress(true);
-	    InetSocketAddress address = new InetSocketAddress(cameraRemotePort);
-	    listenSocket.bind(address);
-	    
-	    while(true) {
-	    	// wait for connection
-	    	Socket connSock = listenSocket.accept();
+	private void miniCameraClient(USBCamera camera) throws IOException, IllegalStateException {
+		if(!connection.isConnected()) {
+			throw new IllegalStateException("Not connected to Jetson yet!");
+		}
+	
+    	Socket connSock = new Socket(connection.getInetAddress(), cameraRemotePort); //listenSocket.accept();
+    	
+    	DataInputStream in = new DataInputStream(connSock.getInputStream());
+    	DataOutputStream out = new DataOutputStream(connSock.getOutputStream());
+    	
+    	int fps = in.readInt();
+    	in.readInt(); // compression is irrelevant
+    	int size = in.readInt();
+    	
+    	switch(size) {
+    	case 0:	// 640 x 480
+    		camera.setSize(640, 480);
+    		break;
+    	case 1: // 320 x 240
+    		camera.setSize(320, 240);
+    		break;
+    	case 2:	// 160 x 120
+    		camera.setSize(160, 120);
+    		break;
+    	}
+    	
+    	long period = (long) (1000 / (1.0 * fps));
+    	long loopTime = System.currentTimeMillis();
+    	
+    	while(true) {
+    		// capture loop
+    		loopTime = System.currentTimeMillis();
+    		
+	    	Image frame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
+	    	camera.getImage(frame);
 	    	
-	    	DataInputStream in = new DataInputStream(connSock.getInputStream());
-	    	DataOutputStream out = new DataOutputStream(connSock.getOutputStream());
+	    	RawData data =
+	    	        NIVision.imaqFlatten(frame, NIVision.FlattenType.FLATTEN_IMAGE,
+	    	            NIVision.CompressionType.COMPRESSION_JPEG, 10 * 50);
+	    	ByteBuffer buf = data.getBuffer();
 	    	
-	    	int fps = in.readInt();
-	    	in.readInt(); // compression is irrelevant
-	    	int size = in.readInt();
-	    	
-	    	switch(size) {
-	    	case 0:	// 640 x 480
-	    		camera.setSize(640, 480);
-	    		break;
-	    	case 1: // 320 x 240
-	    		camera.setSize(320, 240);
-	    		break;
-	    	case 2:	// 160 x 120
-	    		camera.setSize(160, 120);
-	    		break;
-	    	}
-	    	
-	    	long period = (long) (1000 / (1.0 * fps));
-	    	long loopTime = System.currentTimeMillis();
-	    	
-	    	while(true) {
-	    		// capture loop
-	    		loopTime = System.currentTimeMillis();
-	    		
-		    	Image frame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
-		    	camera.getImage(frame);
-		    	
-		    	RawData data =
-		    	        NIVision.imaqFlatten(frame, NIVision.FlattenType.FLATTEN_IMAGE,
-		    	            NIVision.CompressionType.COMPRESSION_JPEG, 10 * 50);
-		    	ByteBuffer buf = data.getBuffer();
-		    	
-		    	int dataStart = 0;
-				while (dataStart < buf.limit() - 1) {
-					if ((buf.get(dataStart) & 0xff) == 0xFF && (buf.get(dataStart + 1) & 0xff) == 0xD8)
-					  break;
-					dataStart++;
-				}
-				
-				buf.position(dataStart);
-				
-				byte[] payload = new byte[buf.remaining()];
-				buf.get(payload, 0, buf.remaining());
-				
-				out.write(cameraHeader);
-				out.writeInt(payload.length);
-				out.write(payload);
-				out.flush();
-				
-				long timeDelta = (System.currentTimeMillis() - loopTime);
-				
-				if(timeDelta < period) {
-					try {
-						Thread.sleep(period - timeDelta);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-	    	}
+	    	int dataStart = 0;
+			while (dataStart < buf.limit() - 1) {
+				if ((buf.get(dataStart) & 0xff) == 0xFF && (buf.get(dataStart + 1) & 0xff) == 0xD8)
+				  break;
+				dataStart++;
+			}
 			
+			buf.position(dataStart);
+			
+			byte[] payload = new byte[buf.remaining()];
+			buf.get(payload, 0, buf.remaining());
+			
+			out.write(cameraHeader);
+			out.writeInt(payload.length);
+			out.write(payload);
+			out.flush();
+			
+			long timeDelta = (System.currentTimeMillis() - loopTime);
+			
+			if(timeDelta < period) {
+				try {
+					Thread.sleep(period - timeDelta);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 	    }
 	}
 }
