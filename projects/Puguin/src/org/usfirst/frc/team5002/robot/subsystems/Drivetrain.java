@@ -27,8 +27,8 @@ public class Drivetrain extends Subsystem {
 	private CANTalon mcLT, mcLB, mcLF, mcRT, mcRB, mcRF;
 	private double sec = 0;
 	
-//	private static final double maxSpeed = 400;
-	private static final double maxSpeed = 1;
+	private static final double maxSpeed = 400;
+//	private static final double maxSpeed = 1;
 	/**
 	 * The drivetrain ignores angle changes less than this value, 
 	 * to prevent it from constantly turning without moving forward.
@@ -42,12 +42,12 @@ public class Drivetrain extends Subsystem {
 		mcRB = new CANTalon(8);
 		mcRF = new CANTalon(5);
 
-		mcLT.changeControlMode(TalonControlMode.PercentVbus);
-		mcRT.changeControlMode(TalonControlMode.PercentVbus);
-//		mcLT.changeControlMode(TalonControlMode.Position);
+//		mcLT.changeControlMode(TalonControlMode.PercentVbus); //TODO: Fix the encoder on the drivetrain and set Position and Speed PID values. Also make the drivetrain run more smoothly
+//		mcRT.changeControlMode(TalonControlMode.PercentVbus);
+		mcLT.changeControlMode(TalonControlMode.Position);
 		mcLB.changeControlMode(TalonControlMode.Follower);
 		mcLF.changeControlMode(TalonControlMode.Follower);
-//		mcRT.changeControlMode(TalonControlMode.Position);
+		mcRT.changeControlMode(TalonControlMode.Position);
 		mcRB.changeControlMode(TalonControlMode.Follower);
 		mcRF.changeControlMode(TalonControlMode.Follower);
 
@@ -180,19 +180,19 @@ public class Drivetrain extends Subsystem {
 	public void moveForward(double pos){
 		checkControlMode(TalonControlMode.Position);
 		
-//		double robotang = 0;
-//		try{
-//			if(Robot.getRobotRoll() > 60) {
-//				mcLT.set(999999999);
-//				mcRT.set(999999999);
-//				return;
-//			}
-//			robotang = Robot.getRobotYaw();
-//			robotang = Math.min(10 * robotang, 200);
-//		} finally {
-//			mcLT.set(pos + robotang);
-//			mcRT.set(pos - robotang);
-//		}
+		double robotang = 0;
+		try{
+			if(Robot.getRobotRoll() > 60) {
+				mcLT.set(-999999999);
+				mcRT.set(999999999);
+				return;
+			}
+			robotang = Robot.getRobotYaw();
+			robotang = Math.min(10 * robotang, 200);
+		} finally {
+			mcLT.set(pos + robotang);
+			mcRT.set(pos - robotang);
+		}
 		mcLT.set(pos);
 		mcRT.set(-pos); 
 	}
@@ -227,20 +227,20 @@ public class Drivetrain extends Subsystem {
 	}
 	
 	public void checkControlMode(TalonControlMode mode){
-//		if (mcLT.getControlMode() != mode){
-//			mcLT.changeControlMode(mode);
-//		}
-//		if (mcRT.getControlMode() != mode){
-//			mcRT.changeControlMode(mode);
-//		}
-//		if (mode == TalonControlMode.Speed){
-//			mcLT.setProfile(0);
-//			mcRT.setProfile(0);
-//		}
-//		if (mode == TalonControlMode.Position){
-//			mcLT.setProfile(1);
-//			mcRT.setProfile(1);
-//		}
+		if (mcLT.getControlMode() != mode){
+			mcLT.changeControlMode(mode);
+		}
+		if (mcRT.getControlMode() != mode){
+			mcRT.changeControlMode(mode);
+		}
+		if (mode == TalonControlMode.Speed){
+			mcLT.setProfile(0);
+			mcRT.setProfile(0);
+		}
+		if (mode == TalonControlMode.Position){
+			mcLT.setProfile(1);
+			mcRT.setProfile(1);
+		}
 	}
 
 	/**
