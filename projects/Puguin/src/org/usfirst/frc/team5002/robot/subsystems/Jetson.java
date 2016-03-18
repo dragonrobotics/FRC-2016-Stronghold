@@ -38,6 +38,7 @@ public class Jetson extends Subsystem {
 	final static int cameraRemotePort = 5801;
 	final static byte[] cameraHeader = {0x01, 0x00, 0x00, 0x00};
 
+	private InetAddress jetsonAddr;
 	private InterfaceAddress ifaddr;
 	private Socket connection;
 	private DatagramSocket udpSocket;
@@ -138,11 +139,7 @@ public class Jetson extends Subsystem {
 	 * @return the Jetson's IP address.
 	 */
 	public InetAddress getJetsonAddress() {
-		if (connection == null) {
-			return null;
-		}
-
-		return connection.getInetAddress();
+		return jetsonAddr;
 	}
 
 	/**
@@ -194,13 +191,17 @@ public class Jetson extends Subsystem {
 				DiscoverPacket dmsg = (DiscoverPacket) msg;
 				if (dmsg.originator == DiscoverPacket.origin_type.JETSON) {
 					System.out.println("Found Jetson at: " + msg.addr.toString());
-					connection = new Socket(msg.addr, remotePort);
-					netOut = connection.getOutputStream();
-					netIn = connection.getInputStream();
+					jetsonAddr = msg.addr;
 					return;
 				}
 			}
 		}
+	}
+	
+	public void initMainStream() throws IOException {
+		connection = new Socket(jetsonAddr, remotePort);
+		netOut = connection.getOutputStream();
+		netIn = connection.getInputStream();
 	}
 
 	/**
@@ -246,13 +247,13 @@ public class Jetson extends Subsystem {
 		byte[] arr = buf.array();
 		DatagramPacket packet = new DatagramPacket(arr, 4096);
 
-		System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Listening on "
-				+ udpSocket.getLocalAddress().toString() + " on " + Integer.toString(udpSocket.getPort()));
+		//System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Listening on "
+		//		+ udpSocket.getLocalAddress().toString() + " on " + Integer.toString(udpSocket.getPort()));
 
 		udpSocket.receive(packet);
 
-		System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Received UDP message from "
-				+ packet.getAddress().toString() + " length: " + Integer.toString(packet.getLength()));
+		//System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Received UDP message from "
+		//		+ packet.getAddress().toString() + " length: " + Integer.toString(packet.getLength()));
 
 		if ((buf.get() == (byte) 0x35) && (buf.get() == (byte) 0x30) && (buf.get() == (byte) 0x30)
 				&& (buf.get() == (byte) 0x32)) { // '5' '0' '0' '2' in true
@@ -261,7 +262,7 @@ public class Jetson extends Subsystem {
 			byte msgType = buf.get();
 			short size = buf.getShort();
 
-			System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] UDP packet is valid.");
+			//System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] UDP packet is valid.");
 
 			switch (msgType) {
 			case 5:
@@ -269,12 +270,13 @@ public class Jetson extends Subsystem {
 				out.readObjectFrom(buf);
 				return out;
 			default:
-				System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] unknown packet type!");
+				//System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] unknown packet type!");
 				return null;
 			}
-		} else {
-			System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] UDP packet is INVALID!");
-		}
+		} /* else {
+			//System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] UDP packet is INVALID!");
+		} */
+		
 		return null;
 	}
 
@@ -480,47 +482,48 @@ public class Jetson extends Subsystem {
 	 * @throws IllegalStateException if not connected to Jetson yet (see DoDiscover)
 	 */
 	private void miniCameraClient(USBCamera camera) throws IOException, IllegalStateException {
-		if(!connection.isConnected()) {
-			throw new IllegalStateException("Not connected to Jetson yet!");
-		}
-	
-    	Socket connSock = new Socket(connection.getInetAddress(), cameraRemotePort); //listenSocket.accept();
-    	
-    	DataInputStream in = new DataInputStream(connSock.getInputStream());
-    	DataOutputStream out = new DataOutputStream(connSock.getOutputStream());
-    	
-    	int fps = in.readInt();
-    	in.readInt(); // compression is irrelevant
-    	int size = in.readInt();
-    	
-    	switch(size) {
-    	case 0:	// 640 x 480
-    		camera.setSize(640, 480);
-    		break;
-    	case 1: // 320 x 240
-    		camera.setSize(320, 240);
-    		break;
-    	case 2:	// 160 x 120
-    		camera.setSize(160, 120);
-    		break;
-    	}
-    	
-    	long period = (long) (1000 / (1.0 * fps));
-    	long loopTime = System.currentTimeMillis();
-    	
-    	while(true) {
-    		// capture loop
-    		loopTime = System.currentTimeMillis();
-    		
-	    	Image frame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
-	    	camera.getImage(frame);
+		camera.openCamera();
+		
+	    	Socket connSock = new Socket(jetsonAddr, cameraRemotePort); //listenSocket.accept();
 	    	
-	    	RawData data =
-	    	        NIVision.imaqFlatten(frame, NIVision.FlattenType.FLATTEN_IMAGE,
-	    	            NIVision.CompressionType.COMPRESSION_JPEG, 10 * 50);
-	    	ByteBuffer buf = data.getBuffer();
+	    	DataInputStream in = new DataInputStream(connSock.getInputStream());
+	    	DataOutputStream out = new DataOutputStream(connSock.getOutputStream());
 	    	
-	    	int dataStart = 0;
+	    	int fps = in.readInt();
+	    	in.readInt(); // compression is irrelevant
+	    	int size = in.readInt();
+	    	
+	    	switch(size) {
+	    	case 0:	// 640 x 480
+	    		camera.setSize(640, 480);
+	    		break;
+	    	case 1: // 320 x 240
+	    		camera.setSize(320, 240);
+	    		break;
+	    	case 2:	// 160 x 120
+	    		camera.setSize(160, 120);
+	    		break;
+	    	}
+	    	
+	    	long period = (long) (1000 / (1.0 * fps));
+	    	long loopTime = System.currentTimeMillis();
+	    	
+	    	camera.updateSettings();
+	    	camera.startCapture();
+	    	
+	    	while(true) {
+			// capture loop
+			loopTime = System.currentTimeMillis();
+			
+			Image frame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
+			camera.getImage(frame);
+			
+			RawData data =
+			    NIVision.imaqFlatten(frame, NIVision.FlattenType.FLATTEN_IMAGE,
+			        NIVision.CompressionType.COMPRESSION_JPEG, 10 * 50);
+			ByteBuffer buf = data.getBuffer();
+			
+			int dataStart = 0;
 			while (dataStart < buf.limit() - 1) {
 				if ((buf.get(dataStart) & 0xff) == 0xFF && (buf.get(dataStart + 1) & 0xff) == 0xD8)
 				  break;
@@ -547,6 +550,6 @@ public class Jetson extends Subsystem {
 					e.printStackTrace();
 				}
 			}
-	    }
+	    	}
 	}
 }
