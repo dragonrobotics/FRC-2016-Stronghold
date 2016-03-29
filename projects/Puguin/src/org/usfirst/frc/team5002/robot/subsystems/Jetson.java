@@ -140,11 +140,7 @@ public class Jetson extends Subsystem {
 	 * @return the Jetson's IP address.
 	 */
 	public InetAddress getJetsonAddress() {
-		if (connection == null) {
-			return null;
-		}
-
-		return connection.getInetAddress();
+		return remoteAddr;
 	}
 
 	/**
@@ -196,13 +192,20 @@ public class Jetson extends Subsystem {
 				if (dmsg.originator == DiscoverPacket.origin_type.JETSON) {
 					System.out.println("Found Jetson at: " + msg.addr.toString());
 					remoteAddr = msg.addr;
-					//connection = new Socket(msg.addr, remotePort);
-					//netOut = connection.getOutputStream();
-					//netIn = connection.getInputStream();
 					return;
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Connect to the Jetson RPC server.
+	 * @throws IOException in the event of network errors.
+	 */
+	public void initMainStream() throws IOException {
+		connection = new Socket(remoteAddr, remotePort);
+		netOut = connection.getOutputStream();
+		netIn = connection.getInputStream();
 	}
 
 	/**
