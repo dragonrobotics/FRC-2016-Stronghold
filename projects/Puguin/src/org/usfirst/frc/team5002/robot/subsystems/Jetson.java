@@ -38,7 +38,7 @@ public class Jetson extends Subsystem {
 	final static int cameraRemotePort = 5801;
 	final static byte[] cameraHeader = {0x01, 0x00, 0x00, 0x00};
 
-	private InetAddress jetsonAddr;
+	private InetAddress remoteAddr;
 	private InterfaceAddress ifaddr;
 	private Socket connection;
 	private DatagramSocket udpSocket;
@@ -46,6 +46,7 @@ public class Jetson extends Subsystem {
 	private InputStream netIn;
 	
 	private Thread camThread;
+	private boolean camThreadStopStatus = false;
 	
 	private enum JetsonStateMachine {
 		READ_HEADER,	// reading packet header
@@ -139,7 +140,11 @@ public class Jetson extends Subsystem {
 	 * @return the Jetson's IP address.
 	 */
 	public InetAddress getJetsonAddress() {
-		return jetsonAddr;
+		if (connection == null) {
+			return null;
+		}
+
+		return connection.getInetAddress();
 	}
 
 	/**
@@ -182,26 +187,22 @@ public class Jetson extends Subsystem {
 	 * @throws IOException in the event of network errors.
 	 */
 	public void doDiscover() throws IOException {
+		this.sendUDP(new DiscoverPacket(ifaddr.getBroadcast()));
+		System.out.println("Sent to: " + ifaddr.getBroadcast().toString());
 		while (true) {
-			// this.sendUDP(new DiscoverPacket(ifaddr.getBroadcast()));
-			// System.out.println("Sent to: " +
-			// ifaddr.getBroadcast().toString());
 			NetworkMessage msg = this.receiveUDP();
 			if (msg instanceof DiscoverPacket) {
 				DiscoverPacket dmsg = (DiscoverPacket) msg;
 				if (dmsg.originator == DiscoverPacket.origin_type.JETSON) {
 					System.out.println("Found Jetson at: " + msg.addr.toString());
-					jetsonAddr = msg.addr;
+					remoteAddr = msg.addr;
+					//connection = new Socket(msg.addr, remotePort);
+					//netOut = connection.getOutputStream();
+					//netIn = connection.getInputStream();
 					return;
 				}
 			}
 		}
-	}
-	
-	public void initMainStream() throws IOException {
-		connection = new Socket(jetsonAddr, remotePort);
-		netOut = connection.getOutputStream();
-		netIn = connection.getInputStream();
 	}
 
 	/**
@@ -247,13 +248,13 @@ public class Jetson extends Subsystem {
 		byte[] arr = buf.array();
 		DatagramPacket packet = new DatagramPacket(arr, 4096);
 
-		//System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Listening on "
-		//		+ udpSocket.getLocalAddress().toString() + " on " + Integer.toString(udpSocket.getPort()));
+		System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Listening on "
+				+ udpSocket.getLocalAddress().toString() + " on " + Integer.toString(udpSocket.getPort()));
 
 		udpSocket.receive(packet);
 
-		//System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Received UDP message from "
-		//		+ packet.getAddress().toString() + " length: " + Integer.toString(packet.getLength()));
+		System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Received UDP message from "
+				+ packet.getAddress().toString() + " length: " + Integer.toString(packet.getLength()));
 
 		if ((buf.get() == (byte) 0x35) && (buf.get() == (byte) 0x30) && (buf.get() == (byte) 0x30)
 				&& (buf.get() == (byte) 0x32)) { // '5' '0' '0' '2' in true
@@ -262,7 +263,7 @@ public class Jetson extends Subsystem {
 			byte msgType = buf.get();
 			short size = buf.getShort();
 
-			//System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] UDP packet is valid.");
+			System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] UDP packet is valid.");
 
 			switch (msgType) {
 			case 5:
@@ -270,13 +271,12 @@ public class Jetson extends Subsystem {
 				out.readObjectFrom(buf);
 				return out;
 			default:
-				//System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] unknown packet type!");
+				System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] unknown packet type!");
 				return null;
 			}
-		} /* else {
-			//System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] UDP packet is INVALID!");
-		} */
-		
+		} else {
+			System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] UDP packet is INVALID!");
+		}
 		return null;
 	}
 
@@ -475,6 +475,13 @@ public class Jetson extends Subsystem {
 		camThread.start();
 	}
 	
+	public void stopCameraStream() {
+		if(camThread == null)
+			return;
+		camThreadStopStatus = true;
+		camThread.interrupt();
+	}
+	
 	/**
 	 * Implements a camera streaming CLIENT (connects to a stream recv server on the Jetson)
 	 * @param camera - camera object to stream
@@ -484,7 +491,7 @@ public class Jetson extends Subsystem {
 	private void miniCameraClient(USBCamera camera) throws IOException, IllegalStateException {
 		camera.openCamera();
 		
-	    	Socket connSock = new Socket(jetsonAddr, cameraRemotePort); //listenSocket.accept();
+	    	Socket connSock = new Socket(remoteAddr, cameraRemotePort); //listenSocket.accept();
 	    	
 	    	DataInputStream in = new DataInputStream(connSock.getInputStream());
 	    	DataOutputStream out = new DataOutputStream(connSock.getOutputStream());
@@ -505,6 +512,7 @@ public class Jetson extends Subsystem {
 	    		break;
 	    	}
 	    	
+	    	
 	    	long period = (long) (1000 / (1.0 * fps));
 	    	long loopTime = System.currentTimeMillis();
 	    	
@@ -512,44 +520,56 @@ public class Jetson extends Subsystem {
 	    	camera.startCapture();
 	    	
 	    	while(true) {
-			// capture loop
-			loopTime = System.currentTimeMillis();
-			
-			Image frame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
-			camera.getImage(frame);
-			
-			RawData data =
-			    NIVision.imaqFlatten(frame, NIVision.FlattenType.FLATTEN_IMAGE,
-			        NIVision.CompressionType.COMPRESSION_JPEG, 10 * 50);
-			ByteBuffer buf = data.getBuffer();
-			
-			int dataStart = 0;
-			while (dataStart < buf.limit() - 1) {
-				if ((buf.get(dataStart) & 0xff) == 0xFF && (buf.get(dataStart + 1) & 0xff) == 0xD8)
-				  break;
-				dataStart++;
-			}
-			
-			buf.position(dataStart);
-			
-			byte[] payload = new byte[buf.remaining()];
-			buf.get(payload, 0, buf.remaining());
-			
-			out.write(cameraHeader);
-			out.writeInt(payload.length);
-			out.write(payload);
-			out.flush();
-			
-			long timeDelta = (System.currentTimeMillis() - loopTime);
-			
-			if(timeDelta < period) {
-				try {
-					Thread.sleep(period - timeDelta);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				// capture loop
+				loopTime = System.currentTimeMillis();
+				/*
+				Image frame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
+				camera.getImage(frame);
+				
+				RawData data =
+				    NIVision.imaqFlatten(frame, NIVision.FlattenType.FLATTEN_IMAGE,
+				        NIVision.CompressionType.COMPRESSION_JPEG, 10 * 50);
+				ByteBuffer buf = data.getBuffer();
+				*/
+				
+				if(camThreadStopStatus) {
+					return;
 				}
-			}
+				
+				ByteBuffer buf = ByteBuffer.allocateDirect(200000); // just get a really big buffer.
+				camera.getImageData(buf); // just get JPEG data
+				
+				
+				int dataStart = 0;
+				while (dataStart < buf.limit() - 1) {
+					if ((buf.get(dataStart) & 0xff) == 0xFF && (buf.get(dataStart + 1) & 0xff) == 0xD8)
+					  break;
+					dataStart++;
+				}
+				
+				
+				buf.position(dataStart);
+				
+				System.out.println("Got " + String.valueOf(buf.remaining()) + " bytes from camera.");
+				
+				byte[] payload = new byte[buf.remaining()];
+				buf.get(payload, 0, buf.remaining());
+				
+				out.write(cameraHeader);
+				out.writeInt(payload.length);
+				out.write(payload);
+				out.flush();
+				
+				long timeDelta = (System.currentTimeMillis() - loopTime);
+				
+				if(timeDelta < period) {
+					try {
+						Thread.sleep(period - timeDelta);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 	    	}
 	}
 }
