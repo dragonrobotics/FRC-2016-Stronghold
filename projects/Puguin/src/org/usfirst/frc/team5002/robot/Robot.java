@@ -5,6 +5,7 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
@@ -93,23 +94,25 @@ public class Robot extends IterativeRobot {
 //			 */
 //		}
 		autoChooser = new SendableChooser();
-		autoChooser.addDefault("None", 0);
-		autoChooser.addObject("Up To Defense", 1);
-		autoChooser.addObject("Over Defense", 2);
+		autoChooser.addDefault("None", AutoChoice.Virgin);
+		autoChooser.addObject("Up To Defense", AutoChoice.JustTheTip);
+		autoChooser.addObject("Over Defense", AutoChoice.RamItIn);
+		autoChooser.addObject("No Control", AutoChoice.DESTROY_THE_CERVIX);
 		SmartDashboard.putData("Autonomous Command",autoChooser);
 		SmartDashboard.putData(Scheduler.getInstance());
 	}
 
 	public void autonomousInit() {
-		int c = (int) autoChooser.getSelected();
-		if (c == 1){
+		AutoChoice c = (AutoChoice) autoChooser.getSelected();
+		if (c == AutoChoice.JustTheTip) {
 			autonomousCommand = new Autonomous(1.1);
 			autonomousCommand.start();
-		}
-		if (c == 2) {
+		} else if (c == AutoChoice.JustTheTip) {
 			autonomousCommand = new Autonomous(2.5);
 			autonomousCommand.start();
-		}
+		} else if (c == AutoChoice.DESTROY_THE_CERVIX)
+			autonomousCommand = new Autonomous(1.6);
+			autonomousCommand.start();
 	}
 
 	public void disabledPeriodic() {
@@ -189,5 +192,23 @@ public class Robot extends IterativeRobot {
 		}
 		return ahrs.getPitch();
 	}
-	
+	public enum AutoChoice{
+		Virgin(0), JustTheTip(1), RamItIn(2), DESTROY_THE_CERVIX(3);
+		
+	    public int value;
+
+	    public static AutoChoice valueOf(int value) {
+	      for (AutoChoice mode : values()) {
+	        if (mode.value == value) {
+	          return mode;
+	        }
+	      }
+
+	      return null;
+	    }
+
+	    private AutoChoice(int value) {
+	      this.value = value;
+	    }
+	}
 }
