@@ -41,7 +41,9 @@ public class Jetson extends Subsystem {
 	final static int cameraRemotePort = 5801;
 	final static byte[] cameraHeader = {0x01, 0x00, 0x00, 0x00};
 
-	private InetAddress remoteAddr;
+	final static double discoverTimeout = 5;
+
+	private volatile InetAddress remoteAddr;
 	private InterfaceAddress ifaddr;
 
 	private Socket connection;
@@ -54,6 +56,8 @@ public class Jetson extends Subsystem {
 
 	private Thread recvThread;
 	private Thread sendThread;
+
+	private Thread discoverThread;
 
 	private Queue<NetworkMessage> outboundQueue;
 	private Queue<NetworkMessage> inboundQueue;
@@ -223,6 +227,22 @@ public class Jetson extends Subsystem {
 	 * @throws IOException in the event of network errors.
 	 */
 	public void doDiscover() throws IOException {
+		 discoverThread = new Thread(new Runnable() {
+				public void run() {
+					try {
+						discoveryProtocol();
+					} catch(IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		);
+
+		discoverThread.setName("Discovery Protocol Thread");
+		discoverThread.start();
+	}
+
+	private void discoveryProtocol() throws IOException {
 		this.sendUDP(new DiscoverPacket(ifaddr.getBroadcast()));
 		System.out.println("Sent to: " + ifaddr.getBroadcast().toString());
 		while (true) {
@@ -362,7 +382,7 @@ public class Jetson extends Subsystem {
 	public void sendMessage(NetworkMessage msg) throws IOException, IllegalStateException {
 		if(connection == null || !this.isDaijoubu())
 			throw new IllegalStateException("Not connected to Jetson yet!");
-		
+
 		BlockingQueue<NetworkMessage> oQ = (BlockingQueue<NetworkMessage>) outboundQueue;
 		try {
 			oQ.put(msg);
@@ -425,7 +445,7 @@ public class Jetson extends Subsystem {
 	public NetworkMessage pollMessage() throws IOException, IllegalStateException {
 		if(connection == null || !this.isDaijoubu())
 			throw new IllegalStateException("Not connected to Jetson yet!");
-		
+
 		synchronized(inboundQueue) {
 			return inboundQueue.poll();
 		}
@@ -434,7 +454,7 @@ public class Jetson extends Subsystem {
 	private NetworkMessage synRecv() throws IOException, IllegalStateException {
 		if(connection == null || !this.isDaijoubu())
 			throw new IllegalStateException("Not connected to Jetson yet!");
-		
+
 		while (true) {
 			ByteBuffer headerBuf = ByteBuffer.allocate(7);
 			headerBuf.order(ByteOrder.BIG_ENDIAN);
