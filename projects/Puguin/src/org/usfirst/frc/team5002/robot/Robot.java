@@ -72,9 +72,8 @@ public class Robot extends IterativeRobot {
 
 		try {
 			jetson = new Jetson();
-			jetson.doDiscover(); // find the Jetson on the local network
-			jetson.initMainStream(); // kick off network handler threads
-			jetson.initCameraStream("cam0"); // kick off camera stream thread
+			jetson.doDiscover(); // find the Jetson on the local network, the discovery thread will automatically launch the net threads
+			jetson.initCameraStream("cam0"); // kick off camera stream thread separately, we need pass it the camera to open
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

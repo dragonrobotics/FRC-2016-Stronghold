@@ -66,11 +66,15 @@ public class Jetson extends Subsystem {
 	private double lastKnownDistance = 0.0;
 	private double lastKnownAngle = 0.0;
 
-	public synchronized void updateSD() {
+	public void updateSD() {
 		SmartDashboard.putBoolean("jetson.located", (remoteAddr != null));
 		SmartDashboard.putBoolean("jetson.connected", (connection != null));
 
-		SmartDashboard.putString("jetson.localAddress", ifaddr.toString());
+		if(ifaddr != null) {
+			SmartDashboard.putString("jetson.localAddress", ifaddr.toString());
+		} else {
+			SmartDashboard.putString("jetson.localAddress", "unknown");
+		}
 
 		if(remoteAddr != null) {
 			SmartDashboard.putString("jetson.remoteAddress", remoteAddr.toString());
@@ -97,12 +101,10 @@ public class Jetson extends Subsystem {
 		 */
 		if(m instanceof GoalDistanceMessage) {
 			GoalDistanceMessage gdm = (GoalDistanceMessage) m;
-			synchronized(this) {
-				lastKnownGoalStatus = (gdm.goal_status == GoalDistanceMessage.Status.GOAL_FOUND);
-				if(lastKnownGoalStatus) {
-					lastKnownDistance = gdm.distance;
-					lastKnownAngle = gdm.angle;
-				}
+			lastKnownGoalStatus = (gdm.goal_status == GoalDistanceMessage.Status.GOAL_FOUND);
+			if(lastKnownGoalStatus) {
+				lastKnownDistance = gdm.distance;
+				lastKnownAngle = gdm.angle;
 			}
 		} else {
 			BlockingQueue<NetworkMessage> iQ = (BlockingQueue<NetworkMessage>) inboundQueue;
@@ -140,7 +142,7 @@ public class Jetson extends Subsystem {
 	 * @return whether the Jetson can detect the goal or not
 	 * @throws IllegalStateException if a connection to the Jetson could not be established.
 	 */
-	public synchronized boolean getGoalStatus() throws IllegalStateException {
+	public  boolean getGoalStatus() throws IllegalStateException {
 		if(!this.isDaijoubu())
 			throw new IllegalStateException("Not connected to Jetson yet!");
 		return lastKnownGoalStatus;
@@ -152,7 +154,7 @@ public class Jetson extends Subsystem {
 	 * @return how far the camera / robot is from the goal
 	 * @throws IllegalStateException if a connection to the Jetson could not be established.
 	 */
-	public synchronized double getDistance() throws IllegalStateException {
+	public  double getDistance() throws IllegalStateException {
 		if(!this.isDaijoubu())
 			throw new IllegalStateException("Not connected to Jetson yet!");
 		return lastKnownDistance;
@@ -164,7 +166,7 @@ public class Jetson extends Subsystem {
 	 * @return approximate angle off goal target.
 	 * @throws IllegalStateException if a connection to the Jetson could not be established.
 	 */
-	public synchronized double getAngle() throws IllegalStateException {
+	public  double getAngle() throws IllegalStateException {
 		if(!this.isDaijoubu())
 			throw new IllegalStateException("Not connected to Jetson yet!");
 		return lastKnownAngle;
@@ -222,26 +224,6 @@ public class Jetson extends Subsystem {
 		outboundQueue = new LinkedList<NetworkMessage>();
 	}
 
-	/**
-	 * Attempt to find the Jetson using a UDP discovery protocol.
-	 * @throws IOException in the event of network errors.
-	 */
-	public void doDiscover() throws IOException {
-		 discoverThread = new Thread(new Runnable() {
-				public void run() {
-					try {
-						discoveryProtocol();
-					} catch(IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		);
-
-		discoverThread.setName("Discovery Protocol Thread");
-		discoverThread.start();
-	}
-
 	private void discoveryProtocol() throws IOException {
 		this.sendUDP(new DiscoverPacket(ifaddr.getBroadcast()));
 		System.out.println("Sent to: " + ifaddr.getBroadcast().toString());
@@ -262,11 +244,7 @@ public class Jetson extends Subsystem {
 	 * Connect to the Jetson RPC server and start the send/receive threads.
 	 * @throws IOException in the event of network errors.
 	 */
-	public void initMainStream() throws IOException {
-		connection = new Socket(remoteAddr, remotePort);
-		netOut = connection.getOutputStream();
-		netIn = connection.getInputStream();
-
+	public void initNetThreads() throws IOException {
 		recvThread = new Thread(new Runnable() {
 				public void run() {
 					try {
@@ -294,6 +272,33 @@ public class Jetson extends Subsystem {
 
 		sendThread.setName("Jetson Send Thread");
 		sendThread.start();
+	}
+
+	/**
+	 * Attempt to find the Jetson using a UDP discovery protocol.
+	 * @throws IOException in the event of network errors.
+	 */
+	public void doDiscover() throws IOException {
+		 discoverThread = new Thread(new Runnable() {
+				public void run() {
+					try {
+						discoveryProtocol();
+
+						connection = new Socket(remoteAddr, remotePort);
+						netOut = connection.getOutputStream();
+						netIn = connection.getInputStream();
+
+						initNetThreads();
+						this.notifyAll();
+					} catch(IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		);
+
+		discoverThread.setName("Discovery Protocol Thread");
+		discoverThread.start();
 	}
 
 	/**
@@ -446,9 +451,7 @@ public class Jetson extends Subsystem {
 		if(connection == null || !this.isDaijoubu())
 			throw new IllegalStateException("Not connected to Jetson yet!");
 
-		synchronized(inboundQueue) {
-			return inboundQueue.poll();
-		}
+		return inboundQueue.poll();
 	}
 
 	private NetworkMessage synRecv() throws IOException, IllegalStateException {
@@ -503,7 +506,7 @@ public class Jetson extends Subsystem {
 				public void run() {
 					try {
 						miniCameraClient(cam);
-					} catch(IOException e) {
+					} catch(IOException | InterruptedException e) {
 						e.printStackTrace();
 					}
 				}
@@ -527,88 +530,89 @@ public class Jetson extends Subsystem {
 	 * @throws IOException in event of network errors
 	 * @throws IllegalStateException if not connected to Jetson yet (see DoDiscover)
 	 */
-	private void miniCameraClient(USBCamera camera) throws IOException, IllegalStateException {
+	private void miniCameraClient(USBCamera camera) throws IOException, IllegalStateException, InterruptedException {
+		while(remoteAddr == null) {
+			synchronized(this) {
+				this.wait();
+			}
+		}
+
 		camera.openCamera();
 
-	    	Socket connSock = new Socket(remoteAddr, cameraRemotePort); //listenSocket.accept();
+    	Socket connSock = new Socket(remoteAddr, cameraRemotePort); //listenSocket.accept();
 
-	    	DataInputStream in = new DataInputStream(connSock.getInputStream());
-	    	DataOutputStream out = new DataOutputStream(connSock.getOutputStream());
+    	DataInputStream in = new DataInputStream(connSock.getInputStream());
+    	DataOutputStream out = new DataOutputStream(connSock.getOutputStream());
 
-	    	int fps = in.readInt();
-	    	in.readInt(); // compression is irrelevant
-	    	int size = in.readInt();
+    	int fps = in.readInt();
+    	in.readInt(); // compression is irrelevant
+    	int size = in.readInt();
 
-	    	switch(size) {
-	    	case 0:	// 640 x 480
-	    		camera.setSize(640, 480);
-	    		break;
-	    	case 1: // 320 x 240
-	    		camera.setSize(320, 240);
-	    		break;
-	    	case 2:	// 160 x 120
-	    		camera.setSize(160, 120);
-	    		break;
-	    	}
-
-
-	    	long period = (long) (1000 / (1.0 * fps));
-	    	long loopTime = System.currentTimeMillis();
-
-	    	camera.updateSettings();
-	    	camera.startCapture();
-
-	    	while(true) {
-				// capture loop
-				loopTime = System.currentTimeMillis();
-				/*
-				Image frame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
-				camera.getImage(frame);
-
-				RawData data =
-				    NIVision.imaqFlatten(frame, NIVision.FlattenType.FLATTEN_IMAGE,
-				        NIVision.CompressionType.COMPRESSION_JPEG, 10 * 50);
-				ByteBuffer buf = data.getBuffer();
-				*/
-
-				if(camThreadStopStatus) {
-					return;
-				}
-
-				ByteBuffer buf = ByteBuffer.allocateDirect(200000); // just get a really big buffer.
-				camera.getImageData(buf); // just get JPEG data
+    	switch(size) {
+    	case 0:	// 640 x 480
+    		camera.setSize(640, 480);
+    		break;
+    	case 1: // 320 x 240
+    		camera.setSize(320, 240);
+    		break;
+    	case 2:	// 160 x 120
+    		camera.setSize(160, 120);
+    		break;
+    	}
 
 
-				int dataStart = 0;
-				while (dataStart < buf.limit() - 1) {
-					if ((buf.get(dataStart) & 0xff) == 0xFF && (buf.get(dataStart + 1) & 0xff) == 0xD8)
-					  break;
-					dataStart++;
-				}
+    	long period = (long) (1000 / (1.0 * fps));
+    	long loopTime = System.currentTimeMillis();
+
+    	camera.updateSettings();
+    	camera.startCapture();
+
+    	while(true) {
+			// capture loop
+			loopTime = System.currentTimeMillis();
+			/*
+			Image frame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
+			camera.getImage(frame);
+
+			RawData data =
+			    NIVision.imaqFlatten(frame, NIVision.FlattenType.FLATTEN_IMAGE,
+			        NIVision.CompressionType.COMPRESSION_JPEG, 10 * 50);
+			ByteBuffer buf = data.getBuffer();
+			*/
+
+			if(camThreadStopStatus) {
+				return;
+			}
+
+			ByteBuffer buf = ByteBuffer.allocateDirect(200000); // just get a really big buffer.
+			camera.getImageData(buf); // just get JPEG data
 
 
-				buf.position(dataStart);
+			int dataStart = 0;
+			while (dataStart < buf.limit() - 1) {
+				if ((buf.get(dataStart) & 0xff) == 0xFF && (buf.get(dataStart + 1) & 0xff) == 0xD8)
+				  break;
+				dataStart++;
+			}
 
-				//System.out.println("Got " + String.valueOf(buf.remaining()) + " bytes from camera.");
 
-				byte[] payload = new byte[buf.remaining()];
-				buf.get(payload, 0, buf.remaining());
+			buf.position(dataStart);
 
-				out.write(cameraHeader);
-				out.writeInt(payload.length);
-				out.write(payload);
-				out.flush();
+			//System.out.println("Got " + String.valueOf(buf.remaining()) + " bytes from camera.");
 
-				long timeDelta = (System.currentTimeMillis() - loopTime);
+			byte[] payload = new byte[buf.remaining()];
+			buf.get(payload, 0, buf.remaining());
 
-				if(timeDelta < period) {
-					try {
-						Thread.sleep(period - timeDelta);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-	    	}
+			out.write(cameraHeader);
+			out.writeInt(payload.length);
+			out.write(payload);
+			out.flush();
+
+			long timeDelta = (System.currentTimeMillis() - loopTime);
+
+			if(timeDelta < period) {
+				Thread.sleep(period - timeDelta);
+			}
+    	}
 	}
 }
