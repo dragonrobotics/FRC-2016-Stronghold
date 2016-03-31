@@ -3,6 +3,7 @@ package org.usfirst.frc.team5002.robot.commands;
 import org.usfirst.frc.team5002.robot.Robot;
 import org.usfirst.frc.team5002.robot.subsystems.Jetson;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.command.Command;
 
 /**
  * Fire with control.
@@ -27,7 +28,7 @@ public class WhitesOfTheirEyes extends Command {
         if(state == 0) {
             if(Robot.jetson.getGoalStatus() &&
                 (Math.abs(Robot.jetson.getDistance() - idealDistance) < distTolerance) &&
-                (Math.abs(Robot.jetson.getAngle()) < distTolerance)) {
+                (Math.abs(Robot.jetson.getAngle()) < angleTolerance)) {
                         state = 1;
                         tS = Timer.getFPGATimestamp();
                 }
