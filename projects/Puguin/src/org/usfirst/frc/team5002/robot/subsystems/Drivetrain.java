@@ -26,13 +26,12 @@ public class Drivetrain extends Subsystem {
 	 */
 	private CANTalon mcLT, mcLB, mcLF, mcRT, mcRB, mcRF;
 	private double sec = 0;
-	
-	private static final double maxSpeed = 400;
-//	private static final double maxSpeed = 1;
 	/**
-	 * The drivetrain ignores angle changes less than this value, 
-	 * to prevent it from constantly turning without moving forward.
+	 * <p>speed = 400</p>
+	 * <p>PercentVbus = 1</P>
 	 */
+	private double maxOutput = 400;
+
 	
 	public Drivetrain() {
 		mcLT = new CANTalon(6);
@@ -42,8 +41,6 @@ public class Drivetrain extends Subsystem {
 		mcRB = new CANTalon(8);
 		mcRF = new CANTalon(5);
 
-//		mcLT.changeControlMode(TalonControlMode.PercentVbus); //TODO: Fix the encoder on the drivetrain and set Position and Speed PID values. Also make the drivetrain run more smoothly
-//		mcRT.changeControlMode(TalonControlMode.PercentVbus);
 		mcLT.changeControlMode(TalonControlMode.Position);
 		mcLB.changeControlMode(TalonControlMode.Follower);
 		mcLF.changeControlMode(TalonControlMode.Follower);
@@ -66,6 +63,7 @@ public class Drivetrain extends Subsystem {
 	public void initDefaultCommand() {
 		setDefaultCommand(new TeleopDriveyWivey());
 	}
+	
 
 	/**
 	 * Set motor values directly from a joystick object.
@@ -88,8 +86,8 @@ public class Drivetrain extends Subsystem {
 			y /= Math.abs(x)+Math.abs(y);
 		}
 		
-		mcLT.set(-maxSpeed / (stick.getRawAxis(2)*3+1) * (stick.getY() - stick.getX()));
-		mcRT.set(maxSpeed / (stick.getRawAxis(2)*3+1) * (stick.getY() + stick.getX()));
+		mcLT.set(-maxOutput / (stick.getRawAxis(2)*3+1) * (stick.getY() - stick.getX()));
+		mcRT.set(maxOutput / (stick.getRawAxis(2)*3+1) * (stick.getY() + stick.getX()));
 
 	}
 
@@ -196,6 +194,12 @@ public class Drivetrain extends Subsystem {
 		mcLT.set(pos);
 		mcRT.set(-pos); 
 	}
+	
+	public boolean areEncodersWorking(){
+		return mcLT.isSensorPresent(FeedbackDevice.QuadEncoder) == CANTalon.FeedbackDeviceStatus.FeedbackStatusPresent
+				&& mcRT.isSensorPresent(FeedbackDevice.QuadEncoder) == CANTalon.FeedbackDeviceStatus.FeedbackStatusPresent;
+	}
+	
 	public void zeroMotors(){
 		mcLT.setEncPosition(0);
 		mcRT.setEncPosition(0);
@@ -227,6 +231,13 @@ public class Drivetrain extends Subsystem {
 	}
 	
 	public void checkControlMode(TalonControlMode mode){
+		if(mcLT.isSensorPresent(FeedbackDevice.QuadEncoder) == CANTalon.FeedbackDeviceStatus.FeedbackStatusNotPresent
+				|| mcRT.isSensorPresent(FeedbackDevice.QuadEncoder) == CANTalon.FeedbackDeviceStatus.FeedbackStatusNotPresent){
+			mcLT.changeControlMode(TalonControlMode.PercentVbus);
+			mcRT.changeControlMode(TalonControlMode.PercentVbus);
+			maxOutput = 1;
+			return;
+		}
 		if (mcLT.getControlMode() != mode){
 			mcLT.changeControlMode(mode);
 		}
@@ -236,10 +247,12 @@ public class Drivetrain extends Subsystem {
 		if (mode == TalonControlMode.Speed){
 			mcLT.setProfile(0);
 			mcRT.setProfile(0);
+			
 		}
 		if (mode == TalonControlMode.Position){
 			mcLT.setProfile(1);
 			mcRT.setProfile(1);
+			
 		}
 	}
 
