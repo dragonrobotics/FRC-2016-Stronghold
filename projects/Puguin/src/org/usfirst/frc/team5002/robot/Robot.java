@@ -105,13 +105,13 @@ public class Robot extends IterativeRobot {
 	public void autonomousInit() {
 		AutoChoice c = (AutoChoice) autoChooser.getSelected();
 		if (c == AutoChoice.JustTheTip) {
-			autonomousCommand = new Autonomous(1.1);
+			autonomousCommand = new Autonomous(1000);
 			autonomousCommand.start();
-		} else if (c == AutoChoice.JustTheTip) {
-			autonomousCommand = new Autonomous(2.5);
+		} else if (c == AutoChoice.RamItIn) {
+			autonomousCommand = new Autonomous(3000);
 			autonomousCommand.start();
 		} else if (c == AutoChoice.DESTROY_THE_CERVIX)
-			autonomousCommand = new Autonomous(1.6);
+			autonomousCommand = new Autonomous(Double.POSITIVE_INFINITY);
 			autonomousCommand.start();
 	}
 
