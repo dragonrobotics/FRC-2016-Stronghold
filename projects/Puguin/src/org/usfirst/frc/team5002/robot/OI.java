@@ -93,7 +93,7 @@ public class OI {
 //		Robot.tongueofyellow.UpdateSD();
 		Robot.thosearmthings.UpdateSD();
 		Robot.barofwheels.UpdateSD();
-		Robot.jetson.UpdateSD();
+		Robot.jetson.updateSD();
 		SmartDashboard.putNumber("robot.yaw", Robot.getRobotYaw());
 		SmartDashboard.putNumber("robot.roll", Robot.getRobotRoll());
 		SmartDashboard.putNumber("robot.pitch", Robot.getRobotPitch());

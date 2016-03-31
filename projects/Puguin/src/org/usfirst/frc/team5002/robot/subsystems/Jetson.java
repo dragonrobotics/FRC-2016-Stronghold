@@ -19,8 +19,10 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.vision.USBCamera;
 
 import org.usfirst.frc.team5002.robot.subsystems.network.DiscoverPacket;
@@ -134,7 +136,7 @@ public class Jetson extends Subsystem {
 	 * @throws IllegalStateException if a connection to the Jetson could not be established.
 	 */
 	public synchronized boolean getGoalStatus() throws IllegalStateException {
-		if(!isDaijoubu)
+		if(!isDaijoubu())
 			throw IllegalStateException("Not connected to Jetson yet!");
 		return lastKnownGoalStatus;
 	}
@@ -146,7 +148,7 @@ public class Jetson extends Subsystem {
 	 * @throws IllegalStateException if a connection to the Jetson could not be established.
 	 */
 	public synchronized double getDistance() throws IllegalStateException {
-		if(!isDaijoubu)
+		if(!isDaijoubu())
 			throw IllegalStateException("Not connected to Jetson yet!");
 		return lastKnownDistance;
 	}
@@ -158,7 +160,7 @@ public class Jetson extends Subsystem {
 	 * @throws IllegalStateException if a connection to the Jetson could not be established.
 	 */
 	public synchronized double getAngle() throws IllegalStateException {
-		if(!isDaijoubu)
+		if(!isDaijoubu())
 			throw IllegalStateException("Not connected to Jetson yet!");
 		return lastKnownAngle;
 	}
