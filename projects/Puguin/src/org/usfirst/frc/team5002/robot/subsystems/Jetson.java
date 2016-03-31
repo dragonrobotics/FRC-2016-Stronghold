@@ -17,10 +17,13 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.vision.USBCamera;
 
 import org.usfirst.frc.team5002.robot.subsystems.network.DiscoverPacket;
@@ -89,7 +92,7 @@ public class Jetson extends Subsystem {
 		 * 	However, at this point it would be too much work to separate the general network code from everything else.
 		 */
 		if(m instanceof GoalDistanceMessage) {
-			GoalDistanceMessage gdm = m;
+			GoalDistanceMessage gdm = (GoalDistanceMessage) m;
 			synchronized(this) {
 				lastKnownGoalStatus = (gdm.goal_status == GoalDistanceMessage.Status.GOAL_FOUND);
 				if(lastKnownGoalStatus) {
@@ -98,7 +101,7 @@ public class Jetson extends Subsystem {
 				}
 			}
 		} else {
-			BlockingQueue<NetworkMessage> iQ = inboundQueue;
+			BlockingQueue<NetworkMessage> iQ = (BlockingQueue<NetworkMessage>) inboundQueue;
 			iQ.put(m);
 		}
 	}
@@ -110,7 +113,7 @@ public class Jetson extends Subsystem {
 			}
 		}
 
-		BlockingQueue<NetworkMessage> oQ = outboundQueue;
+		BlockingQueue<NetworkMessage> oQ = (BlockingQueue<NetworkMessage>) outboundQueue;
 		while(true) {
 			NetworkMessage m = oQ.take();
 
@@ -134,8 +137,8 @@ public class Jetson extends Subsystem {
 	 * @throws IllegalStateException if a connection to the Jetson could not be established.
 	 */
 	public synchronized boolean getGoalStatus() throws IllegalStateException {
-		if(!isDaijoubu())
-			throw IllegalStateException("Not connected to Jetson yet!");
+		if(!this.isDaijoubu())
+			throw new IllegalStateException("Not connected to Jetson yet!");
 		return lastKnownGoalStatus;
 	}
 
@@ -146,8 +149,8 @@ public class Jetson extends Subsystem {
 	 * @throws IllegalStateException if a connection to the Jetson could not be established.
 	 */
 	public synchronized double getDistance() throws IllegalStateException {
-		if(!isDaijoubu())
-			throw IllegalStateException("Not connected to Jetson yet!");
+		if(!this.isDaijoubu())
+			throw new IllegalStateException("Not connected to Jetson yet!");
 		return lastKnownDistance;
 	}
 
@@ -158,8 +161,8 @@ public class Jetson extends Subsystem {
 	 * @throws IllegalStateException if a connection to the Jetson could not be established.
 	 */
 	public synchronized double getAngle() throws IllegalStateException {
-		if(!isDaijoubu())
-			throw IllegalStateException("Not connected to Jetson yet!");
+		if(!this.isDaijoubu())
+			throw new IllegalStateException("Not connected to Jetson yet!");
 		return lastKnownAngle;
 	}
 
@@ -248,7 +251,7 @@ public class Jetson extends Subsystem {
 				public void run() {
 					try {
 						jetsonRecvThread();
-					} catch(IOException e) {
+					} catch(IOException | InterruptedException e) {
 						e.printStackTrace();
 					}
 				}
@@ -259,7 +262,7 @@ public class Jetson extends Subsystem {
 				public void run() {
 					try {
 						jetsonSendThread();
-					} catch(IOException e) {
+					} catch(IOException | InterruptedException e) {
 						e.printStackTrace();
 					}
 				}
@@ -317,12 +320,12 @@ public class Jetson extends Subsystem {
 		DatagramPacket packet = new DatagramPacket(arr, 4096);
 
 		//System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Listening on "
-				+ udpSocket.getLocalAddress().toString() + " on " + Integer.toString(udpSocket.getPort()));
+		//		+ udpSocket.getLocalAddress().toString() + " on " + Integer.toString(udpSocket.getPort()));
 
 		udpSocket.receive(packet);
 
 		//System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Received UDP message from "
-				+ packet.getAddress().toString() + " length: " + Integer.toString(packet.getLength()));
+		//		+ packet.getAddress().toString() + " length: " + Integer.toString(packet.getLength()));
 
 		if ((buf.get() == (byte) 0x35) && (buf.get() == (byte) 0x30) && (buf.get() == (byte) 0x30)
 				&& (buf.get() == (byte) 0x32)) { // '5' '0' '0' '2' in true
@@ -331,7 +334,7 @@ public class Jetson extends Subsystem {
 			byte msgType = buf.get();
 			short size = buf.getShort();
 
-			System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] UDP packet is valid.");
+			//System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] UDP packet is valid.");
 
 			switch (msgType) {
 			case 5:
@@ -356,15 +359,22 @@ public class Jetson extends Subsystem {
 	 * @param msg message to send
 	 * @throws IOException in the event of network errors.
 	 */
-	public void sendMessage(NetworkMessage msg) throws IOException {
-		BlockingQueue<NetworkMessage> oQ = outboundQueue;
-		oQ.put(msg);
+	public void sendMessage(NetworkMessage msg) throws IOException, IllegalStateException {
+		if(connection == null || !this.isDaijoubu())
+			throw new IllegalStateException("Not connected to Jetson yet!");
+		
+		BlockingQueue<NetworkMessage> oQ = (BlockingQueue<NetworkMessage>) outboundQueue;
+		try {
+			oQ.put(msg);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
-	private void synSend(NetworkMessage msg) throws IOException {
-		if (connection == null) {
-			this.doDiscover();
-		}
+	private void synSend(NetworkMessage msg) throws IOException, IllegalStateException {
+		if(connection == null || !this.isDaijoubu())
+			throw new IllegalStateException("Not connected to Jetson yet!");
 
 		ByteBuffer ns = ByteBuffer.allocate(msg.getMessageSize()+7);
 		ns.order(ByteOrder.BIG_ENDIAN);
@@ -394,8 +404,13 @@ public class Jetson extends Subsystem {
 	 * @throws IOException in the event of network errors.
 	 */
 	public NetworkMessage readMessage() throws IOException {
-		BlockingQueue<NetworkMessage> iQ = inboundQueue;
-		return iQ.take();
+		BlockingQueue<NetworkMessage> iQ = (BlockingQueue<NetworkMessage>) inboundQueue;
+		try {
+			return iQ.take();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	/**
@@ -405,18 +420,21 @@ public class Jetson extends Subsystem {
 	 *
 	 * @return NetworkMessage containing the last received network message.
 	 * @throws IOException in the event of network errors.
+	 * @throws IllegalStateException if not connected to the Jetson yet.
 	 */
-	public NetworkMessage pollMessage() throws IOException {
+	public NetworkMessage pollMessage() throws IOException, IllegalStateException {
+		if(connection == null || !this.isDaijoubu())
+			throw new IllegalStateException("Not connected to Jetson yet!");
+		
 		synchronized(inboundQueue) {
 			return inboundQueue.poll();
 		}
 	}
 
-	private NetworkMessage synRecv() throws IOException {
-		if (connection == null) {
-			this.doDiscover();
-		}
-
+	private NetworkMessage synRecv() throws IOException, IllegalStateException {
+		if(connection == null || !this.isDaijoubu())
+			throw new IllegalStateException("Not connected to Jetson yet!");
+		
 		while (true) {
 			ByteBuffer headerBuf = ByteBuffer.allocate(7);
 			headerBuf.order(ByteOrder.BIG_ENDIAN);
@@ -457,8 +475,6 @@ public class Jetson extends Subsystem {
 				}
 			}
 		}
-
-		return null;
 	}
 
 	public void initCameraStream(String camName) {
@@ -553,7 +569,7 @@ public class Jetson extends Subsystem {
 
 				buf.position(dataStart);
 
-				System.out.println("Got " + String.valueOf(buf.remaining()) + " bytes from camera.");
+				//System.out.println("Got " + String.valueOf(buf.remaining()) + " bytes from camera.");
 
 				byte[] payload = new byte[buf.remaining()];
 				buf.get(payload, 0, buf.remaining());

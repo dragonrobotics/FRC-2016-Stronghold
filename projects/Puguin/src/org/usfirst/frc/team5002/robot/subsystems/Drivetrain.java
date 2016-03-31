@@ -187,14 +187,18 @@ public class Drivetrain extends Subsystem {
 			}
 			robotang = Robot.getRobotYaw();
 			robotang = Math.min(10 * robotang, 200);
+			if (!this.areEncodersWorking()){
+				robotang /= 200;	
+			}
 		} finally {
 			mcLT.set(pos + robotang);
 			mcRT.set(pos - robotang);
 		}
-		mcLT.set(pos);
-		mcRT.set(-pos); 
 	}
 	
+	public void moveForward(){
+		moveForward(0.8);
+	}
 	public boolean areEncodersWorking(){
 		return mcLT.isSensorPresent(FeedbackDevice.QuadEncoder) == CANTalon.FeedbackDeviceStatus.FeedbackStatusPresent
 				&& mcRT.isSensorPresent(FeedbackDevice.QuadEncoder) == CANTalon.FeedbackDeviceStatus.FeedbackStatusPresent;
