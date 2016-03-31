@@ -44,7 +44,7 @@ public class Robot extends IterativeRobot {
 	public static Jetson jetson;
 	public static OI oi;
 	public static AHRS ahrs;
-	
+
 	private static SendableChooser autoChooser;
 	Command autonomousCommand;
 	CameraServer server;
@@ -70,29 +70,15 @@ public class Robot extends IterativeRobot {
 //		TriggerHappy trigger = new TriggerHappy();
 //		trigger.start();
 
-//		try {
-//			jetson = new Jetson();
-//			jetson.doDiscover(); // find the Jetson on the local network
-//			jetson.initCameraStream("cam0");
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//			// we can't recover from this, really.
-//			// I'm not really sure how to just kill the robot immediately.
-//
-//			/*
-//			 * Chase Stockton: Yes we absolutely can recover from this. We don't
-//			 * need the jetson or vision processing to move the robot around or
-//			 * fire the ball. Just take proper precaution in anything that tries
-//			 * to access any feedback from the jetson (i.e. the command that
-//			 * fires the ball).
-//			 * 
-//			 * More specifically, make a method in this class that returns
-//			 * feedback from the jetson. If the jetson wasn't found, then throw
-//			 * an IllegalStateException or something and let the caller worry
-//			 * about handling the exception. Don't allow outside access to the
-//			 * jetson in any manner other than that method.
-//			 */
-//		}
+		try {
+			jetson = new Jetson();
+			jetson.doDiscover(); // find the Jetson on the local network
+			jetson.initMainStream(); // kick off network handler threads
+			jetson.initCameraStream("cam0"); // kick off camera stream thread
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		autoChooser = new SendableChooser();
 		autoChooser.addDefault("None", AutoChoice.Virgin);
 		autoChooser.addObject("Up To Defense", AutoChoice.JustTheTip);
@@ -127,7 +113,7 @@ public class Robot extends IterativeRobot {
 		oi.updateSD();
 //		positioner.updateFromAccelerometer();
 //		positioner.updateFromOdometry((drivetrain.getLVel() + drivetrain.getRVel()) / 2);
-//		
+//
 //		// do asynch recv
 //		try {
 //			jetson.checkForMessage();
@@ -136,7 +122,7 @@ public class Robot extends IterativeRobot {
 //			e.printStackTrace();
 //		}
 	}
-	
+
 	/**
 	 * This function is called when the disabled button is hit. You can use it
 	 * to reset subsystems before shutting down.
@@ -150,7 +136,7 @@ public class Robot extends IterativeRobot {
 		oi.updateSD();
 //		positioner.updateFromAccelerometer();
 //		positioner.updateFromOdometry((drivetrain.getLVel() + drivetrain.getRVel()) / 2);
-		
+
 //		try {
 //			jetson.checkForMessage();
 //		} catch (IOException e) {
@@ -179,22 +165,24 @@ public class Robot extends IterativeRobot {
 		}
 		return ahrs.getAngle();
 	}
-	
+
 	public static double getRobotRoll() throws IllegalStateException {
 		if (ahrs == null) {
 			throw new IllegalStateException("AHRS not initialized.");
 		}
 		return ahrs.getRoll();
 	}
+
 	public static double getRobotPitch() throws IllegalStateException {
 		if (ahrs == null) {
 			throw new IllegalStateException("AHRS not initialized.");
 		}
 		return ahrs.getPitch();
 	}
+
 	public enum AutoChoice{
 		Virgin(0), JustTheTip(1), RamItIn(2), DESTROY_THE_CERVIX(3);
-		
+
 	    public int value;
 
 	    public static AutoChoice valueOf(int value) {

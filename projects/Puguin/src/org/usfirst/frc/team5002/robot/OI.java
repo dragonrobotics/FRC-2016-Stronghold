@@ -26,8 +26,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class OI {
 	private Joystick pugstick;
 	/**
-	 * This creates the Joystick and sets the Axis, 
-	 * and allows the left trigger to rumble.  
+	 * This creates the Joystick and sets the Axis,
+	 * and allows the left trigger to rumble.
 	 */
 
 	public OI() {
@@ -35,7 +35,7 @@ public class OI {
 			@Override
 			public double getRawAxis(int axis) {
 				double r = super.getRawAxis(axis);
-				r = Math.abs(r) < 0.1 ? 0 : Math.signum(r) * (Math.abs(r) - 0.1) / 0.9; 
+				r = Math.abs(r) < 0.1 ? 0 : Math.signum(r) * (Math.abs(r) - 0.1) / 0.9;
 				r = Math.signum(r) * Math.pow(Math.abs(r), 3);
 				return r;
 			}
@@ -43,7 +43,7 @@ public class OI {
 		pugstick.setAxisChannel(AxisType.kX,4);
 		pugstick.setAxisChannel(AxisType.kY,5);
 		/**
-		 * Sets the buttons on the remote. 
+		 * Sets the buttons on the remote.
 		 */
 		Button X = new JoystickButton(pugstick, 3);
 //		Button Y = new JoystickButton(pugstick, 4);
@@ -53,7 +53,7 @@ public class OI {
 		Button Paddle_4 = new JoystickButton(pugstick, 10);
 		Button RB = new JoystickButton(pugstick, 6);
 		Button LB = new JoystickButton(pugstick, 5);
-		
+
 
 		/**
 		 * when buttons: X, Y, B, A, RB, LB are held down,
@@ -70,9 +70,9 @@ public class OI {
 		RB.whileHeld(new DoLaunch());
 		LB.whenPressed(new BeltWizardry());
 		LB.whenPressed(new FranksWheels());
-		
+
 	}
-	
+
 	/**
 	 * Keeps the code continually active
 	 * @return
@@ -93,10 +93,11 @@ public class OI {
 //		Robot.tongueofyellow.UpdateSD();
 		Robot.thosearmthings.UpdateSD();
 		Robot.barofwheels.UpdateSD();
+		Robot.jetson.UpdateSD();
 		SmartDashboard.putNumber("robot.yaw", Robot.getRobotYaw());
 		SmartDashboard.putNumber("robot.roll", Robot.getRobotRoll());
 		SmartDashboard.putNumber("robot.pitch", Robot.getRobotPitch());
-		
-		
+
+
 	}
 }

@@ -11,32 +11,36 @@ public class Poi extends Command {
 	double targetX;
 	double targetY;
 	double finalTurnAngle;
-	
+
 	boolean taiha = false;
-	
+
 	/***
-	 * Poi(boolean, double) - Start driving, poi~!
+	 * Poi(double) - Start driving, poi~!
 	 * @param tDist - how far we want to be from the goal in the end, poi~
 	 */
 	public Poi(double tDist) {
 		requires(Robot.drivetrain);
-		
-		if(Robot.jetson.isDaijoubu()) {
-			double startDistance = Robot.jetson.getDistance();
-			double startAngle = Robot.jetson.getAngle() + Robot.getRobotYaw();
-			
-			// transform to robot-local cartesian coordinates.
-			// remember that 0 degrees heading is directly forward from starting orientation (Y axis), so we swap sin/cos.
-			targetY = startDistance * Math.cos(Math.toRadians(startAngle));
-			targetX = startDistance * Math.sin(Math.toRadians(startAngle));
-			
-			targetY -= tDist;
-			
-			// move vector = (atan2(tY, tX), hypot(tX, tY))
-			// final turn = -(move vector angle)
-			
-			finalTurnAngle = Math.floor(Robot.getRobotYaw() / 360.0) * 360.0;
-		} else {
+
+		try {
+			if(Robot.jetson.isDaijoubu() && Robot.jetson.getGoalStatus()) {
+				double startDistance = Robot.jetson.getDistance();
+				double startAngle = Robot.jetson.getAngle() + Robot.getRobotYaw();
+
+				// transform to robot-local cartesian coordinates.
+				// remember that 0 degrees heading is directly forward from starting orientation (Y axis), so we swap sin/cos.
+				targetY = startDistance * Math.cos(Math.toRadians(startAngle));
+				targetX = startDistance * Math.sin(Math.toRadians(startAngle));
+
+				targetY -= tDist;
+
+				// move vector = (atan2(tY, tX), hypot(tX, tY))
+				// final turn = -(move vector angle)
+
+				finalTurnAngle = Math.floor(Robot.getRobotYaw() / 360.0) * 360.0;
+			} else {
+				taiha = true;
+			}
+		} catch(IllegalStateException e) {
 			taiha = true;
 		}
 	}

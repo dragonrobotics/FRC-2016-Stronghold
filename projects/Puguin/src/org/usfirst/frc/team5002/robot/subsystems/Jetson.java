@@ -40,95 +40,129 @@ public class Jetson extends Subsystem {
 
 	private InetAddress remoteAddr;
 	private InterfaceAddress ifaddr;
+
 	private Socket connection;
 	private DatagramSocket udpSocket;
 	private OutputStream netOut;
 	private InputStream netIn;
-	
+
 	private Thread camThread;
 	private boolean camThreadStopStatus = false;
-	
-	private enum JetsonStateMachine {
-		READ_HEADER,	// reading packet header
-		READ_DATA,		// reading packet payload
-		WAIT			// not reading packet
-	};
-	
-	private JetsonStateMachine curState = JetsonStateMachine.WAIT;
-	private ByteBuffer curHeaderBuf;
-	private ByteBuffer curPacketBuf;
-	private int curBufPos;
-	private short curPacketSize;
-	private byte curPacketType;
-	
-	private Queue<NetworkMessage> msgQueue;
-	
-	private double lastKnownDistance;
-	private double lastKnownAngle;
-	
-	/**
-	 * Process queued goal state messages from the Jetson.
-	 * @throws IllegalStateException if a connection to the Jetson could not be established.
-	 */
-	private void updateGoalStatus() throws IllegalStateException {
-		if(!connection.isConnected()) {
-			throw new IllegalStateException("Not connected to Jetson yet.");
+
+	private Thread recvThread;
+	private Thread sendThread;
+
+	private Queue<NetworkMessage> outboundQueue;
+	private Queue<NetworkMessage> inboundQueue;
+
+	private boolean lastKnownGoalStatus = false;
+	private double lastKnownDistance = 0.0;
+	private double lastKnownAngle = 0.0;
+
+	public void updateSD() {
+		SmartDashboard.putBoolean("jetson.located", (remoteAddr != null));
+		SmartDashboard.putBoolean("jetson.connected", (connection != null));
+
+		SmartDashboard.putString("jetson.localAddress", ifaddr.toString());
+
+		if(remoteAddr != null) {
+			SmartDashboard.putString("jetson.remoteAddress", remoteAddr.toString());
 		} else {
-			NetworkMessage i;
-			while(!msgQueue.isEmpty()) {
-				i = msgQueue.poll();
-				if((i != null) && (i instanceof GoalDistanceMessage)) {
-					GoalDistanceMessage m = (GoalDistanceMessage)i;
-					lastKnownDistance = m.distance;
-					lastKnownAngle = m.angle;
-				}
+			SmartDashboard.putString("jetson.remoteAddress", "unknown");
+		}
+
+		SmartDashboard.putBoolean("jetson.goal.found", lastKnownGoalStatus);
+		SmartDashboard.putNumber("jetson.goal.distance", lastKnownDistance);
+		SmartDashboard.putNumber("jetson.goal.angle", lastKnownAngle);
+	}
+
+	private void jetsonRecvThread() throws IOException, InterruptedException {
+		while(connection == null) {
+			synchronized(this) {
+				this.wait();
 			}
 		}
+
+		NetworkMessage m = synRecv();
+
+		/* TODO: This is game-specific code and should ideally be separated into its own class.
+		 * 	However, at this point it would be too much work to separate the general network code from everything else.
+		 */
+		if(m instanceof GoalDistanceMessage) {
+			GoalDistanceMessage gdm = m;
+			synchronized(this) {
+				lastKnownGoalStatus = (gdm.goal_status == GoalDistanceMessage.Status.GOAL_FOUND);
+				if(lastKnownGoalStatus) {
+					lastKnownDistance = gdm.distance;
+					lastKnownAngle = gdm.angle;
+				}
+			}
+		} else {
+			BlockingQueue<NetworkMessage> iQ = inboundQueue;
+			iQ.put(m);
+		}
 	}
-	
+
+	private void jetsonSendThread() throws IOException, InterruptedException {
+		while(connection == null) {
+			synchronized(this) {
+				this.wait();
+			}
+		}
+
+		BlockingQueue<NetworkMessage> oQ = outboundQueue;
+		while(true) {
+			NetworkMessage m = oQ.take();
+
+			synSend(m);
+		}
+	}
+
 	/***
-	 * Get Jetson sortie status.
-	 * 
+	 * Get Jetson connection status.
+	 *
 	 * @return is the Jetson connected or not?
 	 */
 	public boolean isDaijoubu() {
 		return (connection.isConnected());
 	}
-	
+
+	/**
+	 * Get last received goal state from the Jetson.
+	 *
+	 * @return whether the Jetson can detect the goal or not
+	 * @throws IllegalStateException if a connection to the Jetson could not be established.
+	 */
+	public synchronized boolean getGoalStatus() throws IllegalStateException {
+		if(!isDaijoubu)
+			throw IllegalStateException("Not connected to Jetson yet!");
+		return lastKnownGoalStatus;
+	}
+
 	/**
 	 * Get last received goal distance from the Jetson.
-	 * 
+	 *
 	 * @return how far the camera / robot is from the goal
 	 * @throws IllegalStateException if a connection to the Jetson could not be established.
 	 */
-	public double getDistance() throws IllegalStateException {
-		updateGoalStatus();
+	public synchronized double getDistance() throws IllegalStateException {
+		if(!isDaijoubu)
+			throw IllegalStateException("Not connected to Jetson yet!");
 		return lastKnownDistance;
 	}
-	
+
 	/**
 	 * Get last received angle off goal centerline from the Jetson.
-	 * 
+	 *
 	 * @return approximate angle off goal target.
 	 * @throws IllegalStateException if a connection to the Jetson could not be established.
 	 */
-	public double getAngle() throws IllegalStateException {
-		updateGoalStatus();
+	public synchronized double getAngle() throws IllegalStateException {
+		if(!isDaijoubu)
+			throw IllegalStateException("Not connected to Jetson yet!");
 		return lastKnownAngle;
 	}
-	
-	/**
-	 *  Reset the internal asynchronous receive buffers and state machine.
-	 */
-	private void resetAsyncState() {
-		curState = JetsonStateMachine.WAIT;
-		curHeaderBuf = null;
-		curPacketBuf = null;
-		curBufPos = 0;
-		curPacketSize = 0;
-		curPacketType = 0;
-	}
-	
+
 	/**
 	 * Set default command. Does nothing currently.
 	 */
@@ -145,7 +179,7 @@ public class Jetson extends Subsystem {
 
 	/**
 	 * Attempts to initialize network resources required to find and communicate with the Jetson.
-	 * 
+	 *
 	 * @throws IOException in the event of network errors (mostly passed up the network stack).
 	 */
 	public Jetson() throws IOException {
@@ -176,6 +210,9 @@ public class Jetson extends Subsystem {
 
 		udpSocket = new DatagramSocket(remotePort);
 		udpSocket.setBroadcast(true);
+
+		inboundQueue = new LinkedList<NetworkMessage>();
+		outboundQueue = new LinkedList<NetworkMessage>();
 	}
 
 	/**
@@ -197,22 +234,50 @@ public class Jetson extends Subsystem {
 			}
 		}
 	}
-	
+
 	/**
-	 * Connect to the Jetson RPC server.
+	 * Connect to the Jetson RPC server and start the send/receive threads.
 	 * @throws IOException in the event of network errors.
 	 */
 	public void initMainStream() throws IOException {
 		connection = new Socket(remoteAddr, remotePort);
 		netOut = connection.getOutputStream();
 		netIn = connection.getInputStream();
+
+		recvThread = new Thread(new Runnable() {
+				public void run() {
+					try {
+						jetsonRecvThread();
+					} catch(IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		);
+
+		sendThread = new Thread(new Runnable() {
+				public void run() {
+					try {
+						jetsonSendThread();
+					} catch(IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		);
+
+		recvThread.setName("Jetson Receive Thread");
+		recvThread.start();
+
+		sendThread.setName("Jetson Send Thread");
+		sendThread.start();
 	}
 
 	/**
 	 * Send a network message to the Jetson over UDP.
-	 * 
+	 *
 	 * Due to the packet size limitations of UDP, use of this function should be limited to small, simple packets.
-	 * 
+	 *
 	 * @param msg Network message type to send
 	 * @throws IOException in the event of network errors.
 	 */
@@ -241,7 +306,7 @@ public class Jetson extends Subsystem {
 	/**
 	 * Synchronously receives a network message over UDP.
 	 * This operation blocks.
-	 * 
+	 *
 	 * @return Received network message
 	 * @throws IOException in the event of network errors.
 	 */
@@ -251,12 +316,12 @@ public class Jetson extends Subsystem {
 		byte[] arr = buf.array();
 		DatagramPacket packet = new DatagramPacket(arr, 4096);
 
-		System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Listening on "
+		//System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Listening on "
 				+ udpSocket.getLocalAddress().toString() + " on " + Integer.toString(udpSocket.getPort()));
 
 		udpSocket.receive(packet);
 
-		System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Received UDP message from "
+		//System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] Received UDP message from "
 				+ packet.getAddress().toString() + " length: " + Integer.toString(packet.getLength()));
 
 		if ((buf.get() == (byte) 0x35) && (buf.get() == (byte) 0x30) && (buf.get() == (byte) 0x30)
@@ -274,12 +339,12 @@ public class Jetson extends Subsystem {
 				out.readObjectFrom(buf);
 				return out;
 			default:
-				System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] unknown packet type!");
+				//System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] unknown packet type!");
 				return null;
 			}
-		} else {
+		}/* else {
 			System.out.println("[" + Long.toString(System.currentTimeMillis()) + "] UDP packet is INVALID!");
-		}
+		}*/
 		return null;
 	}
 
@@ -287,11 +352,16 @@ public class Jetson extends Subsystem {
 	 * Sends a network message to the Jetson over TCP.
 	 * As it communicates to the TCP server on the Jetson, this requires the discovery protocol to be run first.
 	 * See doDiscover() for more information.
-	 * 
+	 *
 	 * @param msg message to send
 	 * @throws IOException in the event of network errors.
 	 */
 	public void sendMessage(NetworkMessage msg) throws IOException {
+		BlockingQueue<NetworkMessage> oQ = outboundQueue;
+		oQ.put(msg);
+	}
+
+	private void synSend(NetworkMessage msg) throws IOException {
 		if (connection == null) {
 			this.doDiscover();
 		}
@@ -317,101 +387,32 @@ public class Jetson extends Subsystem {
 	}
 
 	/**
-	 * Asynchronously check for received messages or received message fragments.
-	 * Received messages will be added to a queue as they are received.
-	 * Partially received messages will be added to an internal buffer.
-	 * The discovery protocol must be run first (see doDiscover() for more information).
-	 * 
-	 * @throws IOException in the event of network errors.
-	 */
-	public void checkForMessage() throws IOException {
-		switch(curState) {
-		default:
-		case WAIT: {
-			if(netIn.available() > 0) {
-				curHeaderBuf = ByteBuffer.allocate(7);
-				curHeaderBuf.order(ByteOrder.BIG_ENDIAN);
-				curState = JetsonStateMachine.READ_HEADER;
-				curBufPos = 0;
-				// fall through to READ_HEADER
-			} else {
-				break;
-			}
-		}
-		case READ_HEADER:
-			if(curBufPos > 7) {
-				if (curHeaderBuf.get() == (byte) 0x35 &&
-					curHeaderBuf.get() == (byte) 0x30 &&
-					curHeaderBuf.get() == (byte) 0x30 &&
-					curHeaderBuf.get() == (byte) 0x32) {
-
-						byte msgType = curHeaderBuf.get();
-						short size = curHeaderBuf.getShort();
-						
-						curPacketBuf = ByteBuffer.allocate(7+size);
-						
-						byte[] arr = curHeaderBuf.array();
-						curPacketBuf.put(arr, 0, 7);
-						
-						curPacketBuf.order(ByteOrder.BIG_ENDIAN);
-						
-						curBufPos = 0;
-						curPacketSize  = size;
-						curPacketType = msgType;
-						
-						curState = JetsonStateMachine.READ_DATA;
-						// fall through to READ_DATA
-				} else {
-					resetAsyncState(); // go back to WAIT state
-					break;
-				}
-			}
-			
-			if(netIn.available() > 0) {
-				byte[] arr = curHeaderBuf.array();
-				int nRead = netIn.read(arr, curBufPos, 7-curBufPos);
-				curBufPos += nRead;
-			} else {
-				break;
-			}
-			
-		case READ_DATA:
-			if(netIn.available() > 0) {
-				byte[] arr = curPacketBuf.array();
-				int nRead = netIn.read(arr, 7+curBufPos, curPacketSize-curBufPos);
-				curBufPos += nRead;
-			} else {
-				break;
-			}
-			
-			if(curBufPos > curPacketSize) {
-				switch (curPacketType) {
-				case 4:
-					GoalDistanceMessage out = new GoalDistanceMessage(connection.getInetAddress());
-					out.readObjectFrom(curPacketBuf);
-					
-					msgQueue.add(out);
-					
-					//return out;
-				default:
-					break;
-				}
-				
-				resetAsyncState(); // go back to WAIT state
-			}
-			
-			break;
-		}
-	}
-	
-	/**
 	 * Synchronously waits for a message from the Jetson over TCP.
 	 * As this requires a connection to the Jetson, the discovery protocol must be run first (see doDiscover()) for more information.
 	 * This operation will block.
-	 * 
+	 *
 	 * @throws IOException in the event of network errors.
 	 */
-	public void readMessage() throws IOException {
+	public NetworkMessage readMessage() throws IOException {
+		BlockingQueue<NetworkMessage> iQ = inboundQueue;
+		return iQ.take();
+	}
+
+	/**
+	 * Asynchronously waits for a message from the Jetson over TCP.
+	 * As this requires a connection to the Jetson, the discovery protocol must be run first (see doDiscover()) for more information.
+	 * This operation will not block, but can return null.
+	 *
+	 * @return NetworkMessage containing the last received network message.
+	 * @throws IOException in the event of network errors.
+	 */
+	public NetworkMessage pollMessage() throws IOException {
+		synchronized(inboundQueue) {
+			return inboundQueue.poll();
+		}
+	}
+
+	private NetworkMessage synRecv() throws IOException {
 		if (connection == null) {
 			this.doDiscover();
 		}
@@ -425,7 +426,7 @@ public class Jetson extends Subsystem {
 				int nRead = netIn.read(arr, currentPos, 7-currentPos);
 				currentPos += nRead;
 			}
-				
+
 			if (headerBuf.get() == (byte) 0x35 &&
 				headerBuf.get() == (byte) 0x30 &&
 				headerBuf.get() == (byte) 0x30 &&
@@ -433,10 +434,10 @@ public class Jetson extends Subsystem {
 
 				byte msgType = headerBuf.get();
 				short size = headerBuf.getShort();
-				
+
 				ByteBuffer fullBuf = ByteBuffer.allocate(7+size);
 				fullBuf.put(arr, 0, 7);
-				
+
 				currentPos = 7;
 				int nTotalRead = 0;
 				arr = fullBuf.array();
@@ -445,22 +446,21 @@ public class Jetson extends Subsystem {
 					currentPos += nRead;
 					nTotalRead += nRead;
 				}
-				
+
 				switch (msgType) {
 				case 4:
 					GoalDistanceMessage out = new GoalDistanceMessage(connection.getInetAddress());
 					out.readObjectFrom(fullBuf);
-					
-					msgQueue.add(out);
-					
-					//return out;
+					return out;
 				default:
 					continue;
 				}
 			}
 		}
+
+		return null;
 	}
-	
+
 	public void initCameraStream(String camName) {
 		USBCamera cam = new USBCamera(camName);
 		camThread = new Thread(new Runnable() {
@@ -473,18 +473,18 @@ public class Jetson extends Subsystem {
 				}
 			}
 		);
-		
+
 		camThread.setName("Rio->Jetson Camera Stream");
 		camThread.start();
 	}
-	
+
 	public void stopCameraStream() {
 		if(camThread == null)
 			return;
 		camThreadStopStatus = true;
 		camThread.interrupt();
 	}
-	
+
 	/**
 	 * Implements a camera streaming CLIENT (connects to a stream recv server on the Jetson)
 	 * @param camera - camera object to stream
@@ -493,16 +493,16 @@ public class Jetson extends Subsystem {
 	 */
 	private void miniCameraClient(USBCamera camera) throws IOException, IllegalStateException {
 		camera.openCamera();
-		
+
 	    	Socket connSock = new Socket(remoteAddr, cameraRemotePort); //listenSocket.accept();
-	    	
+
 	    	DataInputStream in = new DataInputStream(connSock.getInputStream());
 	    	DataOutputStream out = new DataOutputStream(connSock.getOutputStream());
-	    	
+
 	    	int fps = in.readInt();
 	    	in.readInt(); // compression is irrelevant
 	    	int size = in.readInt();
-	    	
+
 	    	switch(size) {
 	    	case 0:	// 640 x 480
 	    		camera.setSize(640, 480);
@@ -514,57 +514,57 @@ public class Jetson extends Subsystem {
 	    		camera.setSize(160, 120);
 	    		break;
 	    	}
-	    	
-	    	
+
+
 	    	long period = (long) (1000 / (1.0 * fps));
 	    	long loopTime = System.currentTimeMillis();
-	    	
+
 	    	camera.updateSettings();
 	    	camera.startCapture();
-	    	
+
 	    	while(true) {
 				// capture loop
 				loopTime = System.currentTimeMillis();
 				/*
 				Image frame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
 				camera.getImage(frame);
-				
+
 				RawData data =
 				    NIVision.imaqFlatten(frame, NIVision.FlattenType.FLATTEN_IMAGE,
 				        NIVision.CompressionType.COMPRESSION_JPEG, 10 * 50);
 				ByteBuffer buf = data.getBuffer();
 				*/
-				
+
 				if(camThreadStopStatus) {
 					return;
 				}
-				
+
 				ByteBuffer buf = ByteBuffer.allocateDirect(200000); // just get a really big buffer.
 				camera.getImageData(buf); // just get JPEG data
-				
-				
+
+
 				int dataStart = 0;
 				while (dataStart < buf.limit() - 1) {
 					if ((buf.get(dataStart) & 0xff) == 0xFF && (buf.get(dataStart + 1) & 0xff) == 0xD8)
 					  break;
 					dataStart++;
 				}
-				
-				
+
+
 				buf.position(dataStart);
-				
+
 				System.out.println("Got " + String.valueOf(buf.remaining()) + " bytes from camera.");
-				
+
 				byte[] payload = new byte[buf.remaining()];
 				buf.get(payload, 0, buf.remaining());
-				
+
 				out.write(cameraHeader);
 				out.writeInt(payload.length);
 				out.write(payload);
 				out.flush();
-				
+
 				long timeDelta = (System.currentTimeMillis() - loopTime);
-				
+
 				if(timeDelta < period) {
 					try {
 						Thread.sleep(period - timeDelta);
