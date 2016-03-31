@@ -59,7 +59,7 @@ public class Jetson extends Subsystem {
 	private double lastKnownDistance = 0.0;
 	private double lastKnownAngle = 0.0;
 
-	public void updateSD() {
+	public synchronized void updateSD() {
 		SmartDashboard.putBoolean("jetson.located", (remoteAddr != null));
 		SmartDashboard.putBoolean("jetson.connected", (connection != null));
 
@@ -134,7 +134,7 @@ public class Jetson extends Subsystem {
 	 * @throws IllegalStateException if a connection to the Jetson could not be established.
 	 */
 	public synchronized boolean getGoalStatus() throws IllegalStateException {
-		if(!isDaijoubu)
+		if(!isDaijoubu())
 			throw IllegalStateException("Not connected to Jetson yet!");
 		return lastKnownGoalStatus;
 	}
@@ -146,7 +146,7 @@ public class Jetson extends Subsystem {
 	 * @throws IllegalStateException if a connection to the Jetson could not be established.
 	 */
 	public synchronized double getDistance() throws IllegalStateException {
-		if(!isDaijoubu)
+		if(!isDaijoubu())
 			throw IllegalStateException("Not connected to Jetson yet!");
 		return lastKnownDistance;
 	}
@@ -158,7 +158,7 @@ public class Jetson extends Subsystem {
 	 * @throws IllegalStateException if a connection to the Jetson could not be established.
 	 */
 	public synchronized double getAngle() throws IllegalStateException {
-		if(!isDaijoubu)
+		if(!isDaijoubu())
 			throw IllegalStateException("Not connected to Jetson yet!");
 		return lastKnownAngle;
 	}
