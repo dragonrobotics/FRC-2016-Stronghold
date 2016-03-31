@@ -59,6 +59,23 @@ public class Jetson extends Subsystem {
 	private double lastKnownDistance = 0.0;
 	private double lastKnownAngle = 0.0;
 
+	public void updateSD() {
+		SmartDashboard.putBoolean("jetson.located", (remoteAddr != null));
+		SmartDashboard.putBoolean("jetson.connected", (connection != null));
+
+		SmartDashboard.putString("jetson.localAddress", ifaddr.toString());
+
+		if(remoteAddr != null) {
+			SmartDashboard.putString("jetson.remoteAddress", remoteAddr.toString());
+		} else {
+			SmartDashboard.putString("jetson.remoteAddress", "unknown");
+		}
+
+		SmartDashboard.putBoolean("jetson.goal.found", lastKnownGoalStatus);
+		SmartDashboard.putNumber("jetson.goal.distance", lastKnownDistance);
+		SmartDashboard.putNumber("jetson.goal.angle", lastKnownAngle);
+	}
+
 	private void jetsonRecvThread() throws IOException, InterruptedException {
 		while(connection == null) {
 			synchronized(this) {
