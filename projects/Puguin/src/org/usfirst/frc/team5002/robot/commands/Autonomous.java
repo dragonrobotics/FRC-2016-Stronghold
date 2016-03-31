@@ -11,29 +11,37 @@ import edu.wpi.first.wpilibj.command.Command;
  * TODO: Is currently very minimal-- only continually runs the robot diagonally forever.
  */
 public class Autonomous extends Command {
-	private double sec = 0;
-	private double time;
-	public Autonomous(double time) {
+	private double argument;
+	private boolean isEncoderHappy;
+	public Autonomous(double argument) {
 		requires(Robot.drivetrain);
-		this.time = time;
 	}
 
 	protected void initialize() {
 //		sec = Timer.getFPGATimestamp();
-//		Robot.drivetrain.zeroMotors();
+//		Robot.drivetrain.zeroMotors(); 
+		isEncoderHappy = Robot.drivetrain.areEncodersWorking();
+		if (isEncoderHappy){
+			this.setTimeout(5);
+			Robot.drivetrain.zeroMotors();
+		}
+		else {
+			this.setTimeout(argument/5000);
+		}
 	}
 
 	protected void execute() {
-//		Robot.drivetrain.moveForward(3000);
-//		if(Robot.drivetrain.getError() > 50){
-//			sec = Timer.getFPGATimestamp();
-//		}
-		Robot.drivetrain.moveForward(1);
+		if (isEncoderHappy){
+			Robot.drivetrain.moveForward(argument);
+		}
+		else{
+			Robot.drivetrain.moveForward();
+		}
 	}
 
 	protected boolean isFinished() {
-//		return Timer.getFPGATimestamp() - sec > 2;
-		return this.timeSinceInitialized() > time;
+		return this.isTimedOut();
+//		return this.timeSinceInitialized() > time;
 	}
 	
 
