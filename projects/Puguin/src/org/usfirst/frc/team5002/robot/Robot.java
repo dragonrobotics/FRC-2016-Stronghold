@@ -84,6 +84,13 @@ public class Robot extends IterativeRobot {
 //		} catch (IOException e) {
 //			e.printStackTrace();
 //		}
+		try {
+			jetson = new Jetson();
+			jetson.doDiscover(); // find the Jetson on the local network, the discovery thread will automatically launch the net threads
+			jetson.initCameraStream("cam0"); // kick off camera stream thread separately, we need pass it the camera to open
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		autoChooser = new SendableChooser();
 		autoChooser.addDefault("None", AutoChoice.Virgin);
