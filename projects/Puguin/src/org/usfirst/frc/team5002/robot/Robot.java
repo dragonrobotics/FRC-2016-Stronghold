@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.io.IOException;
 
 import org.usfirst.frc.team5002.robot.commands.Autonomous;
+import org.usfirst.frc.team5002.robot.commands.AutonomousCommands;
 import org.usfirst.frc.team5002.robot.commands.TriggerHappy;
 import org.usfirst.frc.team5002.robot.subsystems.BarOfWheels;
 import org.usfirst.frc.team5002.robot.subsystems.Belt;
@@ -48,6 +49,7 @@ public class Robot extends IterativeRobot {
 	private static SendableChooser autoChooser;
 	Command autonomousCommand;
 	CameraServer server;
+	CameraServer server2;
 	public Robot() {
 		try {
 			ahrs = new AHRS(Port.kMXP);
@@ -59,6 +61,10 @@ public class Robot extends IterativeRobot {
         server.setQuality(50);
         //the camera name (ex "cam0") can be found through the roborio web interface
         server.startAutomaticCapture("cam0");
+//        server = CameraServer.getInstance();
+//        server.setQuality(50);
+//        server.startAutomaticCapture("cam1"); //TODO: This is probably completely wrong
+        
 	}
 
 	/**
@@ -70,20 +76,21 @@ public class Robot extends IterativeRobot {
 //		TriggerHappy trigger = new TriggerHappy();
 //		trigger.start();
 
-		try {
-			jetson = new Jetson();
-			jetson.doDiscover(); // find the Jetson on the local network
-			jetson.initMainStream(); // kick off network handler threads
-			jetson.initCameraStream("cam0"); // kick off camera stream thread
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			jetson = new Jetson();
+//			jetson.doDiscover(); // find the Jetson on the local network
+//			jetson.initMainStream(); // kick off network handler threads
+//			jetson.initCameraStream("cam0"); // kick off camera stream thread
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 
 		autoChooser = new SendableChooser();
 		autoChooser.addDefault("None", AutoChoice.Virgin);
 		autoChooser.addObject("Up To Defense", AutoChoice.JustTheTip);
 		autoChooser.addObject("Over Defense", AutoChoice.RamItIn);
 		autoChooser.addObject("No Control", AutoChoice.DESTROY_THE_CERVIX);
+		autoChooser.addObject("Portculis", AutoChoice.Portculis);
 		SmartDashboard.putData("Autonomous Command",autoChooser);
 		SmartDashboard.putData(Scheduler.getInstance());
 	}
@@ -91,14 +98,18 @@ public class Robot extends IterativeRobot {
 	public void autonomousInit() {
 		AutoChoice c = (AutoChoice) autoChooser.getSelected();
 		if (c == AutoChoice.JustTheTip) {
-			autonomousCommand = new Autonomous(1000);
+			autonomousCommand = new Autonomous(3500);
 			autonomousCommand.start();
 		} else if (c == AutoChoice.RamItIn) {
-			autonomousCommand = new Autonomous(3000);
+			autonomousCommand = new Autonomous(9000);
 			autonomousCommand.start();
-		} else if (c == AutoChoice.DESTROY_THE_CERVIX)
-			autonomousCommand = new Autonomous(Double.POSITIVE_INFINITY);
+		} else if (c == AutoChoice.DESTROY_THE_CERVIX) {
+			autonomousCommand = new Autonomous(20000);
 			autonomousCommand.start();
+		} else if (c == AutoChoice.Portculis){
+			autonomousCommand = new AutonomousCommands(12000);
+			autonomousCommand.start();
+		}
 	}
 
 	public void disabledPeriodic() {
@@ -181,7 +192,7 @@ public class Robot extends IterativeRobot {
 	}
 
 	public enum AutoChoice{
-		Virgin(0), JustTheTip(1), RamItIn(2), DESTROY_THE_CERVIX(3);
+		Virgin(0), JustTheTip(1), RamItIn(2), DESTROY_THE_CERVIX(3), Portculis(4);
 
 	    public int value;
 

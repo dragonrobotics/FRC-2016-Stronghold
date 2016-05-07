@@ -25,7 +25,7 @@ public class ThoseArmThings extends Subsystem {
 	 * Moves the arms up.
 	 */
 	public void armsup() {
-		leftArm.set(.8);
+		leftArm.set(1);
 	
 	}
 
@@ -33,7 +33,7 @@ public class ThoseArmThings extends Subsystem {
 	 * Moves the arms down.
 	 */
 	public void armsdown() {
-		leftArm.set(-0.4);
+		leftArm.set(-1);
 
 
 	}
@@ -66,8 +66,8 @@ public class ThoseArmThings extends Subsystem {
 	 */
 	public void UpdateSD() {
 		SmartDashboard.putNumber("leftArm get", leftArm.get());
-		SmartDashboard.putNumber("leftArm OutputVoltage", leftArm.getOutputVoltage());
-		SmartDashboard.putNumber("leftArm OutputCurrent", leftArm.getOutputCurrent());
+//		SmartDashboard.putNumber("leftArm OutputVoltage", leftArm.getOutputVoltage());
+//		SmartDashboard.putNumber("leftArm OutputCurrent", leftArm.getOutputCurrent());
 	
 	}
 

@@ -46,7 +46,7 @@ public class OI {
 		 * Sets the buttons on the remote.
 		 */
 		Button X = new JoystickButton(pugstick, 3);
-//		Button Y = new JoystickButton(pugstick, 4);
+		Button Y = new JoystickButton(pugstick, 4);
 		Button B = new JoystickButton(pugstick, 2);
 //		Button A = new JoystickButton(pugstick, 1);
 		Button Paddle_2 = new JoystickButton(pugstick, 9);
@@ -60,8 +60,8 @@ public class OI {
 		 * the code is activated. When the Paddles are
 		 * pressed, the code is activated.
 		 */
-//		X.whenPressed(new BipolarCamera());
-//		Y.whileHeld(new PugKisses());
+//		X.whenPressed(new BipolarCamera(0));
+//		Y.whenPressed(new BipolarCamera(1));
 		B.whileHeld(new BeltMagic());
 		B.whileHeld(new FranksSleehw()); //Can you even use one button for two commands?
 //		A.whileHeld(new LappingPug());
@@ -89,14 +89,16 @@ public class OI {
 		Robot.belt.updateSD();
 		Robot.drivetrain.updateSD();
 		Robot.launcher.updateSD();
-		SmartDashboard.putNumber("POV", pugstick.getPOV());
+//		SmartDashboard.putNumber("POV", pugstick.getPOV());
 //		Robot.tongueofyellow.UpdateSD();
 		Robot.thosearmthings.UpdateSD();
-		Robot.barofwheels.UpdateSD();
-		Robot.jetson.updateSD();
-		SmartDashboard.putNumber("robot.yaw", Robot.getRobotYaw());
-		SmartDashboard.putNumber("robot.roll", Robot.getRobotRoll());
-		SmartDashboard.putNumber("robot.pitch", Robot.getRobotPitch());
+//		Robot.barofwheels.UpdateSD();
+//		Robot.jetson.updateSD();
+		try {
+			SmartDashboard.putNumber("robot.yaw", Robot.getRobotYaw());
+			SmartDashboard.putNumber("robot.roll", Robot.getRobotRoll());
+			SmartDashboard.putNumber("robot.pitch", Robot.getRobotPitch());
+		} catch(IllegalStateException e) {}
 
 
 	}

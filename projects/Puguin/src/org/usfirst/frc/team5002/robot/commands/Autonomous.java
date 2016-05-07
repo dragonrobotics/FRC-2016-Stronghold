@@ -14,6 +14,7 @@ public class Autonomous extends Command {
 	private double argument;
 	private boolean isEncoderHappy;
 	public Autonomous(double argument) {
+		this.argument = argument;
 		requires(Robot.drivetrain);
 	}
 
@@ -21,7 +22,7 @@ public class Autonomous extends Command {
 //		sec = Timer.getFPGATimestamp();
 //		Robot.drivetrain.zeroMotors(); 
 		isEncoderHappy = Robot.drivetrain.areEncodersWorking();
-		if (isEncoderHappy){
+		if (isEncoderHappy) {
 			this.setTimeout(5);
 			Robot.drivetrain.zeroMotors();
 		}

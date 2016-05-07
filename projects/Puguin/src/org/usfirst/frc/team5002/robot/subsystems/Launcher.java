@@ -67,11 +67,11 @@ public class Launcher extends Subsystem {
 	}
 
 	public void updateSD() {
-		SmartDashboard.putNumber("drivetrain.bottomLaunchWheel.Speed", bottomLaunchWheel.getSpeed());
-		SmartDashboard.putNumber("drivetrain.topLaunchWheel.Speed", topLaunchWheel.getSpeed());
-		SmartDashboard.putNumber("drivetrain.bottomLaunchWheel.Error", bottomLaunchWheel.getError());
-		SmartDashboard.putNumber("drivetrain.topLaunchWheel.Error", topLaunchWheel.getError());
-		SmartDashboard.putNumber("drivetrain.bottomLaunchWheel.Current", bottomLaunchWheel.getOutputCurrent());
-		SmartDashboard.putNumber("drivetrain.topLaunchWheel.Current", topLaunchWheel.getOutputCurrent());
+		SmartDashboard.putNumber("launcher.bottomLaunchWheel.Speed", bottomLaunchWheel.getSpeed());
+		SmartDashboard.putNumber("launcher.topLaunchWheel.Speed", topLaunchWheel.getSpeed());
+		SmartDashboard.putNumber("launcher.bottomLaunchWheel.Error", bottomLaunchWheel.getError());
+		SmartDashboard.putNumber("launcher.topLaunchWheel.Error", topLaunchWheel.getError());
+		SmartDashboard.putNumber("launcher.bottomLaunchWheel.Current", bottomLaunchWheel.getOutputCurrent());
+		SmartDashboard.putNumber("launcher.topLaunchWheel.Current", topLaunchWheel.getOutputCurrent());
 	}
 }

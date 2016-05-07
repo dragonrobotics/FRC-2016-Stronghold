@@ -192,16 +192,18 @@ public class Drivetrain extends Subsystem {
 			}
 		} finally {
 			mcLT.set(pos + robotang);
-			mcRT.set(pos - robotang);
+			mcRT.set(-(pos - robotang));
 		}
+		
+//		mcLT.set(pos);
+//		mcRT.set(-pos);
 	}
 	
 	public void moveForward(){
 		moveForward(0.8);
 	}
 	public boolean areEncodersWorking(){
-		return mcLT.isSensorPresent(FeedbackDevice.QuadEncoder) == CANTalon.FeedbackDeviceStatus.FeedbackStatusPresent
-				&& mcRT.isSensorPresent(FeedbackDevice.QuadEncoder) == CANTalon.FeedbackDeviceStatus.FeedbackStatusPresent;
+		return true;
 	}
 	
 	public void zeroMotors(){
@@ -235,8 +237,7 @@ public class Drivetrain extends Subsystem {
 	}
 	
 	public void checkControlMode(TalonControlMode mode){
-		if(mcLT.isSensorPresent(FeedbackDevice.QuadEncoder) == CANTalon.FeedbackDeviceStatus.FeedbackStatusNotPresent
-				|| mcRT.isSensorPresent(FeedbackDevice.QuadEncoder) == CANTalon.FeedbackDeviceStatus.FeedbackStatusNotPresent){
+		if(!this.areEncodersWorking()){
 			mcLT.changeControlMode(TalonControlMode.PercentVbus);
 			mcRT.changeControlMode(TalonControlMode.PercentVbus);
 			maxOutput = 1;
