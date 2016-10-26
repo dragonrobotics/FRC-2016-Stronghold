@@ -14,12 +14,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Robot drivetrain.
- * 
+ *
  * The drivetrain is a tracked slipdrive system with three motors per side.
  * Two motors have encoders and are used for automatic drive measurement.
  */
 public class Drivetrain extends Subsystem {
-	/** 
+	/**
 	 * Motor objects onboard the robot.
 	 * L = Left, R = Right, B = Back, F = Forward.
 	 * Motors LT and RT are used as auto driving targets.
@@ -32,7 +32,7 @@ public class Drivetrain extends Subsystem {
 	 */
 	private double maxOutput = 400;
 
-	
+
 	public Drivetrain() {
 		mcLT = new CANTalon(6);
 		mcLB = new CANTalon(10);
@@ -61,9 +61,32 @@ public class Drivetrain extends Subsystem {
 	 * Sets default command for the drivetrain (teleop mode)
 	 */
 	public void initDefaultCommand() {
-		setDefaultCommand(new TeleopDriveyWivey());
+		setDefaultCommand(new DualStickDrive(0, 0, 0.0)); // TODO: Put axis constants here.
 	}
-	
+
+	/**
+	 * Dual-joystick operation mode: each stick controls a drivetrain side/
+	 * @param lAxis -- joystick axis number for left side
+	 * @param rAxis -- joystick axis number for right side
+	 * @param deadband -- deadband threshold for joysticks
+	 */
+	public void dualStickDrive(int lAxis, int rAxis, double deadband) {
+		checkControlMode(TalonControlMode.PercentVbus);
+		double l = stick.getRawAxis(lAxis);
+		double r = stick.getRawAxis(rAxis);
+
+		if(Math.abs(l) >= deadband) {
+			mcLT.set(l);
+		} else {
+			mcLT.set(0);
+		}
+
+		if(Math.abs(r) >= deadband) {
+			mcRT.set(r);
+		} else {
+			mcRT.set(0);
+		}
+	}
 
 	/**
 	 * Set motor values directly from a joystick object.
@@ -77,15 +100,15 @@ public class Drivetrain extends Subsystem {
 				stick.setRumble(RumbleType.kLeftRumble, (float)(Math.min(60-Robot.getRobotRoll(),15))/15);
 			}
 		} catch(IllegalStateException e) {}
-		
+
 		double y = stick.getY(),
 				x = stick.getX()/(1.2+3*Math.abs(y));
-			
+
 		if (Math.abs(x) + Math.abs(y) > 1) {
 			x /= Math.abs(x)+Math.abs(y);
 			y /= Math.abs(x)+Math.abs(y);
 		}
-		
+
 		mcLT.set(-maxOutput / (stick.getRawAxis(2)*3+1) * (stick.getY() - stick.getX()));
 		mcRT.set(maxOutput / (stick.getRawAxis(2)*3+1) * (stick.getY() + stick.getX()));
 
@@ -112,17 +135,17 @@ public class Drivetrain extends Subsystem {
 		}
 
 	}
-	
+
 	/**
 	 * Move the robot a given distance relative to its current position.
-	 * 
+	 *
 	 * @param x Distance to drive on the x-axis
 	 * @param y Distance to drive on the y-axis
 	 */
 	public void autoDrive(double x, double y) {
 		checkControlMode(TalonControlMode.Position);
 		double initangle = Math.atan2(x , y); // Angle to the final position
-		double initdistance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)); 
+		double initdistance = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
 		// Distance
 		// directly
 		// to
@@ -135,33 +158,33 @@ public class Drivetrain extends Subsystem {
 		mcLT.set(initdistance);
 		mcRT.set(initdistance);
 	}
-	
+
 	/***
 	 * autoTurn -- turn to a given angle change in degrees.
 	 * Heading zero corresponds to straight ahead.
 	 * @param hdg heading change in degrees. Positive values correspond to clockwise rotation.
 	 */
 	final double maxTurnOutput = 100.0;
-	
+
 	public void autoTurn(double hdg) {
 		checkControlMode(TalonControlMode.Position);
 		double startAngle = Robot.getRobotYaw();
 		double endAngle = startAngle + hdg;
-		
+
 		mcLT.changeControlMode(TalonControlMode.Speed);
 		mcRT.changeControlMode(TalonControlMode.Speed);
-		
+
 		while(true) {
 			double curErr = endAngle - Robot.getRobotYaw();
-			
+
 			if(Math.abs(curErr) < 1) {
 				break;
 			}
-			
+
 			curErr = Math.min(curErr, 100);
-			
+
 			double out = (curErr / 100) * maxTurnOutput;
-			
+
 			if(hdg > 0) {
 				mcLT.set(out);
 				mcRT.set(-out);
@@ -170,14 +193,14 @@ public class Drivetrain extends Subsystem {
 				mcRT.set(out);
 			}
 		}
-		
+
 		mcLT.changeControlMode(TalonControlMode.Position);
 		mcRT.changeControlMode(TalonControlMode.Position);
 	}
-	
+
 	public void moveForward(double pos){
 		checkControlMode(TalonControlMode.Position);
-		
+
 		double robotang = 0;
 		try{
 			if(Robot.getRobotRoll() > 60) {
@@ -188,30 +211,30 @@ public class Drivetrain extends Subsystem {
 			robotang = Robot.getRobotYaw();
 			robotang = Math.min(10 * robotang, 200);
 			if (!this.areEncodersWorking()){
-				robotang /= 200;	
+				robotang /= 200;
 			}
 		} finally {
 			mcLT.set(pos + robotang);
 			mcRT.set(-(pos - robotang));
 		}
-		
+
 //		mcLT.set(pos);
 //		mcRT.set(-pos);
 	}
-	
+
 	public void moveForward(){
 		moveForward(0.8);
 	}
 	public boolean areEncodersWorking(){
 		return true;
 	}
-	
+
 	public void zeroMotors(){
 		mcLT.setEncPosition(0);
 		mcRT.setEncPosition(0);
 	}
-	
-	
+
+
 	/**
 	 * Get current turning speed of the left-side tracks.
 	 * @return encoder-measured robot speed on left side.
@@ -219,7 +242,7 @@ public class Drivetrain extends Subsystem {
 	public int getLVel() {
 		return mcLT.getEncVelocity();
 	}
-	
+
 	/**
 	 * Get current turning speed of the right-side tracks.
 	 * @return encoder-measured robot speed on right side.
@@ -235,7 +258,7 @@ public class Drivetrain extends Subsystem {
 	public double getError() {
 		return mcLT.getClosedLoopError() + mcRT.getClosedLoopError();
 	}
-	
+
 	public void checkControlMode(TalonControlMode mode){
 		if(!this.areEncodersWorking()){
 			mcLT.changeControlMode(TalonControlMode.PercentVbus);
@@ -252,12 +275,12 @@ public class Drivetrain extends Subsystem {
 		if (mode == TalonControlMode.Speed){
 			mcLT.setProfile(0);
 			mcRT.setProfile(0);
-			
+
 		}
 		if (mode == TalonControlMode.Position){
 			mcLT.setProfile(1);
 			mcRT.setProfile(1);
-			
+
 		}
 	}
 
@@ -275,7 +298,7 @@ public class Drivetrain extends Subsystem {
 	 */
 	public boolean isSafe() {
 
-		return mcLT.getTemperature() < 200 && mcRT.getTemperature() < 200; 
+		return mcLT.getTemperature() < 200 && mcRT.getTemperature() < 200;
 
 	}
 

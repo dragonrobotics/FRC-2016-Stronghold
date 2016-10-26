@@ -18,6 +18,7 @@ import java.io.IOException;
 import org.usfirst.frc.team5002.robot.commands.Autonomous;
 import org.usfirst.frc.team5002.robot.commands.AutonomousCommands;
 import org.usfirst.frc.team5002.robot.commands.TriggerHappy;
+import org.usfirst.frc.team5002.robot.commands.DualStickDrive;
 import org.usfirst.frc.team5002.robot.subsystems.BarOfWheels;
 import org.usfirst.frc.team5002.robot.subsystems.Belt;
 import org.usfirst.frc.team5002.robot.subsystems.Drivetrain;
@@ -48,8 +49,10 @@ public class Robot extends IterativeRobot {
 
 	private static SendableChooser autoChooser;
 	Command autonomousCommand;
+	/*
 	CameraServer server;
 	CameraServer server2;
+	*/
 	public Robot() {
 		try {
 			ahrs = new AHRS(Port.kMXP);
@@ -57,6 +60,7 @@ public class Robot extends IterativeRobot {
 			DriverStation.reportError("Error instantiating navX MXP:  " + ex.getMessage(), true);
 			ahrs = null;
 		}
+		/*
         server = CameraServer.getInstance();
         server.setQuality(50);
         //the camera name (ex "cam0") can be found through the roborio web interface
@@ -64,7 +68,7 @@ public class Robot extends IterativeRobot {
 //        server = CameraServer.getInstance();
 //        server.setQuality(50);
 //        server.startAutomaticCapture("cam1"); //TODO: This is probably completely wrong
-        
+        */
 	}
 
 	/**
@@ -84,6 +88,7 @@ public class Robot extends IterativeRobot {
 //		} catch (IOException e) {
 //			e.printStackTrace();
 //		}
+/*
 		try {
 			jetson = new Jetson();
 			jetson.doDiscover(); // find the Jetson on the local network, the discovery thread will automatically launch the net threads
@@ -91,6 +96,7 @@ public class Robot extends IterativeRobot {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		*/
 
 		autoChooser = new SendableChooser();
 		autoChooser.addDefault("None", AutoChoice.Virgin);
